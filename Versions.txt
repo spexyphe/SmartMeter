@@ -1,0 +1,4 @@
+0.0.1
+First version (backup from old versio)
+added docker file
+vars now loaded through env var
