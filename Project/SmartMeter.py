@@ -295,6 +295,41 @@ if __name__ == '__main__':
                 FirstRun = True
                 SecondRun = True
 
+                try:
+                    counter = 0
+                    FoundFirst = False
+                    FinishedRaw = False
+
+                    while((not(FinishedRaw)) and counter < 1000):
+
+                        counter += 1
+
+                        try:
+                            p1_raw = ser.readline()
+                            Reveived = True
+                        except Exception as e:
+                            print(e)
+                            print("init read eror")
+                            Reveived = False
+
+                        if(Reveived):
+                            p1_str=str(p1_raw)
+                            p1_line=p1_str.strip()
+
+                            if (not(FoundFirst)):
+                                if "1-0:1.7.0" in p1_line:
+                                    FoundFirst = True
+                                    CreateDataPointLocally(Influx_measurement, influx_host, "raw", p1_line)
+                            else:
+                                if "1-0:1.7.0" in p1_line:
+                                    FinishedRaw = True 
+                                else:
+                                    CreateDataPointLocally(Influx_measurement, influx_host, "raw", p1_line)                                       
+
+                except Exception as e:
+                    print(e)
+                    print("init eror")
+
                 #Open COM port
                 while True:
 
@@ -310,37 +345,6 @@ if __name__ == '__main__':
                     receivedcounter = 0
                     received_huidig_verbruik = 0
                     received_huidig_terug = 0
-
-                    if FirstRun:
-                        try:
-
-                            FoundFirst = False
-                            FinishedRaw = False
-
-                            while(not(FinishedRaw)):
-
-                                p1_raw = ser.readline()
-
-                                if(Reveived):
-                                    p1_str=str(p1_raw)
-                                    p1_line=p1_str.strip()
-
-                                    if (not(FoundFirst)):
-                                        if "1-0:1.7.0" in p1_line:
-                                            FoundFirst = True
-                                            CreateDataPointLocally(Influx_measurement, influx_host, "raw", p1_line)
-                                    else:
-                                        if "1-0:1.7.0" in p1_line:
-                                            FinishedRaw = True 
-                                        else:
-                                            CreateDataPointLocally(Influx_measurement, influx_host, "raw", p1_line)                                       
-
-                        except Exception as e:
-                            print(e)
-                            print("read eror")
-                            #sys.exit ("Seriele poort %s kan niet gelezen worden. Aaaaaaaaarch." % s$
-                            #print("receive error")
-                            Reveived = False
 
                     for i in range (0,9):
                         try:
