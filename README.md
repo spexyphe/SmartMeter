@@ -10,12 +10,22 @@ Docker (the packaging method)\
 Docker Hub (the publishing method)\
 Watchtower (this is a docker package that can manage other docker packages e.g. check dockerhub for updates)\
 \
-**Install**\
---- text should be added on using dockerhub\
+**Install docker**\
+sudo apt-get update && sudo apt-get upgrade\
+curl -fsSL https://get.docker.com -o get-docker.sh\
+sudo sh get-docker.sh\
+sudo usermod -aG docker pi\
+docker version\
+
+**Download docker images**
+sudo docker pull xyphedocker/home_power:smartmeter_influx_v0001\
+sudo docker pull containrrr/watchtower\
 \
-**Examples**\
+**Run Examples**\
 
 sudo docker run -v /dev:/dev --privileged --name smartmeter -e doTRACE= "False" -e ISLOCALTEST= "False" -e ISVARRUN= "False" -e MODBUS_DEVICE = "/dev/ttyUSB0" -e MODBUS_BAUD= 115200 -e MODBUS_PARITY= "E" -e MODBUS_VARIABLES = "" -e INFLUX_URL = "<server ip>" -e INFLUX_PORT = 8086 -e INFLUX_USER = "grafana" -e INFLUX_PASSWORD = "<influx password>" -e INFLUX_DATABASE = "home" -e INFLUX_MEASUREMENT = "Slimme_meter" -e INFLUX_HOST = "<fill in random device identifier>" xyphedocker/xyphe_private_docker:smartmeter_influx_v0001
+
+docker run -d --name watchtower -v /var/run/docker.sock:/var/run/docker.sock containrrr/watchtower smartmeter --debug --interval=300
 \
 ## Environment variables
 These are the variables that can be set through the environment\

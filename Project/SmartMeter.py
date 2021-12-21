@@ -1,4 +1,4 @@
-version = "0.0.3"
+version = "0.0.4"
 
 import os
 import logging
@@ -222,7 +222,7 @@ if __name__ == '__main__':
 
     timeinbetween = 3600
     lastDateTime = datetime.utcnow()
-    firstrun = True
+    initrun = True
 
     #load system and modbus variables from the environment
     LoadEnvVar_Sys()
@@ -276,7 +276,7 @@ if __name__ == '__main__':
             while True:
 
                 # update the influx database on the version we are running
-                if (((datetime.utcnow() - lastDateTime).total_seconds()) > timeinbetween) or firstrun:
+                if (((datetime.utcnow() - lastDateTime).total_seconds()) > timeinbetween) or initrun:
                     
                     #update time
                     lastDateTime = datetime.utcnow()
@@ -285,9 +285,9 @@ if __name__ == '__main__':
                     UpdateVersion(Influx_measurement, influx_host)
 
                     #was this the first run
-                    if firstrun:
+                    if initrun:
                         #not anymore now
-                        firstrun = False 
+                        initrun = False 
 
                 Vorigewaarde = 0.0
                 Vorigewaarde2 = 0.0
@@ -297,6 +297,7 @@ if __name__ == '__main__':
 
                 try:
                     counter = 0
+                    linefound = 0
                     FoundFirst = False
                     FinishedRaw = False
 
@@ -324,7 +325,8 @@ if __name__ == '__main__':
                                 if "1-0:1.7.0" in p1_line:
                                     FinishedRaw = True 
                                 else:
-                                    CreateDataPointLocally(Influx_measurement, influx_host, "raw", p1_line)                                       
+                                    CreateDataPointLocally(Influx_measurement, influx_host, "raw_" + str(linefound), p1_line)
+                                    linefound += 1                                       
 
                 except Exception as e:
                     print(e)
