@@ -1,4 +1,4 @@
-version = "0.0.1"
+version = "0.0.2"
 
 import os
 import logging
@@ -248,6 +248,30 @@ if __name__ == '__main__':
             #Influx.Init_Influx(Influx_url, Influx_org, Influx_bucket, IslocalTest, Influx_token, doTRACE)
             Influx.Init_Influx(Influx_user, Influx_password, Influx_url, Influx_port, Influx_database, IslocalTest, doTRACE)
 
+            #Set COM port config
+            ser = serial.Serial()
+            
+            ser.baudrate = Baud
+            ser.port= Device
+
+            if Parity == "E":
+                ser.parity=serial.PARITY_EVEN
+            else:
+                ser.parity=serial.PARITY_ODD
+
+            #others
+            ser.bytesize=serial.SEVENBITS              
+            ser.stopbits=serial.STOPBITS_ONE
+            ser.xonxoff=0
+            ser.rtscts=0
+            ser.timeout=20
+
+            #Initialize p1_teller is mijn tellertje voor van 0 tot 20 te tellen
+            try:
+                ser.open()
+            except:
+                sys.exit ("Fout bij het openen van %s. Aaaaarch."  % ser.name)
+
             # run our program cotiniously
             while True:
 
@@ -264,31 +288,6 @@ if __name__ == '__main__':
                     if firstrun:
                         #not anymore now
                         firstrun = False 
-
-                #Set COM port config
-                ser = serial.Serial()
-                
-                ser.baudrate = Baud
-                ser.port= Device
-
-                if Parity == "E":
-                    ser.parity=serial.PARITY_EVEN
-                else:
-                    ser.parity=serial.PARITY_ODD
-
-                #others
-                ser.bytesize=serial.SEVENBITS              
-                ser.stopbits=serial.STOPBITS_ONE
-                ser.xonxoff=0
-                ser.rtscts=0
-                ser.timeout=20
-
-                #Initialize p1_teller is mijn tellertje voor van 0 tot 20 te tellen
-                try:
-                    ser.open()
-                except:
-                    sys.exit ("Fout bij het openen van %s. Aaaaarch."  % ser.name)
-
 
                 Vorigewaarde = 0.0
                 Vorigewaarde2 = 0.0
@@ -348,14 +347,14 @@ if __name__ == '__main__':
 
                                     if "0-0:96.14.0" in p1_line:
                                         p1_line_parse= p1_line[14:p1_line.index(")")]
-                                        dal_piek = Trim0(p1_line_parse)
+                                        dal_piek = float(Trim0(p1_line_parse))
 
                                     if "1-0:1.8.1" in p1_line:
                                         try:
                                             #print(p1_line)
                                             p1_line_parse=p1_line[12:p1_line.index("*")]
                                             #print(p1_line_parse) 
-                                            totaal_verbruik_dal = str(float(Trim0(p1_line_parse)))
+                                            totaal_verbruik_dal = float(Trim0(p1_line_parse))
                                         except Exception as e:
                                             print (e)
                                             print ("totaal_verbruik_dal parse error") 
@@ -363,18 +362,18 @@ if __name__ == '__main__':
 
                                     if "1-0:1.8.2" in p1_line:
                                         p1_line_parse=p1_line[12:p1_line.index("*")] 
-                                        totaal_verbruik_piek = Trim0(p1_line_parse)
+                                        totaal_verbruik_piek = float(Trim0(p1_line_parse))
 
                                     if "1-0:2.8.1" in p1_line:
                                         p1_line_parse=p1_line[12:p1_line.index("*")]
-                                        totaal_terug_dal = Trim0(p1_line_parse)
+                                        totaal_terug_dal = float(Trim0(p1_line_parse))
 
                                     if "1-0:2.8.2" in p1_line:
                                         p1_line_parse=p1_line[12:p1_line.index("*")]
-                                        totaal_terug_piek = Trim0(p1_line_parse)
+                                        totaal_terug_piek = float(Trim0(p1_line_parse))
 
                                     p1_teller = p1_teller +1
-                
+
                         except Exception as e:
                             print(e)
                             print("error in loop")
