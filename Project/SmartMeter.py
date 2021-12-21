@@ -278,7 +278,8 @@ if __name__ == '__main__':
 
                 #others
                 ser.bytesize=serial.SEVENBITS              
-                ser.stopbits=serial.STOPBITS_ONser.xonxoff=0
+                ser.stopbits=serial.STOPBITS_ON
+                ser.xonxoff=0
                 ser.rtscts=0
                 ser.timeout=20
 
