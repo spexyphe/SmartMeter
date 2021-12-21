@@ -180,7 +180,7 @@ def UpdateVersion(Measurement, Host):
         #using point time to log things will ensure that everything uses the same time
         PointTime = datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ')
 
-        Influx.AddDataPoint(Measurement, Host , CurrentYear, CurrentMonthNr, CurrentWeekNr, CurrentDayNr, "Version", version, PointTime, "str" )
+        Influx.AddDataPoint(Measurement, Host , CurrentYear, CurrentMonthNr, CurrentWeekNr, CurrentDayNr, "Version", version, PointTime )
 
 def CreateDataPointLocally(Measurement, Host, ValueName, Value):
 
