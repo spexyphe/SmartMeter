@@ -1,7 +1,7 @@
 #Marcel Koolen
 
 #raspberry pi's use an armv7 architecture, choosing the right image is important here
-FROM arm32v6/ubuntu:latest
+FROM arm32v6/python:3
 
 RUN apt-get update
 RUN apt-get upgrade -y
