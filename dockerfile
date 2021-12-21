@@ -1,7 +1,7 @@
 #Marcel Koolen
 
 #raspberry pi's use an armv7 architecture, choosing the right image is important here
-FROM arm32v5/ubuntu:latest
+FROM debian:buster-slim
 
 RUN apt-get update
 RUN apt-get upgrade -y
