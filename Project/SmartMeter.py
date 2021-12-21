@@ -1,4 +1,4 @@
-version = "0.0.4"
+version = "0.0.5"
 
 import os
 import logging
@@ -182,6 +182,14 @@ def UpdateVersion(Measurement, Host):
 
         Influx.AddDataPoint(Measurement, Host , CurrentYear, CurrentMonthNr, CurrentWeekNr, CurrentDayNr, "Version", version, PointTime )
 
+def CreateRawPointLocally(Measurement, Host, LineNr, Value):
+
+        #using point time to log things will ensure that everything uses the same time
+        PointTime = datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ')
+
+        Influx.AddRawPoint(Measurement, Host, LineNr, "Raw", Value, PointTime)
+
+
 def CreateDataPointLocally(Measurement, Host, ValueName, Value):
 
         # Tags are fixed values, that are not time zone transformed
@@ -320,13 +328,19 @@ if __name__ == '__main__':
                             if (not(FoundFirst)):
                                 if "1-0:1.7.0" in p1_line:
                                     FoundFirst = True
-                                    CreateDataPointLocally(Influx_measurement, influx_host, "raw", p1_line)
+                                    CreateRawPointLocally(Influx_measurement, influx_host, counter, p1_line)
                             else:
                                 if "1-0:1.7.0" in p1_line:
                                     FinishedRaw = True 
                                 else:
-                                    CreateDataPointLocally(Influx_measurement, influx_host, "raw_" + str(linefound), p1_line)
+                                    CreateRawPointLocally(Influx_measurement, influx_host, counter, p1_line)
                                     linefound += 1                                       
+
+                    try:
+                        Influx.WriteData()
+                    except Exception as e:
+                        print(e)
+                        print("write raw data to influx error")
 
                 except Exception as e:
                     print(e)

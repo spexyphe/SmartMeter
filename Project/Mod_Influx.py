@@ -44,6 +44,35 @@ def CheckTags(DataYear, DataMonth, DataWeek, DataDay):
 
     return answer
 
+def AddRawPoint(Measurement, DataHost, LineNr, ValueName, Value, PointTime):
+    global DataPoints
+
+    RawDataJsonPoint = json.loads('' or '{}')
+    RawDataJsonPoint["measurement"] = Measurement
+
+    if not ("tags" in RawDataJsonPoint):
+        RawDataJsonPoint["tags"] = {}
+            
+    if not ("host" in RawDataJsonPoint["tags"]):
+        RawDataJsonPoint["tags"]["host"] = DataHost
+
+    if not ("year" in RawDataJsonPoint["tags"]):
+        RawDataJsonPoint["tags"]["LineNr"] = LineNr
+
+    if not ("fields" in RawDataJsonPoint):
+        RawDataJsonPoint["fields"] = {}
+
+    if not (ValueName in RawDataJsonPoint["fields"]):
+        RawDataJsonPoint["fields"][ValueName] = Value
+
+    RawDataJsonPoint["time"] = PointTime
+
+    NewLog("OK: " + DataHost + "-" + ValueName + "(" + str(Value) + ")"  + ": " + PointTime)
+
+    DataPoints.append(RawDataJsonPoint)
+
+
+
 def AddDataPoint(Measurement, DataHost, DataYear, DataMonth, DataWeek, DataDay, ValueName, Value, PointTime):
     global DataPoints
 
