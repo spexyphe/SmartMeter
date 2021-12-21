@@ -76,7 +76,7 @@ jobs:
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache-new
           push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/home_powerr:smartmeter_influx_v0001
+          tags: ${{ secrets.DOCKER_USERNAME }}/home_power:smartmeter_influx_v0001
 
       - name: Image digest
         run: echo ${{ steps.docker_build.outputs.digest }}
