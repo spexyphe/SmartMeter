@@ -1,4 +1,4 @@
-version = "0.0.5"
+version = "0.0.6"
 
 import os
 import logging
@@ -6,7 +6,7 @@ import sys
 import time
 import json
 
-from datetime import datetime
+from datetime import datetime, timedelta
 import pytz
 
 import serial
@@ -190,7 +190,7 @@ def CreateRawPointLocally(Measurement, Host, LineNr, Value):
         Influx.AddRawPoint(Measurement, Host, LineNr, "Raw", Value, PointTime)
 
 
-def CreateDataPointLocally(Measurement, Host, ValueName, Value):
+def CreateDataPointLocally(Measurement, Host, ValueName, Value, Phase=None):
 
         # Tags are fixed values, that are not time zone transformed
         # Hence for tags we need the current timezone
@@ -207,7 +207,7 @@ def CreateDataPointLocally(Measurement, Host, ValueName, Value):
         #using point time to log things will ensure that everything uses the same time
         PointTime = datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ')
 
-        Influx.AddDataPoint(Measurement, Host, CurrentYear, CurrentMonthNr, CurrentWeekNr, CurrentDayNr, ValueName, Value, PointTime)
+        Influx.AddDataPoint(Measurement, Host, CurrentYear, CurrentMonthNr, CurrentWeekNr, CurrentDayNr, ValueName, Value, PointTime, Phase)
 
 #trims starting zeros
 def Trim0(MyInput):
@@ -224,6 +224,21 @@ def Trim0(MyInput):
             MyInput = "0" + MyInput
 
     return MyInput
+
+def ParseLine(In_Line):
+    Out_Line = None
+
+    try:
+        if In_Line.count('*') > 0:
+            Out_Line = float(In_Line[In_Line.index('('):In_Line.index('*')])
+        else:    
+            Out_Line = float(In_Line[In_Line.index('('):In_Line.index(')')])
+
+    except Exception as e:
+        print(e)
+
+    return Out_Line
+
 
 
 if __name__ == '__main__':
@@ -280,6 +295,11 @@ if __name__ == '__main__':
             except:
                 sys.exit ("Fout bij het openen van %s. Aaaaarch."  % ser.name)
 
+
+
+
+
+
             # run our program cotiniously
             while True:
 
@@ -292,10 +312,55 @@ if __name__ == '__main__':
                     #send version number to influx
                     UpdateVersion(Influx_measurement, influx_host)
 
+                    try:
+                        counter = 0
+                        linefound = 0
+                        FoundFirst = False
+                        FinishedRaw = False
+
+                        while((not(FinishedRaw)) and counter < 1000):
+
+                            counter += 1
+
+                            try:
+                                p1_raw = ser.readline()
+                                Reveived = True
+                            except Exception as e:
+                                print(e)
+                                print("init read eror")
+                                Reveived = False
+
+                            if(Reveived):
+                                p1_str=str(p1_raw)
+                                p1_line=p1_str.strip()
+
+                                if (not(FoundFirst)):
+                                    if "1-0:1.7.0" in p1_line:
+                                        FoundFirst = True
+                                        CreateRawPointLocally(Influx_measurement, influx_host, counter, p1_line)
+                                else:
+                                    if "1-0:1.7.0" in p1_line:
+                                        FinishedRaw = True 
+                                    else:
+                                        CreateRawPointLocally(Influx_measurement, influx_host, counter, p1_line)
+                                        linefound += 1                                       
+
+                        try:
+                            Influx.WriteData()
+                        except Exception as e:
+                            print(e)
+                            print("write raw data to influx error")
+
+                    except Exception as e:
+                        print(e)
+                        print("init eror")
+
+
                     #was this the first run
                     if initrun:
                         #not anymore now
                         initrun = False 
+
 
                 Vorigewaarde = 0.0
                 Vorigewaarde2 = 0.0
@@ -303,184 +368,231 @@ if __name__ == '__main__':
                 FirstRun = True
                 SecondRun = True
 
-                try:
-                    counter = 0
-                    linefound = 0
-                    FoundFirst = False
-                    FinishedRaw = False
 
-                    while((not(FinishedRaw)) and counter < 1000):
+                totaal_verbruik_dal = 0.0
+                totaal_verbruik_piek = 0.0
+                totaal_terug_piek = 0.0
+                totaal_terug_dal = 0.0
+                huidig_verbruik_cum = 0.0
+                huidig_terug_cum = 0.0
+                dal_piek = 0
+                huidig_verbruik = 0.0
+                huidig_terug = 0.0
+                
+                
+                received_huidig_verbruik = 0
+                received_huidig_terug = 0
+                
+                receivedcounter = 0
+                OldTime = datetime.datetime.utcnow()
 
-                        counter += 1
-
-                        try:
-                            p1_raw = ser.readline()
-                            Reveived = True
-                        except Exception as e:
-                            print(e)
-                            print("init read eror")
-                            Reveived = False
-
-                        if(Reveived):
-                            p1_str=str(p1_raw)
-                            p1_line=p1_str.strip()
-
-                            if (not(FoundFirst)):
-                                if "1-0:1.7.0" in p1_line:
-                                    FoundFirst = True
-                                    CreateRawPointLocally(Influx_measurement, influx_host, counter, p1_line)
-                            else:
-                                if "1-0:1.7.0" in p1_line:
-                                    FinishedRaw = True 
-                                else:
-                                    CreateRawPointLocally(Influx_measurement, influx_host, counter, p1_line)
-                                    linefound += 1                                       
-
-                    try:
-                        Influx.WriteData()
-                    except Exception as e:
-                        print(e)
-                        print("write raw data to influx error")
-
-                except Exception as e:
-                    print(e)
-                    print("init eror")
 
                 #Open COM port
                 while True:
 
-                    totaal_verbruik_dal = 0.0
-                    totaal_verbruik_piek = 0.0
-                    totaal_terug_piek = 0.0
-                    totaal_terug_dal = 0.0
-                    huidig_verbruik_cum = 0.0
-                    huidig_terug_cum = 0.0
-                    dal_piek = 0
-                    huidig_verbruik = 0.0
-                    huidig_terug = 0.0
-                    receivedcounter = 0
-                    received_huidig_verbruik = 0
-                    received_huidig_terug = 0
-
-                    for i in range (0,9):
-                        try:
-                            p1_teller = 0
-
-                            while p1_teller < 20:
-                                p1_line=''
-                                #Read 1 line van de seriele poort
-
-                                try:
-                                    p1_raw = ser.readline()
-                                    Reveived = True
-                                    receivedcounter = receivedcounter + 1
-                                except Exception as e:
-                                    print(e)
-                                    print("read eror")
-                                    #sys.exit ("Seriele poort %s kan niet gelezen worden. Aaaaaaaaarch." % s$
-                                    #print("receive error")
-                                    Reveived = False
-
-                                if(Reveived):
-                                    p1_str=str(p1_raw)
-                                    p1_line=p1_str.strip()
-
-                                # als je alles wil zien moet je de volgende line uncommenten print (p1_li$
-                                    if "1-0:1.7.0" in p1_line:
-                                        p1_line_parse=p1_line[12:p1_line.index("*")]
-                                        huidig_verbruik_cum += float(Trim0(p1_line_parse))
-                                        received_huidig_verbruik += 1
-
-                                    if "1-0:2.7.0" in p1_line:
-                                        p1_line_parse=p1_line[12:p1_line.index("*")]
-                                        huidig_terug_cum += float(Trim0(p1_line_parse))
-                                        received_huidig_terug += 1
-
-                                    if "0-0:96.14.0" in p1_line:
-                                        p1_line_parse= p1_line[14:p1_line.index(")")]
-                                        dal_piek = float(Trim0(p1_line_parse))
-
-                                    if "1-0:1.8.1" in p1_line:
-                                        try:
-                                            #print(p1_line)
-                                            p1_line_parse=p1_line[12:p1_line.index("*")]
-                                            #print(p1_line_parse) 
-                                            totaal_verbruik_dal = float(Trim0(p1_line_parse))
-                                        except Exception as e:
-                                            print (e)
-                                            print ("totaal_verbruik_dal parse error") 
-                    
-
-                                    if "1-0:1.8.2" in p1_line:
-                                        p1_line_parse=p1_line[12:p1_line.index("*")] 
-                                        totaal_verbruik_piek = float(Trim0(p1_line_parse))
-
-                                    if "1-0:2.8.1" in p1_line:
-                                        p1_line_parse=p1_line[12:p1_line.index("*")]
-                                        totaal_terug_dal = float(Trim0(p1_line_parse))
-
-                                    if "1-0:2.8.2" in p1_line:
-                                        p1_line_parse=p1_line[12:p1_line.index("*")]
-                                        totaal_terug_piek = float(Trim0(p1_line_parse))
-
-                                    p1_teller = p1_teller +1
-
-                        except Exception as e:
-                            print(e)
-                            print("error in loop")
-
-                        time.sleep(1)
-
-                    if receivedcounter > 0:
-                        huidig_verbruik = ( huidig_verbruik_cum / received_huidig_verbruik)
-                        # print (str(huidig_verbruik_cum) + "/" + str(received_huidig_verbruik) + "=" + str($
-                        huidig_terug = ( huidig_terug_cum / received_huidig_terug )
-                        # print (str(huidig_terug_cum) + "/" + str(received_huidig_terug) + "=" + str(huidig$
-                        huidig = (huidig_verbruik - huidig_terug)*1000
-
-                    CreateDataPointLocally(Influx_measurement, influx_host, "huidig", huidig)
-
-                    if dal_piek != 0:
-                        CreateDataPointLocally(Influx_measurement, influx_host, "dal_piek", dal_piek)
-
-                    if huidig_verbruik != 0:
-                        CreateDataPointLocally(Influx_measurement, influx_host, "huidig_verbruik", (huidig_verbruik*1000))
-                
-                    if huidig_terug != 0:
-                        CreateDataPointLocally(Influx_measurement, influx_host, "huidig_terug", (huidig_terug*1000))
-
-                    if totaal_verbruik_dal != 0:
-                        CreateDataPointLocally(Influx_measurement, influx_host, "totaal_verbruik_dal", totaal_verbruik_dal)
-
-                    if totaal_verbruik_piek != 0:
-                        CreateDataPointLocally(Influx_measurement, influx_host, "totaal_verbruik_piek", totaal_verbruik_piek)
-
-                    if totaal_terug_dal != 0:
-                        CreateDataPointLocally(Influx_measurement, influx_host, "totaal_terug_dal", totaal_terug_dal)
-
-                    if totaal_terug_piek != 0:
-                        CreateDataPointLocally(Influx_measurement, influx_host, "totaal_terug_piek", totaal_terug_piek)
-
-                    if FirstRun:
-                        Vorigewaarde = huidig
-                        FirstRun = False
-                    elif SecondRun:
-                        Vorigewaarde = huidig
-                        Vorigewaarde2 = Vorigewaarde
-                        SecondRun = False
-                    else: 
-                        Current_Delta = huidig - Vorigewaarde
-                        Current_Delta2 = huidig - Vorigewaarde2
-                        CreateDataPointLocally(Influx_measurement, influx_host, "Current_Delta", Current_Delta)
-                        CreateDataPointLocally(Influx_measurement, influx_host, "Current_Delta2", Current_Delta2)
-                        Vorigewaarde2 = Vorigewaarde
-                        Vorigewaarde = huidig
-
+            
                     try:
-                        Influx.WriteData()
+                        p1_raw = ser.readline()
+                        Reveived = True
                     except Exception as e:
                         print(e)
-                        print("write error")
+                        print("read eror")
+                        #sys.exit ("Seriele poort %s kan niet gelezen worden. Aaaaaaaaarch." % s$
+                        #print("receive error")
+                        Reveived = False
+
+                    if Reveived:
+                        p1_str=str(p1_raw)
+                        p1_line=p1_str.strip()
+
+                        if "1-3:0.2.8" in p1_line:
+                            CreateDataPointLocally(Influx_measurement, influx_host, "dsmr", ParseLine(p1_line))
+
+                            if receivedcounter > 1:
+
+                                difference = datetime.utc() - OldTime
+                                difference_in_seconds = difference.total_seconds()
+
+                                if difference_in_seconds > 60:
+                                    
+                                    huidig_verbruik = ( huidig_verbruik_cum / received_huidig_verbruik)
+                                    # print (str(huidig_verbruik_cum) + "/" + str(received_huidig_verbruik) + "=" + str($
+                                    huidig_terug = ( huidig_terug_cum / received_huidig_terug )
+                                    # print (str(huidig_terug_cum) + "/" + str(received_huidig_terug) + "=" + str(huidig$
+                                    huidig = (huidig_verbruik - huidig_terug)*1000
+
+                                    if huidig_verbruik != 0:
+                                        CreateDataPointLocally(Influx_measurement, influx_host, "huidig_verbruik", (huidig_verbruik*1000))
+                                
+                                    if huidig_terug != 0:
+                                        CreateDataPointLocally(Influx_measurement, influx_host, "huidig_terug", (huidig_terug*1000))
+
+                                    CreateDataPointLocally(Influx_measurement, influx_host, "huidig", huidig)                
+
+
+
+                                    if FirstRun:
+                                        Vorigewaarde = huidig
+                                        FirstRun = False
+                                    elif SecondRun:
+                                        Vorigewaarde = huidig
+                                        Vorigewaarde2 = Vorigewaarde
+                                        SecondRun = False
+                                    else: 
+                                        Current_Delta = huidig - Vorigewaarde
+                                        Current_Delta2 = huidig - Vorigewaarde2
+                                        CreateDataPointLocally(Influx_measurement, influx_host, "Current_Delta", Current_Delta)
+                                        CreateDataPointLocally(Influx_measurement, influx_host, "Current_Delta2", Current_Delta2)
+                                        Vorigewaarde2 = Vorigewaarde
+                                        Vorigewaarde = huidig
+
+
+                                    huidig_verbruik_cum = 0.0
+                                    received_huidig_verbruik = 0
+                                    huidig_terug_cum = 0.0
+                                    received_huidig_terug = 0
+                                    huidig_verbruik = 0.0
+                                    huidig_terug = 0.0
+                                                                        
+                                    OldTime = datetime.datetime.utcnow()
+
+                                try:
+                                    Influx.WriteData()
+                                except Exception as e:
+                                    print(e)
+                                    print("write error")
+
+                            else:
+                                
+                                receivedcounter+= 1
+
+                            time.sleep(10)
+                        else:
+
+                            # als je alles wil zien moet je de volgende line uncommenten print (p1_li$
+                            if "1-0:1.7.0" in p1_line:
+                                huidig_verbruik_cum += ParseLine(p1_line)
+                                received_huidig_verbruik += 1
+
+                            if "1-0:2.7.0" in p1_line:
+                                huidig_terug_cum += ParseLine(p1_line)
+                                received_huidig_terug += 1
+
+                            if "0-0:96.14.0" in p1_line:
+                                dal_piek = ParseLine(p1_line)
+                                if not (dal_piek is None):
+                                    CreateDataPointLocally(Influx_measurement, influx_host, "dal_piek", dal_piek)
+
+                            if "1-0:1.8.1" in p1_line:
+                                totaal_verbruik_dal = ParseLine(p1_line)
+
+                                if not (totaal_verbruik_dal is None):
+                                    CreateDataPointLocally(Influx_measurement, influx_host, "totaal_verbruik_dal", totaal_verbruik_dal)
+
+                            if "1-0:1.8.2" in p1_line:
+                                totaal_verbruik_piek = ParseLine(p1_line)
+
+                                if not (totaal_verbruik_piek is None):
+                                    CreateDataPointLocally(Influx_measurement, influx_host, "totaal_verbruik_piek", totaal_verbruik_piek)
+
+                            if "1-0:2.8.1" in p1_line:
+                                totaal_terug_dal = ParseLine(p1_line)
+
+                                if not (totaal_terug_dal is None):
+                                    CreateDataPointLocally(Influx_measurement, influx_host, "totaal_terug_dal", totaal_terug_dal)
+
+                            if "1-0:2.8.2" in p1_line:
+                                totaal_terug_piek = ParseLine(p1_line)
+
+                                if not (totaal_terug_piek is None) :
+                                    CreateDataPointLocally(Influx_measurement, influx_host, "totaal_terug_piek", totaal_terug_piek)
+
+
+
+
+
+
+                            if "1-0:32.7.0" in p1_line:
+                                Volt = ParseLine(p1_line)
+
+                                if not (Volt is None):
+                                    CreateDataPointLocally(Influx_measurement, influx_host, "volt", Volt, "L1")
+
+                            if "1-0:31.7.0" in p1_line:
+                                Amp = ParseLine(p1_line)
+
+                                if not (Volt is None):
+                                    CreateDataPointLocally(Influx_measurement, influx_host, "Amp", Amp, "L1")
+
+                            if "1-0:21.7.0" in p1_line:
+                                Watt_ver = ParseLine(p1_line)
+
+                                if not (Volt is None):
+                                    CreateDataPointLocally(Influx_measurement, influx_host, "Watt_verbruik", Watt_ver, "L1")
+
+                            if "1-0:22.7.0" in p1_line:
+                                Watt_terug = ParseLine(p1_line)
+
+                                if not (Volt is None):
+                                    CreateDataPointLocally(Influx_measurement, influx_host, "Watt_terug", Watt_terug, "L1")
+
+
+
+
+                            if "1-0:52.7.0" in p1_line:
+                                Volt = ParseLine(p1_line)
+
+                                if not (Volt is None):
+                                    CreateDataPointLocally(Influx_measurement, influx_host, "volt", Volt, "L2")
+
+                            if "1-0:51.7.0" in p1_line:
+                                Amp = ParseLine(p1_line)
+
+                                if not (Volt is None):
+                                    CreateDataPointLocally(Influx_measurement, influx_host, "Amp", Amp, "L2")
+
+                            if "1-0:41.7.0" in p1_line:
+                                Watt_ver = ParseLine(p1_line)
+
+                                if not (Volt is None):
+                                    CreateDataPointLocally(Influx_measurement, influx_host, "Watt_verbruik", Watt_ver, "L2")
+
+                            if "1-0:42.7.0" in p1_line:
+                                Watt_terug = ParseLine(p1_line)
+
+                                if not (Volt is None):
+                                    CreateDataPointLocally(Influx_measurement, influx_host, "Watt_terug", Watt_terug, "L2")
+
+
+
+
+
+
+
+                            if "1-0:72.7.0" in p1_line:
+                                Volt = ParseLine(p1_line)
+
+                                if not (Volt is None):
+                                    CreateDataPointLocally(Influx_measurement, influx_host, "volt", Volt, "L3")
+
+                            if "1-0:71.7.0" in p1_line:
+                                Amp = ParseLine(p1_line)
+
+                                if not (Volt is None):
+                                    CreateDataPointLocally(Influx_measurement, influx_host, "Amp", Amp, "L3")
+
+                            if "1-0:61.7.0" in p1_line:
+                                Watt_ver = ParseLine(p1_line)
+
+                                if not (Volt is None):
+                                    CreateDataPointLocally(Influx_measurement, influx_host, "Watt_verbruik", Watt_ver, "L3")
+
+                            if "1-0:62.7.0" in p1_line:
+                                Watt_terug = ParseLine(p1_line)
+
+                                if not (Volt is None):
+                                    CreateDataPointLocally(Influx_measurement, influx_host, "Watt_terug", Watt_terug, "L3")
+
 
                 #Close port and show status
                 try:

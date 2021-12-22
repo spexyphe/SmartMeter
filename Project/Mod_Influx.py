@@ -73,7 +73,7 @@ def AddRawPoint(Measurement, DataHost, LineNr, ValueName, Value, PointTime):
 
 
 
-def AddDataPoint(Measurement, DataHost, DataYear, DataMonth, DataWeek, DataDay, ValueName, Value, PointTime):
+def AddDataPoint(Measurement, DataHost, DataYear, DataMonth, DataWeek, DataDay, ValueName, Value, PointTime, Phase=None):
     global DataPoints
 
     RawDataJsonPoint = json.loads('' or '{}')
@@ -98,6 +98,10 @@ def AddDataPoint(Measurement, DataHost, DataYear, DataMonth, DataWeek, DataDay, 
 
         if not ("day" in RawDataJsonPoint["tags"]):
             RawDataJsonPoint["tags"]["day"] = DataDay
+
+        if not (Phase is None):
+            if not ("day" in RawDataJsonPoint["tags"]):
+                RawDataJsonPoint["tags"]["pase"] = Phase
 
         if not ("fields" in RawDataJsonPoint):
             RawDataJsonPoint["fields"] = {}
