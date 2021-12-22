@@ -1,4 +1,4 @@
-version = "0.0.6"
+version = "0.0.7"
 
 import os
 import logging
@@ -454,7 +454,7 @@ if __name__ == '__main__':
                                     huidig_verbruik = 0.0
                                     huidig_terug = 0.0
                                                                         
-                                    OldTime = datetime.datetime.utcnow()
+                                    OldTime = datetime.utcnow()
 
                                 try:
                                     Influx.WriteData()
