@@ -1,4 +1,4 @@
-version = "0.0.7"
+version = "0.0.8"
 
 import os
 import logging
@@ -491,25 +491,25 @@ class Meter():
                                     totaal_verbruik_dal = self.ParseLine(p1_line)
 
                                     if not (totaal_verbruik_dal is None):
-                                        self.CreateDataPointLocally(Influx_measurement, influx_host, "totaal_verbruik_dal", totaal_verbruik_dal)
+                                        self.CreateDataPointLocally(Influx_measurement, influx_host, "totaal_verbruik_dal_fl", totaal_verbruik_dal)
 
                                 if "1-0:1.8.2" in p1_line:
                                     totaal_verbruik_piek = self.ParseLine(p1_line)
 
                                     if not (totaal_verbruik_piek is None):
-                                        self.CreateDataPointLocally(Influx_measurement, influx_host, "totaal_verbruik_piek", totaal_verbruik_piek)
+                                        self.CreateDataPointLocally(Influx_measurement, influx_host, "totaal_verbruik_piek_fl", totaal_verbruik_piek)
 
                                 if "1-0:2.8.1" in p1_line:
                                     totaal_terug_dal = self.ParseLine(p1_line)
 
                                     if not (totaal_terug_dal is None):
-                                        self.CreateDataPointLocally(Influx_measurement, influx_host, "totaal_terug_dal", totaal_terug_dal)
+                                        self.CreateDataPointLocally(Influx_measurement, influx_host, "totaal_terug_dal_fl", totaal_terug_dal)
 
                                 if "1-0:2.8.2" in p1_line:
                                     totaal_terug_piek = self.ParseLine(p1_line)
 
                                     if not (totaal_terug_piek is None) :
-                                        self.CreateDataPointLocally(Influx_measurement, influx_host, "totaal_terug_piek", totaal_terug_piek)
+                                        self.CreateDataPointLocally(Influx_measurement, influx_host, "totaal_terug_piek_fl", totaal_terug_piek)
 
 
 
