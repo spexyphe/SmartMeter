@@ -100,8 +100,8 @@ def AddDataPoint(Measurement, DataHost, DataYear, DataMonth, DataWeek, DataDay, 
             RawDataJsonPoint["tags"]["day"] = DataDay
 
         if not (Phase is None):
-            if not ("day" in RawDataJsonPoint["tags"]):
-                RawDataJsonPoint["tags"]["pase"] = Phase
+            if not ("phase" in RawDataJsonPoint["tags"]):
+                RawDataJsonPoint["tags"]["phase"] = Phase
 
         if not ("fields" in RawDataJsonPoint):
             RawDataJsonPoint["fields"] = {}
