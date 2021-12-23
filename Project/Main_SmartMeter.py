@@ -379,7 +379,7 @@ class Meter():
                     received_huidig_terug = 0
                     
                     receivedcounter = 0
-                    OldTime = datetime.datetime.utcnow()
+                    OldTime = datetime.utcnow()
 
 
                     #Open COM port
