@@ -1,4 +1,4 @@
-version = "0.0.8"
+version = "0.0.9"
 
 import os
 import logging
@@ -300,6 +300,31 @@ class Meter():
                     sys.exit ("Fout bij het openen van %s. Aaaaarch."  % ser.name)
 
 
+                Vorigewaarde = 0.0
+                Vorigewaarde2 = 0.0
+
+                FirstRun = True
+                SecondRun = True
+
+                totaal_verbruik_dal = 0.0
+                totaal_verbruik_piek = 0.0
+                totaal_terug_piek = 0.0
+                totaal_terug_dal = 0.0
+                huidig_verbruik_cum = 0.0
+                huidig_terug_cum = 0.0
+                dal_piek = 0
+                huidig_verbruik = 0.0
+                huidig_terug = 0.0
+                                
+                received_huidig_verbruik = 0
+                received_huidig_terug = 0
+                
+                receivedcounter = 0
+                OldTime = datetime.utcnow()
+
+                DoRawLog = True
+                DidAFullRaw = False
+
 
 
 
@@ -366,121 +391,96 @@ class Meter():
                             initrun = False 
 
 
-                    Vorigewaarde = 0.0
-                    Vorigewaarde2 = 0.0
-
-                    FirstRun = True
-                    SecondRun = True
-
-
-                    totaal_verbruik_dal = 0.0
-                    totaal_verbruik_piek = 0.0
-                    totaal_terug_piek = 0.0
-                    totaal_terug_dal = 0.0
-                    huidig_verbruik_cum = 0.0
-                    huidig_terug_cum = 0.0
-                    dal_piek = 0
-                    huidig_verbruik = 0.0
-                    huidig_terug = 0.0
-                    
-                    
-                    received_huidig_verbruik = 0
-                    received_huidig_terug = 0
-                    
-                    receivedcounter = 0
-                    OldTime = datetime.utcnow()
-
 
                     #Open COM port
-                    while True:
+                    #while True:
 
                 
-                        try:
-                            p1_raw = ser.readline()
-                            Reveived = True
-                        except Exception as e:
-                            print(e)
-                            print("read eror")
-                            #sys.exit ("Seriele poort %s kan niet gelezen worden. Aaaaaaaaarch." % s$
-                            #print("receive error")
-                            Reveived = False
+                    try:
+                        p1_raw = ser.readline()
+                        Reveived = True
+                    except Exception as e:
+                        print(e)
+                        print("read eror")
+                        #sys.exit ("Seriele poort %s kan niet gelezen worden. Aaaaaaaaarch." % s$
+                        #print("receive error")
+                        Reveived = False
 
-                        if Reveived:
-                            p1_str=str(p1_raw)
-                            p1_line=p1_str.strip()
+                    if Reveived:
+                        p1_str=str(p1_raw)
+                        p1_line=p1_str.strip()
 
-                            if "1-3:0.2.8" in p1_line:
-                                self.CreateDataPointLocally(Influx_measurement, influx_host, "dsmr", self.ParseLine(p1_line))
+                        if "1-3:0.2.8" in p1_line:
+                            self.CreateDataPointLocally(Influx_measurement, influx_host, "dsmr", self.ParseLine(p1_line))
 
-                                if receivedcounter > 1:
+                            if receivedcounter > 1:
 
-                                    difference = datetime.utcnow() - OldTime
-                                    difference_in_seconds = difference.total_seconds()
+                                difference = datetime.utcnow() - OldTime
+                                difference_in_seconds = difference.total_seconds()
 
-                                    if difference_in_seconds > 60:
-                                        
-                                        huidig_verbruik = ( huidig_verbruik_cum / received_huidig_verbruik)
-                                        # print (str(huidig_verbruik_cum) + "/" + str(received_huidig_verbruik) + "=" + str($
-                                        huidig_terug = ( huidig_terug_cum / received_huidig_terug )
-                                        # print (str(huidig_terug_cum) + "/" + str(received_huidig_terug) + "=" + str(huidig$
-                                        huidig = (huidig_verbruik - huidig_terug)*1000
-
-                                        if huidig_verbruik != 0:
-                                            self.CreateDataPointLocally(Influx_measurement, influx_host, "huidig_verbruik", (huidig_verbruik*1000))
+                                if difference_in_seconds > 60:
                                     
-                                        if huidig_terug != 0:
-                                            self.CreateDataPointLocally(Influx_measurement, influx_host, "huidig_terug", (huidig_terug*1000))
+                                    huidig_verbruik = ( huidig_verbruik_cum / received_huidig_verbruik)
+                                    # print (str(huidig_verbruik_cum) + "/" + str(received_huidig_verbruik) + "=" + str($
+                                    huidig_terug = ( huidig_terug_cum / received_huidig_terug )
+                                    # print (str(huidig_terug_cum) + "/" + str(received_huidig_terug) + "=" + str(huidig$
+                                    huidig = (huidig_verbruik - huidig_terug)*1000
 
-                                        self.CreateDataPointLocally(Influx_measurement, influx_host, "huidig", huidig)                
+                                    if huidig_verbruik != 0:
+                                        self.CreateDataPointLocally(Influx_measurement, influx_host, "huidig_verbruik", (huidig_verbruik*1000))
+                                
+                                    if huidig_terug != 0:
+                                        self.CreateDataPointLocally(Influx_measurement, influx_host, "huidig_terug", (huidig_terug*1000))
 
-
-
-                                        if FirstRun:
-                                            Vorigewaarde = huidig
-                                            FirstRun = False
-                                        elif SecondRun:
-                                            Vorigewaarde = huidig
-                                            Vorigewaarde2 = Vorigewaarde
-                                            SecondRun = False
-                                        else: 
-                                            Current_Delta = huidig - Vorigewaarde
-                                            Current_Delta2 = huidig - Vorigewaarde2
-                                            self.CreateDataPointLocally(Influx_measurement, influx_host, "Current_Delta", Current_Delta)
-                                            self.CreateDataPointLocally(Influx_measurement, influx_host, "Current_Delta2", Current_Delta2)
-                                            Vorigewaarde2 = Vorigewaarde
-                                            Vorigewaarde = huidig
+                                    self.CreateDataPointLocally(Influx_measurement, influx_host, "huidig", huidig)                
 
 
-                                        huidig_verbruik_cum = 0.0
-                                        received_huidig_verbruik = 0
-                                        huidig_terug_cum = 0.0
-                                        received_huidig_terug = 0
-                                        huidig_verbruik = 0.0
-                                        huidig_terug = 0.0
-                                                                            
-                                        OldTime = datetime.utcnow()
 
-                                    try:
-                                        Influx.WriteData()
-                                    except Exception as e:
-                                        print(e)
-                                        print("write error")
+                                    if FirstRun:
+                                        Vorigewaarde = huidig
+                                        FirstRun = False
+                                    elif SecondRun:
+                                        Vorigewaarde = huidig
+                                        Vorigewaarde2 = Vorigewaarde
+                                        SecondRun = False
+                                    else: 
+                                        Current_Delta = huidig - Vorigewaarde
+                                        Current_Delta2 = huidig - Vorigewaarde2
+                                        self.CreateDataPointLocally(Influx_measurement, influx_host, "Current_Delta", Current_Delta)
+                                        self.CreateDataPointLocally(Influx_measurement, influx_host, "Current_Delta2", Current_Delta2)
+                                        Vorigewaarde2 = Vorigewaarde
+                                        Vorigewaarde = huidig
 
-                                else:
-                                    
-                                    receivedcounter+= 1
 
-                                time.sleep(10)
+                                    huidig_verbruik_cum = 0.0
+                                    received_huidig_verbruik = 0
+                                    huidig_terug_cum = 0.0
+                                    received_huidig_terug = 0
+                                    huidig_verbruik = 0.0
+                                    huidig_terug = 0.0
+                                                                        
+                                    OldTime = datetime.utcnow()
+
+                                    DoRawLog = True
+                                    DidAFullRaw = False
+
                             else:
+                                
+                                receivedcounter+= 1
 
-                                # als je alles wil zien moet je de volgende line uncommenten print (p1_li$
-                                if "1-0:1.7.0" in p1_line:
-                                    huidig_verbruik_cum += self.ParseLine(p1_line)
-                                    received_huidig_verbruik += 1
+                            time.sleep(10)
+                        else:
 
-                                if "1-0:2.7.0" in p1_line:
-                                    huidig_terug_cum += self.ParseLine(p1_line)
-                                    received_huidig_terug += 1
+                            # als je alles wil zien moet je de volgende line uncommenten print (p1_li$
+                            if "1-0:1.7.0" in p1_line:
+                                huidig_verbruik_cum += self.ParseLine(p1_line)
+                                received_huidig_verbruik += 1
+
+                            if "1-0:2.7.0" in p1_line:
+                                huidig_terug_cum += self.ParseLine(p1_line)
+                                received_huidig_terug += 1
+
+                            if DoRawLog:
 
                                 if "0-0:96.14.0" in p1_line:
                                     dal_piek = self.ParseLine(p1_line)
@@ -511,16 +511,17 @@ class Meter():
                                     if not (totaal_terug_piek is None) :
                                         self.CreateDataPointLocally(Influx_measurement, influx_host, "totaal_terug_piek_fl", totaal_terug_piek)
 
-
-
-
-
-
                                 if "1-0:32.7.0" in p1_line:
                                     Volt = self.ParseLine(p1_line)
 
                                     if not (Volt is None):
                                         self.CreateDataPointLocally(Influx_measurement, influx_host, "volt", Volt, "L1")
+
+                                        if DidAFullRaw:
+                                            DoRawLog = False
+                                        else:
+                                            DidAFullRaw = True
+
 
                                 if "1-0:31.7.0" in p1_line:
                                     Amp = self.ParseLine(p1_line)
@@ -532,16 +533,13 @@ class Meter():
                                     Watt_ver = self.ParseLine(p1_line)
 
                                     if not (Volt is None):
-                                       self.CreateDataPointLocally(Influx_measurement, influx_host, "Watt_verbruik", Watt_ver, "L1")
+                                        self.CreateDataPointLocally(Influx_measurement, influx_host, "Watt_verbruik", Watt_ver, "L1")
 
                                 if "1-0:22.7.0" in p1_line:
                                     Watt_terug = self.ParseLine(p1_line)
 
                                     if not (Volt is None):
                                         self.CreateDataPointLocally(Influx_measurement, influx_host, "Watt_terug", Watt_terug, "L1")
-
-
-
 
                                 if "1-0:52.7.0" in p1_line:
                                     Volt = self.ParseLine(p1_line)
@@ -567,12 +565,6 @@ class Meter():
                                     if not (Volt is None):
                                         self.CreateDataPointLocally(Influx_measurement, influx_host, "Watt_terug", Watt_terug, "L2")
 
-
-
-
-
-
-
                                 if "1-0:72.7.0" in p1_line:
                                     Volt = self.ParseLine(p1_line)
 
@@ -597,13 +589,20 @@ class Meter():
                                     if not (Volt is None):
                                         self.CreateDataPointLocally(Influx_measurement, influx_host, "Watt_terug", Watt_terug, "L3")
 
-
-                    #Close port and show status
                     try:
-                        print("closed unexpectedly")
-                        ser.close()
-                    except:
-                        print("error at close")
+                        Influx.WriteData()
+                    except Exception as e:
+                        print(e)
+                        print("write error")
+
+
+
+                    # #Close port and show status
+                    # try:
+                    #     print("closed unexpectedly")
+                    #     ser.close()
+                    # except:
+                    #     print("error at close")
 
 
 
