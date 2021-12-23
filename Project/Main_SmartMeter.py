@@ -1,4 +1,4 @@
-version = "0.1.0"
+version = "0.1.1"
 
 import os
 import logging
@@ -235,7 +235,7 @@ class Meter():
 
         try:
             if In_Line.count('*') > 0:
-                if In_Line.count(')') > 2:
+                if In_Line.count(')') == 2:
                     Out_Line = float(In_Line[In_Line.index(')')+2:In_Line.index('*')])
                 else:
                     Out_Line = float(In_Line[In_Line.index('(')+1:In_Line.index('*')])
