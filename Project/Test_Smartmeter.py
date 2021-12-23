@@ -1,31 +1,24 @@
 from datetime import datetime, timedelta
 import time
+import unittest
+import sys
 
-def ParseLine(In_Line):
-    Out_Line = None
+from Main_SmartMeter import Meter
 
-    try:
-        if In_Line.count('*') > 0:
-            Out_Line = float(In_Line[In_Line.index('(')+1:In_Line.index('*')])
-        else:    
-            Out_Line = float(In_Line[In_Line.index('(')+1:In_Line.index(')')])
+class TestStringMethods(unittest.TestCase):
 
-    except Exception as e:
-        print(e)
+    Lines=[["1-0:1.8.1(002053.081*kWh)'",2053.081], ["b'0-0:96.7.9(00087)\r\n'", 87], ["b'1-0:21.7.0(00.030*kW)\r\n'", 0.03]]
 
-    return Out_Line
+    
+    # run a number of tests on parsing
+    def test_1_0_0_Parse(self):
+        
+        Parser = Meter().ParseLine
 
-OldTime = datetime.utcnow()
+        for line in self.Lines:
 
+            self.assertEqual(Parser(line[0]), line[1])
 
-Lines=["b'1-0:1.8.1(002053.081*kWh)\r\n'", "b'0-0:96.7.9(00087)\r\n'", "b'1-0:21.7.0(00.030*kW)\r\n'"]
+if __name__ == '__main__':
+    unittest.main()
 
-for line in Lines:
-
-    print(ParseLine(line))
-
-time.sleep(3)
-
-difference = datetime.utcnow() - OldTime
-
-print(difference.total_seconds())
