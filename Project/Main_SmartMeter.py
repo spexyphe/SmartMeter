@@ -1,4 +1,4 @@
-version = "0.0.9"
+version = "0.1.0"
 
 import os
 import logging
@@ -325,10 +325,6 @@ class Meter():
                 DoRawLog = True
                 DidAFullRaw = False
 
-
-
-
-
                 # run our program cotiniously
                 while True:
 
@@ -512,82 +508,81 @@ class Meter():
                                         self.CreateDataPointLocally(Influx_measurement, influx_host, "totaal_terug_piek_fl", totaal_terug_piek)
 
                                 if "1-0:32.7.0" in p1_line:
-                                    Volt = self.ParseLine(p1_line)
+                                    Volt1 = self.ParseLine(p1_line)
 
-                                    if not (Volt is None):
-                                        self.CreateDataPointLocally(Influx_measurement, influx_host, "volt", Volt, "L1")
+                                    if not (Volt1 is None):
+                                        self.CreateDataPointLocally(Influx_measurement, influx_host, "volt", Volt1, "L1")
 
                                         if DidAFullRaw:
                                             DoRawLog = False
                                         else:
                                             DidAFullRaw = True
 
-
                                 if "1-0:31.7.0" in p1_line:
-                                    Amp = self.ParseLine(p1_line)
+                                    Amp1 = self.ParseLine(p1_line)
 
-                                    if not (Volt is None):
-                                        self.CreateDataPointLocally(Influx_measurement, influx_host, "Amp", Amp, "L1")
+                                    if not (Amp1 is None):
+                                        self.CreateDataPointLocally(Influx_measurement, influx_host, "Amp", Amp1, "L1")
 
                                 if "1-0:21.7.0" in p1_line:
-                                    Watt_ver = self.ParseLine(p1_line)
+                                    Watt_ver1 = self.ParseLine(p1_line)
 
-                                    if not (Volt is None):
-                                        self.CreateDataPointLocally(Influx_measurement, influx_host, "Watt_verbruik", Watt_ver, "L1")
+                                    if not (Watt_ver1 is None):
+                                        self.CreateDataPointLocally(Influx_measurement, influx_host, "Watt_verbruik", Watt_ver1, "L1")
 
                                 if "1-0:22.7.0" in p1_line:
-                                    Watt_terug = self.ParseLine(p1_line)
+                                    Watt_terug1 = self.ParseLine(p1_line)
 
-                                    if not (Volt is None):
-                                        self.CreateDataPointLocally(Influx_measurement, influx_host, "Watt_terug", Watt_terug, "L1")
+                                    if not (Watt_terug1 is None):
+                                        self.CreateDataPointLocally(Influx_measurement, influx_host, "Watt_terug", Watt_terug1, "L1")
 
                                 if "1-0:52.7.0" in p1_line:
-                                    Volt = self.ParseLine(p1_line)
+                                    Volt2 = self.ParseLine(p1_line)
 
-                                    if not (Volt is None):
-                                        self.CreateDataPointLocally(Influx_measurement, influx_host, "volt", Volt, "L2")
+                                    if not (Volt2 is None):
+                                        self.CreateDataPointLocally(Influx_measurement, influx_host, "volt", Volt2, "L2")
 
                                 if "1-0:51.7.0" in p1_line:
-                                    Amp = self.ParseLine(p1_line)
+                                    Amp2 = self.ParseLine(p1_line)
 
-                                    if not (Volt is None):
-                                        self.CreateDataPointLocally(Influx_measurement, influx_host, "Amp", Amp, "L2")
+                                    if not (Amp2 is None):
+                                        self.CreateDataPointLocally(Influx_measurement, influx_host, "Amp", Amp2, "L2")
 
                                 if "1-0:41.7.0" in p1_line:
-                                    Watt_ver = self.ParseLine(p1_line)
+                                    Watt_ver2 = self.ParseLine(p1_line)
 
-                                    if not (Volt is None):
-                                        self.CreateDataPointLocally(Influx_measurement, influx_host, "Watt_verbruik", Watt_ver, "L2")
+                                    if not (Watt_ver2 is None):
+                                        self.CreateDataPointLocally(Influx_measurement, influx_host, "Watt_verbruik", Watt_ver2, "L2")
 
                                 if "1-0:42.7.0" in p1_line:
-                                    Watt_terug = self.ParseLine(p1_line)
+                                    Watt_terug2 = self.ParseLine(p1_line)
 
-                                    if not (Volt is None):
-                                        self.CreateDataPointLocally(Influx_measurement, influx_host, "Watt_terug", Watt_terug, "L2")
+                                    if not (Watt_terug2 is None):
+                                        self.CreateDataPointLocally(Influx_measurement, influx_host, "Watt_terug", Watt_terug2, "L2")
 
                                 if "1-0:72.7.0" in p1_line:
-                                    Volt = self.ParseLine(p1_line)
+                                    Volt3 = self.ParseLine(p1_line)
 
-                                    if not (Volt is None):
-                                        self.CreateDataPointLocally(Influx_measurement, influx_host, "volt", Volt, "L3")
+                                    if not (Volt3 is None):
+                                        self.CreateDataPointLocally(Influx_measurement, influx_host, "volt", Volt3, "L3")
 
                                 if "1-0:71.7.0" in p1_line:
-                                    Amp = self.ParseLine(p1_line)
+                                    Amp3 = self.ParseLine(p1_line)
 
-                                    if not (Volt is None):
-                                        self.CreateDataPointLocally(Influx_measurement, influx_host, "Amp", Amp, "L3")
+                                    if not (Amp3 is None):
+                                        self.CreateDataPointLocally(Influx_measurement, influx_host, "Amp", Amp3, "L3")
 
                                 if "1-0:61.7.0" in p1_line:
-                                    Watt_ver = self.ParseLine(p1_line)
+                                    Watt_ver3 = self.ParseLine(p1_line)
 
-                                    if not (Volt is None):
-                                        self.CreateDataPointLocally(Influx_measurement, influx_host, "Watt_verbruik", Watt_ver, "L3")
+                                    if not (Watt_ver3 is None):
+                                        self.CreateDataPointLocally(Influx_measurement, influx_host, "Watt_verbruik", Watt_ver3, "L3")
 
                                 if "1-0:62.7.0" in p1_line:
-                                    Watt_terug = self.ParseLine(p1_line)
+                                    Watt_terug3 = self.ParseLine(p1_line)
 
-                                    if not (Volt is None):
-                                        self.CreateDataPointLocally(Influx_measurement, influx_host, "Watt_terug", Watt_terug, "L3")
+                                    if not (Watt_terug3 is None):
+                                        self.CreateDataPointLocally(Influx_measurement, influx_host, "Watt_terug", Watt_terug3, "L3")
 
                     try:
                         Influx.WriteData()
