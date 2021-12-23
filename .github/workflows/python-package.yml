@@ -16,7 +16,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: [3.7, 3.8, 3.9]
+        python-version: [3.9]
 
 
     steps:
@@ -38,7 +38,21 @@ jobs:
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
     - name: Test with unittest
       run: |
-        python -m unittest discover -s ./Project
+        python -m unittest discover -s ./Project --doctest-modules --junitxml=junit/test-results.xml --cov=jawclenching --cov-report=xml
+        
+  sonarcloud:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        # Disabling shallow clone is recommended for improving relevancy of reporting
+        fetch-depth: 0
+    - name: SonarCloud Scan
+      uses: sonarsource/sonarcloud-github-action@master
+      env:
+        GITHUB_TOKEN: ${{ secrets.TOSONAR_TOKEN }}
+        SONAR_TOKEN: ${{ secrets.FROMSONAR_TOKEN }}
+
   publish:
     needs: build
     runs-on: ubuntu-latest
