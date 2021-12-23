@@ -235,7 +235,10 @@ class Meter():
 
         try:
             if In_Line.count('*') > 0:
-                Out_Line = float(In_Line[In_Line.index('(')+1:In_Line.index('*')])
+                if In_Line.count(')') > 2:
+                    Out_Line = float(In_Line[In_Line.index(')')+2:In_Line.index('*')])
+                else:
+                    Out_Line = float(In_Line[In_Line.index('(')+1:In_Line.index('*')])
             else:    
                 Out_Line = float(In_Line[In_Line.index('(')+1:In_Line.index(')')])
 
@@ -243,7 +246,6 @@ class Meter():
             print(e)
 
         return Out_Line
-
 
     def MainLoop(self):
 
@@ -318,7 +320,17 @@ class Meter():
                                 
                 received_huidig_verbruik = 0
                 received_huidig_terug = 0
-                
+
+                Volt1 = None
+                Watt_terug1 = None
+                Watt_ver1 = None
+                Volt2 = None
+                Watt_terug2 = None
+                Watt_ver2 = None
+                Volt3 = None
+                Watt_terug3 = None
+                Watt_ver3 = None
+
                 receivedcounter = 0
                 OldTime = datetime.utcnow()
 
@@ -432,6 +444,40 @@ class Meter():
 
 
 
+                                    if not(Volt1 is None) and ( not(Watt_terug1) or not(Watt_ver1) ):
+                                        if Watt_ver1 is None:
+                                            Watt_ver1 = 0
+                                        if Watt_terug1 is None:
+                                            Watt_terug1 = 0
+
+                                        self.CreateDataPointLocally(Influx_measurement, influx_host, "Amp1_calc", ((Watt_ver1 - Watt_terug1) / Volt1))
+
+
+
+
+                                    if not(Volt2 is None) and ( not(Watt_terug2) or not(Watt_ver2) ):
+                                        if Watt_ver2 is None:
+                                            Watt_ver2 = 0
+                                        if Watt_terug2 is None:
+                                            Watt_terug2 = 0
+
+                                        self.CreateDataPointLocally(Influx_measurement, influx_host, "Amp2_calc", ((Watt_ver2 - Watt_terug2) / Volt2))
+
+
+
+
+                                    if not(Volt3 is None) and ( not(Watt_terug3) or not(Watt_ver3) ):
+                                        if Watt_ver3 is None:
+                                            Watt_ver3 = 0
+                                        if Watt_terug3 is None:
+                                            Watt_terug3 = 0
+
+                                        self.CreateDataPointLocally(Influx_measurement, influx_host, "Amp3_calc", ((Watt_ver3 - Watt_terug3) / Volt3))
+
+
+
+
+
                                     if FirstRun:
                                         Vorigewaarde = huidig
                                         FirstRun = False
@@ -454,7 +500,19 @@ class Meter():
                                     received_huidig_terug = 0
                                     huidig_verbruik = 0.0
                                     huidig_terug = 0.0
-                                                                        
+
+
+                                    Volt1 = None
+                                    Watt_terug1 = None
+                                    Watt_ver1 = None
+                                    Volt2 = None
+                                    Watt_terug2 = None
+                                    Watt_ver2 = None
+                                    Volt3 = None
+                                    Watt_terug3 = None
+                                    Watt_ver3 = None
+
+
                                     OldTime = datetime.utcnow()
 
                                     DoRawLog = True
@@ -583,6 +641,15 @@ class Meter():
 
                                     if not (Watt_terug3 is None):
                                         self.CreateDataPointLocally(Influx_measurement, influx_host, "Watt_terug", Watt_terug3, "L3")
+
+                                if "0-1:24.2.1" in p1_line:
+                                    Gas_Volume = self.ParseLine(p1_line)
+
+                                    if not (Gas_Volume is None):
+                                        self.CreateDataPointLocally(Influx_measurement, influx_host, "Gas_Volume", Gas_Volume)
+
+
+
 
                     try:
                         Influx.WriteData()
