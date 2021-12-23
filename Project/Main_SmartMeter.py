@@ -1,4 +1,4 @@
-version = "0.1.1"
+version = "0.1.2"
 
 import os
 import logging
@@ -224,11 +224,13 @@ class Meter():
             CurrentMonthNr = str(Amsterdam_now.strftime("%m"))
             CurrentWeekNr = str(Amsterdam_now.strftime("%U"))
             CurrentDayNr = str(Amsterdam_now. strftime("%w"))
+            
+            CurrentDayOfYear = Amsterdam_now.timetuple().tm_yday
 
             #using point time to log things will ensure that everything uses the same time
             PointTime = datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ')
 
-            Influx.AddDataPoint(Measurement, Host, CurrentYear, CurrentMonthNr, CurrentWeekNr, CurrentDayNr, ValueName, Value, PointTime, Phase)
+            Influx.AddDataPoint(Measurement, Host, CurrentYear, CurrentMonthNr, CurrentWeekNr, CurrentDayNr, CurrentDayOfYear, ValueName, Value, PointTime, Phase)
 
     def ParseLine(self, In_Line):
         Out_Line = None
