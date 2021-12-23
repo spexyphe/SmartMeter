@@ -38,9 +38,10 @@ jobs:
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
     - name: Test with unittest
       run: |
-        python -m unittest discover -s ./Project --doctest-modules --junitxml=junit/test-results.xml --cov=jawclenching --cov-report=xml
+        python -m unittest discover -s ./Project
         
   sonarcloud:
+    needs: build
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
