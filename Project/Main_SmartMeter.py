@@ -600,5 +600,5 @@ class Meter():
 
 
 if __name__ == '__main__':
-    Meterclass = Meter
+    Meterclass = Meter()
     Meterclass.MainLoop()
