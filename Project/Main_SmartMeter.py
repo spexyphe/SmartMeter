@@ -28,16 +28,25 @@ class Meter():
     def __init__(self):
         print("init smartmeter")
 
-    def NewLog(self, StrMessage):
+    def NewLog(self, StrMessage, AnException = None):
         global doTRACE
 
         if("ERROR" in StrMessage):
             logging.error( "Eastron.py, " + StrMessage)
+            
+            if not (AnException is None):
+                logging.error(str(AnException))    
         elif("WARNING" in StrMessage):
             logging.warning( "Eastron.py, " + StrMessage)
+
+            if not (AnException is None):
+                logging.warning(str(AnException))   
         else:
             if doTRACE:
                 logging.info( "Eastron.py, " + StrMessage)
+
+                if not (AnException is None):
+                    logging.info(str(AnException)) 
 
     def LoadEnvVar_Sys(self):
         global doTRACE, IslocalTest, IsVarRun
@@ -50,20 +59,20 @@ class Meter():
         try: #doTRACE
             doTRACE = eval( os.environ['doTRACE'] )
             self.NewLog("OK: succesfully loaded environment variable for system 'doTRACE'")
-        except:
-            self.NewLog("ERROR: environment variable for system 'doTRACE' FAILED")
+        except Exception as e:
+            self.NewLog("ERROR: environment variable for system 'doTRACE' FAILED", e)
 
         try: #ISLOCALTEST
             IslocalTest = eval( os.environ['ISLOCALTEST'] )
             self.NewLog("OK: succesfully loaded environment variable for system 'ISLOCALTEST': " + str(IslocalTest))
-        except:
-            self.NewLog("ERROR: environment variable for system 'ISLOCALTEST' FAILED")
+        except Exception as e:
+            self.NewLog("ERROR: environment variable for system 'ISLOCALTEST' FAILED", e)
 
         try: #ISVARRUN
             IsVarRun = eval( os.environ['ISVARRUN'] )
             self.NewLog("OK: succesfully loaded environment variable for system 'ISVARRUN'")
-        except:
-            self.NewLog("ERROR: environment variable for system 'ISVARRUN' FAILED")
+        except Exception as e:
+            self.NewLog("ERROR: environment variable for system 'ISVARRUN' FAILED", e)
 
     def LoadEnvVar_ModBus(self):
 
@@ -77,34 +86,34 @@ class Meter():
         try: #MODBUS_DEVICE
             Device = os.environ['MODBUS_DEVICE']
             self.NewLog("OK: succesfully loaded environment variable for Modbus 'MODBUS_DEVICE'")
-        except:
-            self.NewLog("ERROR: environment variable for Modbus 'MODBUS_DEVICE' FAILED")
+        except Exception as e:
+            self.NewLog("ERROR: environment variable for Modbus 'MODBUS_DEVICE' FAILED", e)
 
         try: #MODBUS_BAUD
             Baud = int(os.environ['MODBUS_BAUD'])
             self.NewLog("OK: succesfully loaded environment variable for Modbus 'MODBUS_BAUD'")
-        except:
-            self.NewLog("ERROR: environment variable for Modbus 'MODBUS_BAUD' FAILED")
+        except Exception as e:
+            self.NewLog("ERROR: environment variable for Modbus 'MODBUS_BAUD' FAILED", e)
         
         try: #MODBUS_PARITY
             Parity = os.environ['MODBUS_PARITY']
             self.NewLog("OK: succesfully loaded environment variable for Modbus 'MODBUS_PARITY'")
-        except:
-            self.NewLog("ERROR: environment variable for Modbus 'MODBUS_PARITY' FAILED")
+        except Exception as e:
+            self.NewLog("ERROR: environment variable for Modbus 'MODBUS_PARITY' FAILED", e)
 
         try: #MODBUS_VARIABLES
             Variables = os.environ['MODBUS_VARIABLES']
             self.NewLog("OK: succesfully loaded environment variable for Modbus 'MODBUS_VARIABLES'")
-        except:
-            self.NewLog("ERROR: environment variable for Modbus 'MODBUS_VARIABLES' FAILED")
+        except Exception as e:
+            self.NewLog("ERROR: environment variable for Modbus 'MODBUS_VARIABLES' FAILED", e)
 
     def ParseVariables(self, IN_Variables):
         OUT_Variables = None
 
         try:
             OUT_Variables = IN_Variables.split(",")    
-        except:
-            self.NewLog("ERROR, ParseVariables Failed")
+        except Exception as e:
+            self.NewLog("ERROR, ParseVariables Failed", e)
         
         return OUT_Variables
 
@@ -116,50 +125,50 @@ class Meter():
         try: #INFLUX_URL
             Influx_url = os.environ['INFLUX_URL']
             self.NewLog("OK: succesfully loaded environment variable for influx 'INFLUX_URL'")
-        except:
-            self.NewLog("ERROR: environment variable for influx 'INFLUX_URL' FAILED")
+        except Exception as e:
+            self.NewLog("ERROR: environment variable for influx 'INFLUX_URL' FAILED", e)
             EnvVarInfluxSuccess = False
 
         try: #INFLUX_PORT
             Influx_port = int(os.environ['INFLUX_PORT'])
             self.NewLog("OK: succesfully loaded environment variable for influx 'INFLUX_PORT'")
-        except:
-            self.NewLog("ERROR: environment variable for influx 'INFLUX_PORT' FAILED")
+        except Exception as e:
+            self.NewLog("ERROR: environment variable for influx 'INFLUX_PORT' FAILED", e)
             EnvVarInfluxSuccess = False
 
         try: #INFLUX_USER
             Influx_user = os.environ['INFLUX_USER']
             self.NewLog("OK: succesfully loaded environment variable for influx 'INFLUX_USER'")
-        except:
-            self.NewLog("ERROR: environment variable for influx 'INFLUX_USER' FAILED")
+        except Exception as e:
+            self.NewLog("ERROR: environment variable for influx 'INFLUX_USER' FAILED", e)
             EnvVarInfluxSuccess = False
 
         try: #INFLUX_PASSWORD
             Influx_password = os.environ['INFLUX_PASSWORD']
             self.NewLog("OK: succesfully loaded environment variable for influx 'INFLUX_PASSWORD'")
-        except:
-            self.NewLog("ERROR: environment variable for influx 'INFLUX_PASSWORD' FAILED")
+        except Exception as e:
+            self.NewLog("ERROR: environment variable for influx 'INFLUX_PASSWORD' FAILED", e)
             EnvVarInfluxSuccess = False
 
         try: #INFLUX_DATABASE
             Influx_database = os.environ['INFLUX_DATABASE']
             self.NewLog("OK: succesfully loaded environment variable for influx 'INFLUX_DATABASE'")
-        except:
-            self.NewLog("ERROR: environment variable for influx 'INFLUX_DATABASE' FAILED")
+        except Exception as e:
+            self.NewLog("ERROR: environment variable for influx 'INFLUX_DATABASE' FAILED", e)
             EnvVarInfluxSuccess = False
 
         try: #INFLUX_MEASUREMENT
             Influx_measurement = os.environ['INFLUX_MEASUREMENT']
             self.NewLog("OK: succesfully loaded environment variable for influx 'INFLUX_MEASUREMENT'")
-        except:
-            self.NewLog("ERROR: environment variable for influx 'INFLUX_MEASUREMENT' FAILED")
+        except Exception as e:
+            self.NewLog("ERROR: environment variable for influx 'INFLUX_MEASUREMENT' FAILED", e)
             EnvVarInfluxSuccess = False
 
         try: #INFLUX_HOST
             influx_host = os.environ['INFLUX_HOST']
             self.NewLog("OK: succesfully loaded environment variable for influx 'INFLUX_HOST'")
-        except:
-            self.NewLog("ERROR: environment variable for influx 'INFLUX_HOST' FAILED")
+        except Exception as e:
+            self.NewLog("ERROR: environment variable for influx 'INFLUX_HOST' FAILED", e)
             EnvVarInfluxSuccess = False
 
         return EnvVarInfluxSuccess
@@ -405,7 +414,7 @@ class Meter():
 
                                 if receivedcounter > 1:
 
-                                    difference = datetime.utc() - OldTime
+                                    difference = datetime.utcnow() - OldTime
                                     difference_in_seconds = difference.total_seconds()
 
                                     if difference_in_seconds > 60:
