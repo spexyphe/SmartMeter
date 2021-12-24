@@ -201,7 +201,9 @@ class Meter():
             #using point time to log things will ensure that everything uses the same time
             PointTime = datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ')
 
-            Influx.AddDataPoint(Measurement, Host , CurrentYear, CurrentMonthNr, CurrentWeekNr, CurrentDayNr, "Version", version, PointTime )
+            CurrentDayOfYear = Amsterdam_now.timetuple().tm_yday
+
+            Influx.AddDataPoint(Measurement, Host , CurrentYear, CurrentMonthNr, CurrentWeekNr, CurrentDayNr, CurrentDayOfYear, "Version", version, PointTime )
 
     def CreateRawPointLocally(self, Measurement, Host, LineNr, Value):
 
