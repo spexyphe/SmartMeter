@@ -1,4 +1,4 @@
-version = "0.1.1"
+version = "0.1.2"
 
 import os
 import logging
@@ -539,7 +539,7 @@ class Meter():
                                 if "0-0:96.14.0" in p1_line:
                                     dal_piek = self.ParseLine(p1_line)
                                     if not (dal_piek is None):
-                                        self.CreateDataPointLocally(Influx_measurement, influx_host, "dal_piek", dal_piek)
+                                        self.CreateDataPointLocally(Influx_measurement, influx_host, "dal_piek_fl", dal_piek)
 
                                 if "1-0:1.8.1" in p1_line:
                                     totaal_verbruik_dal = self.ParseLine(p1_line)

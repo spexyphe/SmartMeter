@@ -128,10 +128,37 @@ def WriteData():
         #is there something to add
         if len(DataPoints) > 0:
 
-            #write point to influx 
-            function_influx_client.write_points(DataPoints)
+            try:
 
-            NewLog("OK, WriteData, writing data points: " + str(len(DataPoints)))
+                #write point to influx 
+                function_influx_client.write_points(DataPoints)
+
+                NewLog("OK, WriteData, writing data points: " + str(len(DataPoints)))
+            
+                DataPoints = []
+
+            except Exception as e:
+
+                if "dropped" in str(e):
+                    parse_error = str(e)
+
+                    try:
+                        linedropped = int(parse_error[parse_error.index('=')+1:parse_error.index('}')-1])
+
+                        if len(DataPoints) > linedropped:
+                            #remove the identified line
+                            DataPoints.pop(linedropped)
+
+                            #retry
+                            WriteData()
+                        
+                    except Exception as e2:
+                        NewLog("WARNING, could not find index in error " + str(e) + ", with error: " + str(e2))
+                        DataPoints = []
+
+                else:
+                    NewLog("WARNING, could not find index in error " + str(e))
+                    DataPoints = []
     else:
         NewLog("WARNING, WriteData, local test is true")
 
