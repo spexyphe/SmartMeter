@@ -25,7 +25,7 @@ except Exception as e:
 
 try:
     import Mod_Transform as Transform
-    #Transform.Init_Transform()
+    Transform.Init_Transform()
 except Exception as e:
     logging.error("failed to load custom Transform module: " + str(e))
 
