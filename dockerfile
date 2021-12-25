@@ -20,4 +20,4 @@ RUN pip3 install -r /requirements.txt
 ADD . .
 
 CMD [ "python3", "./Project/Main_SmartMeter.py"]
-
+#CMD [ "python3", "./Project/test_Main_SmartMeter.py"]

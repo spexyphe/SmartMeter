@@ -23,6 +23,15 @@ try:
 except Exception as e:
     logging.error("failed to load custom influx module: " + str(e))
 
+import Mod_Transform as Transform
+
+# try:
+#     import Mod_Transform as Transform
+#     #Transform.Init_Transform()
+# except Exception as e:
+#     logging.error("failed to load custom Transform module: " + str(e))
+
+
 class Meter():
 
     def __init__(self):
@@ -214,6 +223,8 @@ class Meter():
 
 
     def CreateDataPointLocally(self, Measurement, Host, ValueName, Value, Phase=None):
+        ### mk: measurement and host should not be needed as input
+
 
             # Tags are fixed values, that are not time zone transformed
             # Hence for tags we need the current timezone
@@ -551,11 +562,23 @@ class Meter():
                                     if not (totaal_verbruik_dal is None):
                                         self.CreateDataPointLocally(Influx_measurement, influx_host, "totaal_verbruik_dal_fl", totaal_verbruik_dal)
 
+                                        #check for 24h change in this value
+                                        DailyChange = Transform.ManageDailyUsage("totaal_verbruik_dal_fl", totaal_verbruik_dal)
+                                        if not DailyChange is None: # if there was a daily value to store
+                                            self.CreateDataPointLocally(Influx_measurement, influx_host, "totaal_verbruik_dal_fl_change", DailyChange)
+
+
                                 if "1-0:1.8.2" in p1_line:
                                     totaal_verbruik_piek = self.ParseLine(p1_line)
 
                                     if not (totaal_verbruik_piek is None):
                                         self.CreateDataPointLocally(Influx_measurement, influx_host, "totaal_verbruik_piek_fl", totaal_verbruik_piek)
+
+                                        #check for 24h change in this value
+                                        DailyChange = Transform.ManageDailyUsage("totaal_verbruik_piek_fl", totaal_verbruik_piek)
+                                        if not DailyChange is None: # if there was a daily value to store
+                                            self.CreateDataPointLocally(Influx_measurement, influx_host, "totaal_verbruik_piek_fl_change", DailyChange)
+
 
                                 if "1-0:2.8.1" in p1_line:
                                     totaal_terug_dal = self.ParseLine(p1_line)
@@ -563,11 +586,26 @@ class Meter():
                                     if not (totaal_terug_dal is None):
                                         self.CreateDataPointLocally(Influx_measurement, influx_host, "totaal_terug_dal_fl", totaal_terug_dal)
 
+                                        #check for 24h change in this value
+                                        DailyChange = Transform.ManageDailyUsage("totaal_terug_dal_fl", totaal_terug_dal)
+                                        if not DailyChange is None: # if there was a daily value to store
+                                            self.CreateDataPointLocally(Influx_measurement, influx_host, "totaal_terug_dal_fl_change", DailyChange)
+
+
+
                                 if "1-0:2.8.2" in p1_line:
                                     totaal_terug_piek = self.ParseLine(p1_line)
 
                                     if not (totaal_terug_piek is None) :
                                         self.CreateDataPointLocally(Influx_measurement, influx_host, "totaal_terug_piek_fl", totaal_terug_piek)
+
+                                        #check for 24h change in this value
+                                        DailyChange = Transform.ManageDailyUsage("totaal_terug_piek_fl", totaal_terug_piek)
+                                        if not DailyChange is None: # if there was a daily value to store
+                                            self.CreateDataPointLocally(Influx_measurement, influx_host, "totaal_terug_piek_fl_change", DailyChange)
+
+
+
 
                                 if "1-0:32.7.0" in p1_line:
                                     Volt1 = self.ParseLine(p1_line)
@@ -652,6 +690,10 @@ class Meter():
                                     if not (Gas_Volume is None):
                                         self.CreateDataPointLocally(Influx_measurement, influx_host, "Gas_Volume", Gas_Volume)
 
+                                        #check for 24h change in this value
+                                        DailyChange = Transform.ManageDailyUsage("Gas_Volume", Gas_Volume)
+                                        if not DailyChange is None: # if there was a daily value to store
+                                            self.CreateDataPointLocally(Influx_measurement, influx_host, "Gas_Volume_change", DailyChange)
 
 
 
