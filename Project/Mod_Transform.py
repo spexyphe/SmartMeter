@@ -36,13 +36,13 @@ def ManageDailyUsage(VarName, VarValue):
             if "VarValue_DayStart" in T_state[VarName] and "daynr" in T_state[VarName]:
 
                 #is there a difference in day in our memory and the current day
-                if Amsterdam_now.day() != T_state[VarName]["daynr"]:
+                if Amsterdam_now.day != T_state[VarName]["daynr"]:
                     #te change is the value at the end of the day minus the start of the day
                     DailyChange = VarValue - T_state[VarName]["VarValue_DayStart"]
                     
                     #remember this as the first value of the day
                     T_state[VarName]["VarValue_DayStart"] = VarValue
-                    T_state[VarName]["daynr"] = Amsterdam_now.day()
+                    T_state[VarName]["daynr"] = Amsterdam_now.day
 
                     #return the dayly change
                     return  DailyChange    
