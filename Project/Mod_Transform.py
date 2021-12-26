@@ -51,12 +51,12 @@ def ManageDailyUsage(VarName, VarValue):
                 #this should not happen
                 #repopulate memory for this var
                 T_state[VarName]["VarValue_DayStart"] = VarValue
-                T_state[VarName]["daynr"] = Amsterdam_now.day()
+                T_state[VarName]["daynr"] = Amsterdam_now
         else:
             #create new memory for this var
             T_state[VarName] = {}
             T_state[VarName]["VarValue_DayStart"] = VarValue
-            T_state[VarName]["daynr"] = Amsterdam_now.day()
+            T_state[VarName]["daynr"] = Amsterdam_now
     else:
         T_state = json.loads('' or '{}')
 
