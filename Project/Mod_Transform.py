@@ -2,7 +2,7 @@ import sys
 import logging
 
 import json
-from datetime import datetime
+from datetime import datetime, timedelta
 
 try:
     import pytz
@@ -24,6 +24,8 @@ def NewLog(StrMessage):
 def ManageDailyUsage(VarName, VarValue):
     global T_state
 
+    fmt = '%Y%m%d%H%M%S' # ex. 20110104172008 -> Jan. 04, 2011 5:20:08pm 
+
     tz = pytz.timezone('Europe/Amsterdam')
     Amsterdam_now = datetime.now(tz)
 
@@ -33,30 +35,44 @@ def ManageDailyUsage(VarName, VarValue):
         #is this a known var
         if VarName in T_state:
             # do we have day and daystartvalue in our memory
-            if "VarValue_DayStart" in T_state[VarName] and "daynr" in T_state[VarName]:
+            if "VarValue_DayStart" in T_state[VarName] and "oldday" in T_state[VarName] and "oldhour" in T_state[VarName]:
+                             
+                old_day = T_state[VarName]["oldday"]
+                old_hour = T_state[VarName]["oldhour"]
 
                 #is there a difference in day in our memory and the current day
-                if Amsterdam_now.day != T_state[VarName]["daynr"]:
-                    #te change is the value at the end of the day minus the start of the day
-                    DailyChange = VarValue - T_state[VarName]["VarValue_DayStart"]
-                    
-                    #remember this as the first value of the day
-                    T_state[VarName]["VarValue_DayStart"] = VarValue
-                    T_state[VarName]["daynr"] = Amsterdam_now.day
+                if old_day != Amsterdam_now.day :
 
-                    #return the dayly change
-                    return  DailyChange    
-                
+                    #was the previous daystart recorded around hour 0
+                    #else we are recording false values (say, when the program restarts around hour 22)
+                    if old_hour == 0:
+                        #te change is the value at the end of the day minus the start of the day
+                        DailyChange = VarValue - T_state[VarName]["VarValue_DayStart"]
+                        
+                        #remember this as the first value of the day
+                        T_state[VarName]["VarValue_DayStart"] = VarValue
+                        T_state[VarName]["oldday"] = Amsterdam_now.day
+                        T_state[VarName]["oldhour"] = Amsterdam_now.hour
+
+                        return  DailyChange
+                    else:
+                        #remember this as the first value of the day
+                        T_state[VarName]["VarValue_DayStart"] = VarValue
+                        T_state[VarName]["oldday"] = Amsterdam_now.day
+                        T_state[VarName]["oldhour"] = Amsterdam_now.hour
+
             else:
                 #this should not happen
                 #repopulate memory for this var
                 T_state[VarName]["VarValue_DayStart"] = VarValue
-                T_state[VarName]["daynr"] = Amsterdam_now
+                T_state[VarName]["oldday"] = Amsterdam_now.day
+                T_state[VarName]["oldhour"] = Amsterdam_now.hour
         else:
             #create new memory for this var
             T_state[VarName] = {}
             T_state[VarName]["VarValue_DayStart"] = VarValue
-            T_state[VarName]["daynr"] = Amsterdam_now
+            T_state[VarName]["oldday"] = Amsterdam_now.day
+            T_state[VarName]["oldhour"] = Amsterdam_now.hour
     else:
         T_state = json.loads('' or '{}')
 
