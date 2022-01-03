@@ -693,6 +693,10 @@ class Meter():
                                         if not DailyChange is None: # if there was a daily value to store
                                             self.CreateDataPointLocally(Influx_measurement, influx_host, "Gas_Volume_change", DailyChange)
 
+                                        Gas_Flow = Transform.GasFlow("Gas_Flow",Gas_Volume)
+
+                                        if not (Gas_Flow is None):
+                                            self.CreateDataPointLocally(Influx_measurement, influx_host, "Gas_Flow", Gas_Flow)
 
 
                     try:

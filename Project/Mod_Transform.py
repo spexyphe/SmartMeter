@@ -37,6 +37,7 @@ def ManageDailyUsage(VarName, VarValue):
             # do we have day and daystartvalue in our memory
             if "VarValue_DayStart" in T_state[VarName] and "oldday" in T_state[VarName] and "oldhour" in T_state[VarName]:
                              
+                #what is the day and hour memory
                 old_day = T_state[VarName]["oldday"]
                 old_hour = T_state[VarName]["oldhour"]
 
@@ -78,6 +79,37 @@ def ManageDailyUsage(VarName, VarValue):
 
     #there was no change in day so there is no daily change known
     return None
+
+def GasFlow(VarName, VarValue):
+    global T_state
+
+    Delta = None
+
+    #can we access the memory
+    if not T_state is None:
+
+        #is this a known var
+        if VarName in T_state:
+            # do we have day and daystartvalue in our memory
+            if "VarValue_Previous" in T_state[VarName]:
+                Delta = VarValue - T_state[VarName]["VarValue_Previous"]
+                T_state[VarName]["VarValue_Previous"] = VarValue
+
+            else:
+                #this should not happen
+                #repopulate memory for this var
+                T_state[VarName]["VarValue_Previous"] = VarValue
+
+        else:
+            #create new memory for this var
+            T_state[VarName] = {}
+            T_state[VarName]["VarValue_Previous"] = VarValue
+
+    else:
+        T_state = json.loads('' or '{}')
+
+    #there was no change in day so there is no daily change known
+    return Delta
 
 def Init_Transform():
     global LogTransform
