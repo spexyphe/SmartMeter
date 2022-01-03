@@ -447,11 +447,9 @@ class Meter():
                                     # print (str(huidig_terug_cum) + "/" + str(received_huidig_terug) + "=" + str(huidig$
                                     huidig = (huidig_verbruik - huidig_terug)*1000
 
-                                    if huidig_verbruik != 0:
-                                        self.CreateDataPointLocally(Influx_measurement, influx_host, "huidig_verbruik", (huidig_verbruik*1000))
-                                
-                                    if huidig_terug != 0:
-                                        self.CreateDataPointLocally(Influx_measurement, influx_host, "huidig_terug", (huidig_terug*1000))
+                                    #also send 0's to know difference between null and 0
+                                    self.CreateDataPointLocally(Influx_measurement, influx_host, "huidig_verbruik", (huidig_verbruik*1000))                                
+                                    self.CreateDataPointLocally(Influx_measurement, influx_host, "huidig_terug", (huidig_terug*1000))
 
                                     self.CreateDataPointLocally(Influx_measurement, influx_host, "huidig", huidig)                
 
