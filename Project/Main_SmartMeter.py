@@ -545,8 +545,8 @@ class Meter():
 
                             if "1-0:2.7.0" in p1_line:
                                 terug_waarde = self.ParseLine(p1_line)
-                                if not(verbruik_waarde is None):
-                                    huidig_terug_cum += verbruik_waarde
+                                if not(terug_waarde is None):
+                                    huidig_terug_cum += terug_waarde
                                     received_huidig_terug += 1
 
                             if DoRawLog:
