@@ -538,12 +538,16 @@ class Meter():
 
                             # als je alles wil zien moet je de volgende line uncommenten print (p1_li$
                             if "1-0:1.7.0" in p1_line:
-                                huidig_verbruik_cum += self.ParseLine(p1_line)
-                                received_huidig_verbruik += 1
+                                verbruik_waarde = self.ParseLine(p1_line)
+                                if not(verbruik_waarde is None):
+                                    huidig_verbruik_cum += verbruik_waarde
+                                    received_huidig_verbruik += 1
 
                             if "1-0:2.7.0" in p1_line:
-                                huidig_terug_cum += self.ParseLine(p1_line)
-                                received_huidig_terug += 1
+                                terug_waarde = self.ParseLine(p1_line)
+                                if not(verbruik_waarde is None):
+                                    huidig_terug_cum += verbruik_waarde
+                                    received_huidig_terug += 1
 
                             if DoRawLog:
 
