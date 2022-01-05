@@ -85,28 +85,35 @@ def GasFlow(VarName, VarValue):
 
     Delta = None
 
-    #can we access the memory
-    if not T_state is None:
+    #validate that the unput is a float
+    if type(VarValue) is float:
 
-        #is this a known var
-        if VarName in T_state:
-            # do we have day and daystartvalue in our memory
-            if "VarValue_Previous" in T_state[VarName]:
-                Delta = VarValue - T_state[VarName]["VarValue_Previous"]
-                T_state[VarName]["VarValue_Previous"] = VarValue
+        #can we access the memory
+        if not T_state is None:
+
+            #is this a known var
+            if VarName in T_state:
+                # do we have day and daystartvalue in our memory
+                if "VarValue_Previous" in T_state[VarName]:
+                    Delta = round(VarValue - T_state[VarName]["VarValue_Previous"],2)
+                    T_state[VarName]["VarValue_Previous"] = VarValue
+
+                else:
+                    #this should not happen
+                    #repopulate memory for this var
+                    T_state[VarName]["VarValue_Previous"] = VarValue
 
             else:
-                #this should not happen
-                #repopulate memory for this var
+                #create new memory for this var
+                T_state[VarName] = {}
                 T_state[VarName]["VarValue_Previous"] = VarValue
 
         else:
-            #create new memory for this var
-            T_state[VarName] = {}
-            T_state[VarName]["VarValue_Previous"] = VarValue
+            T_state = json.loads('' or '{}')
 
     else:
-        T_state = json.loads('' or '{}')
+        print(str(VarValue) + " is a " + str(type(VarValue)))
+        
 
     #there was no change in day so there is no daily change known
     return Delta
