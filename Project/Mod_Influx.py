@@ -46,20 +46,20 @@ def CheckTags(DataYear, DataMonth, DataWeek, DataDay):
 
     return answer
 
-def AddRawPoint(Measurement, DataHost, LineNr, ValueName, Value, PointTime):
+def AddRawPoint(measurement, Datahost, line_nr, ValueName, Value, point_time):
     global DataPoints
 
     RawDataJsonPoint = json.loads('' or '{}')
-    RawDataJsonPoint["measurement"] = Measurement
+    RawDataJsonPoint["measurement"] = measurement
 
     if not ("tags" in RawDataJsonPoint):
         RawDataJsonPoint["tags"] = {}
             
     if not ("host" in RawDataJsonPoint["tags"]):
-        RawDataJsonPoint["tags"]["host"] = DataHost
+        RawDataJsonPoint["tags"]["host"] = Datahost
 
     if not ("year" in RawDataJsonPoint["tags"]):
-        RawDataJsonPoint["tags"]["LineNr"] = LineNr
+        RawDataJsonPoint["tags"]["line_nr"] = line_nr
 
     if not ("fields" in RawDataJsonPoint):
         RawDataJsonPoint["fields"] = {}
@@ -67,19 +67,19 @@ def AddRawPoint(Measurement, DataHost, LineNr, ValueName, Value, PointTime):
     if not (ValueName in RawDataJsonPoint["fields"]):
         RawDataJsonPoint["fields"][ValueName] = Value
 
-    RawDataJsonPoint["time"] = PointTime
+    RawDataJsonPoint["time"] = point_time
 
-    new_log("OK: " + DataHost + "-" + ValueName + "(" + str(Value) + ")"  + ": " + PointTime)
+    new_log("OK: " + Datahost + "-" + ValueName + "(" + str(Value) + ")"  + ": " + point_time)
 
     DataPoints.append(RawDataJsonPoint)
 
 
 
-def AddDataPoint(Measurement, DataHost, DataYear, DataMonth, DataWeek, DataDay, DayOfYear, ValueName, Value, PointTime, Phase=None):
+def AddDataPoint(measurement, Datahost, DataYear, DataMonth, DataWeek, DataDay, DayOfYear, ValueName, Value, point_time, Phase=None):
     global DataPoints
 
-    RawDataJsonPoint = json.loads('' or '{}')
-    RawDataJsonPoint["measurement"] = Measurement
+    RawDataJsonPoint = json.loads('{}')
+    RawDataJsonPoint["measurement"] = measurement
 
     if CheckTags(DataYear,DataMonth, DataWeek,DataDay):
 
@@ -87,7 +87,7 @@ def AddDataPoint(Measurement, DataHost, DataYear, DataMonth, DataWeek, DataDay, 
             RawDataJsonPoint["tags"] = {}
                 
         if not ("host" in RawDataJsonPoint["tags"]):
-            RawDataJsonPoint["tags"]["host"] = DataHost
+            RawDataJsonPoint["tags"]["host"] = Datahost
 
         if not ("year" in RawDataJsonPoint["tags"]):
             RawDataJsonPoint["tags"]["year"] = DataYear
@@ -114,9 +114,9 @@ def AddDataPoint(Measurement, DataHost, DataYear, DataMonth, DataWeek, DataDay, 
         if not (ValueName in RawDataJsonPoint["fields"]):
             RawDataJsonPoint["fields"][ValueName] = Value
 
-        RawDataJsonPoint["time"] = PointTime
+        RawDataJsonPoint["time"] = point_time
 
-        new_log("OK: " + DataHost + "-" + ValueName + "(" + str(Value) + ")"  + ": " + PointTime)
+        new_log("OK: " + Datahost + "-" + ValueName + "(" + str(Value) + ")"  + ": " + point_time)
 
         DataPoints.append(RawDataJsonPoint)
 
@@ -126,9 +126,9 @@ def AddDataPoint(Measurement, DataHost, DataYear, DataMonth, DataWeek, DataDay, 
 def WriteData():
     global DataPoints
     global function_influx_client
-    global IslocalTest
+    global is_local_test
 
-    if not IslocalTest:
+    if not is_local_test:
 
         #is there something to add
         if len(DataPoints) > 0:
@@ -176,8 +176,8 @@ def Init_Influx(IN_username, IN_password, IN_host, IN_port=8086, IN_database='ho
     global LogInflux
     LogInflux = IN_DEBUG
 
-    global function_influx_client, IslocalTest, DataPoints
-    IslocalTest = IN_LocalTest
+    global function_influx_client, is_local_test, DataPoints
+    is_local_test = IN_LocalTest
     DataPoints = []
 
     try:

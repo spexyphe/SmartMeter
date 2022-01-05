@@ -32,13 +32,13 @@ except Exception as e:
 
 class Meter():
 
-    Timeformat = '%Y-%m-%dT%H:%M:%SZ'
+    time_format = '%Y-%m-%dT%H:%M:%SZ'
 
     def __init__(self):
         print("init smartmeter")
 
     def new_log(self, str_Message, an_exception = None):
-        global doTRACE
+        global do_trace
 
         Module_Name = "Mod_SmartMeter.py, "
 
@@ -53,149 +53,167 @@ class Meter():
             if not (an_exception is None):
                 logging.warning(str(an_exception))   
         else:
-            if doTRACE:
+            if do_trace:
                 logging.info( Module_Name + str_Message)
 
                 if not (an_exception is None):
                     logging.info(str(an_exception)) 
 
-    def LoadEnvVar_Sys(self):
-        global doTRACE, IslocalTest, IsVarRun
+    def load_env_var_sys(self):
+        global do_trace, is_local_test, is_var_run
         
-        #by default we are doTRACE-ing
-        IslocalTest = False
-        doTRACE = True 
-        IsVarRun = True
+        #by default we are do_trace-ing
+        is_local_test = False
+        do_trace = True 
+        is_var_run = True
         
-        try: #doTRACE
-            doTRACE = eval( os.environ['doTRACE'] )
-            self.new_log("OK: succesfully loaded environment variable for system 'doTRACE'")
+        try: #do_trace
+            do_trace_str = os.environ['do_trace']
+
+            if do_trace_str == "True":
+                do_trace = True
+            else:
+                do_trace = False
+
+            self.new_log("OK: succesfully loaded environment variable for system 'do_trace'")
         except Exception as e:
-            self.new_log("ERROR: environment variable for system 'doTRACE' FAILED", e)
+            self.new_log("ERROR: environment variable for system 'do_trace' FAILED", e)
 
-        try: #ISLOCALTEST
-            IslocalTest = eval( os.environ['ISLOCALTEST'] )
-            self.new_log("OK: succesfully loaded environment variable for system 'ISLOCALTEST': " + str(IslocalTest))
+        try: #is_local_test
+            is_local_test_str = os.environ['is_local_test']
+
+            if is_local_test_str == "True":
+                is_local_test = True
+            else:
+                is_local_test = False
+
+            self.new_log("OK: succesfully loaded environment variable for system 'is_local_test': " + str(is_local_test))
         except Exception as e:
-            self.new_log("ERROR: environment variable for system 'ISLOCALTEST' FAILED", e)
+            self.new_log("ERROR: environment variable for system 'is_local_test' FAILED", e)
 
-        try: #ISVARRUN
-            IsVarRun = eval( os.environ['ISVARRUN'] )
-            self.new_log("OK: succesfully loaded environment variable for system 'ISVARRUN'")
+        try: #is_var_run
+            is_var_run_str = os.environ['is_var_run']
+
+            if is_var_run_str == "True":
+                is_var_run = True
+            else:
+                is_var_run = False
+
+            self.new_log("OK: succesfully loaded environment variable for system 'is_var_run'")
         except Exception as e:
-            self.new_log("ERROR: environment variable for system 'ISVARRUN' FAILED", e)
+            self.new_log("ERROR: environment variable for system 'is_var_run' FAILED", e)
 
-    def LoadEnvVar_ModBus(self):
+    def load_env_var_modbus(self):
 
-        global Device, Baud, Parity, Variables
+        global device, baud, parity, variables
 
-        Device = "/dev/ttyUSB0"
-        Baud = 115200
-        Parity = "E" 
-        Variables = ""
+        device = "/dev/ttyUSB0"
+        baud = 115200
+        parity = "E" 
+        variables = ""
 
-        try: #MODBUS_DEVICE
-            Device = os.environ['MODBUS_DEVICE']
-            self.new_log("OK: succesfully loaded environment variable for Modbus 'MODBUS_DEVICE'")
+        try: #modbus_device
+            device = os.environ['modbus_device']
+            self.new_log("OK: succesfully loaded environment variable for modbus 'modbus_device'")
         except Exception as e:
-            self.new_log("ERROR: environment variable for Modbus 'MODBUS_DEVICE' FAILED", e)
+            self.new_log("ERROR: environment variable for modbus 'modbus_device' FAILED", e)
 
-        try: #MODBUS_BAUD
-            Baud = int(os.environ['MODBUS_BAUD'])
-            self.new_log("OK: succesfully loaded environment variable for Modbus 'MODBUS_BAUD'")
+        try: #modbus_baud
+            baud = int(os.environ['modbus_baud'])
+            self.new_log("OK: succesfully loaded environment variable for modbus 'modbus_baud'")
         except Exception as e:
-            self.new_log("ERROR: environment variable for Modbus 'MODBUS_BAUD' FAILED", e)
+            self.new_log("ERROR: environment variable for modbus 'modbus_baud' FAILED", e)
         
-        try: #MODBUS_PARITY
-            Parity = os.environ['MODBUS_PARITY']
-            self.new_log("OK: succesfully loaded environment variable for Modbus 'MODBUS_PARITY'")
+        try: #modbus_parity
+            parity = os.environ['modbus_parity']
+            self.new_log("OK: succesfully loaded environment variable for modbus 'modbus_parity'")
         except Exception as e:
-            self.new_log("ERROR: environment variable for Modbus 'MODBUS_PARITY' FAILED", e)
+            self.new_log("ERROR: environment variable for modbus 'modbus_parity' FAILED", e)
 
-        try: #MODBUS_VARIABLES
-            Variables = os.environ['MODBUS_VARIABLES']
-            self.new_log("OK: succesfully loaded environment variable for Modbus 'MODBUS_VARIABLES'")
+        try: #modbus_variables
+            variables = os.environ['modbus_variables']
+            self.new_log("OK: succesfully loaded environment variable for modbus 'modbus_variables'")
         except Exception as e:
-            self.new_log("ERROR: environment variable for Modbus 'MODBUS_VARIABLES' FAILED", e)
+            self.new_log("ERROR: environment variable for modbus 'modbus_variables' FAILED", e)
 
-    def ParseVariables(self, IN_Variables):
-        OUT_Variables = None
+    def parse_variables(self, in_variables):
+        out_variables = None
 
         try:
-            OUT_Variables = IN_Variables.split(",")    
+            out_variables = in_variables.split(",")    
         except Exception as e:
-            self.new_log("ERROR, ParseVariables Failed", e)
+            self.new_log("ERROR, parse_variables Failed", e)
         
-        return OUT_Variables
+        return out_variables
 
-    def LoadEnvVar_Influx(self):
-        global Influx_url, Influx_port, Influx_user, Influx_password, Influx_database, Influx_measurement, influx_host
+    def load_env_var_influx(self):
+        global influx_url, influx_port, influx_user, influx_password, influx_database, influx_measurement, influx_host
 
         EnvVarInfluxSuccess = True
         
-        try: #INFLUX_URL
-            Influx_url = os.environ['INFLUX_URL']
-            self.new_log("OK: succesfully loaded environment variable for influx 'INFLUX_URL'")
+        try: #influx_url
+            influx_url = os.environ['influx_url']
+            self.new_log("OK: succesfully loaded environment variable for influx 'influx_url'")
         except Exception as e:
-            self.new_log("ERROR: environment variable for influx 'INFLUX_URL' FAILED", e)
+            self.new_log("ERROR: environment variable for influx 'influx_url' FAILED", e)
             EnvVarInfluxSuccess = False
 
-        try: #INFLUX_PORT
-            Influx_port = int(os.environ['INFLUX_PORT'])
-            self.new_log("OK: succesfully loaded environment variable for influx 'INFLUX_PORT'")
+        try: #influx_port
+            influx_port = int(os.environ['influx_port'])
+            self.new_log("OK: succesfully loaded environment variable for influx 'influx_port'")
         except Exception as e:
-            self.new_log("ERROR: environment variable for influx 'INFLUX_PORT' FAILED", e)
+            self.new_log("ERROR: environment variable for influx 'influx_port' FAILED", e)
             EnvVarInfluxSuccess = False
 
-        try: #INFLUX_USER
-            Influx_user = os.environ['INFLUX_USER']
-            self.new_log("OK: succesfully loaded environment variable for influx 'INFLUX_USER'")
+        try: #influx_user
+            influx_user = os.environ['influx_user']
+            self.new_log("OK: succesfully loaded environment variable for influx 'influx_user'")
         except Exception as e:
-            self.new_log("ERROR: environment variable for influx 'INFLUX_USER' FAILED", e)
+            self.new_log("ERROR: environment variable for influx 'influx_user' FAILED", e)
             EnvVarInfluxSuccess = False
 
-        try: #INFLUX_PASSWORD
-            Influx_password = os.environ['INFLUX_PASSWORD']
-            self.new_log("OK: succesfully loaded environment variable for influx 'INFLUX_PASSWORD'")
+        try: #influx_password
+            influx_password = os.environ['influx_password']
+            self.new_log("OK: succesfully loaded environment variable for influx 'influx_password'")
         except Exception as e:
-            self.new_log("ERROR: environment variable for influx 'INFLUX_PASSWORD' FAILED", e)
+            self.new_log("ERROR: environment variable for influx 'influx_password' FAILED", e)
             EnvVarInfluxSuccess = False
 
-        try: #INFLUX_DATABASE
-            Influx_database = os.environ['INFLUX_DATABASE']
-            self.new_log("OK: succesfully loaded environment variable for influx 'INFLUX_DATABASE'")
+        try: #influx_database
+            influx_database = os.environ['influx_database']
+            self.new_log("OK: succesfully loaded environment variable for influx 'influx_database'")
         except Exception as e:
-            self.new_log("ERROR: environment variable for influx 'INFLUX_DATABASE' FAILED", e)
+            self.new_log("ERROR: environment variable for influx 'influx_database' FAILED", e)
             EnvVarInfluxSuccess = False
 
-        try: #INFLUX_MEASUREMENT
-            Influx_measurement = os.environ['INFLUX_MEASUREMENT']
-            self.new_log("OK: succesfully loaded environment variable for influx 'INFLUX_MEASUREMENT'")
+        try: #influx_measurement
+            influx_measurement = os.environ['influx_measurement']
+            self.new_log("OK: succesfully loaded environment variable for influx 'influx_measurement'")
         except Exception as e:
-            self.new_log("ERROR: environment variable for influx 'INFLUX_MEASUREMENT' FAILED", e)
+            self.new_log("ERROR: environment variable for influx 'influx_measurement' FAILED", e)
             EnvVarInfluxSuccess = False
 
-        try: #INFLUX_HOST
-            influx_host = os.environ['INFLUX_HOST']
-            self.new_log("OK: succesfully loaded environment variable for influx 'INFLUX_HOST'")
+        try: #INFLUX_host
+            influx_host = os.environ['influx_host']
+            self.new_log("OK: succesfully loaded environment variable for influx 'influx_host'")
         except Exception as e:
-            self.new_log("ERROR: environment variable for influx 'INFLUX_HOST' FAILED", e)
+            self.new_log("ERROR: environment variable for influx 'influx_host' FAILED", e)
             EnvVarInfluxSuccess = False
 
         return EnvVarInfluxSuccess
 
     #dashboards don't always like boolean values, convert to int
-    def BoolToInflux(self, Input):
+    def bool_to_influx(self, input):
 
-        if type(Input)==bool:
-            if Input == True:
+        if type(input)==bool:
+            if input == True:
                 return "true"
             else:
                 return "false"
         else:
             return None
 
-    def UpdateVersion(self, Measurement, Host):
+    def update_version(self, measurement, host):
 
             # Tags are fixed values, that are not time zone transformed
             # Hence for tags we need the current timezone
@@ -204,27 +222,27 @@ class Meter():
             amsterdam_now = datetime.now(tz)
 
             # tag values that allows searching based on time tags
-            CurrentYear = str(amsterdam_now.strftime("%Y"))
-            CurrentMonthNr = str(amsterdam_now.strftime("%m"))
-            CurrentWeekNr = str(amsterdam_now.strftime("%U"))
-            CurrentDayNr = str(amsterdam_now. strftime("%w"))
+            current_year = str(amsterdam_now.strftime("%Y"))
+            current_month_nr = str(amsterdam_now.strftime("%m"))
+            current_week_nr = str(amsterdam_now.strftime("%U"))
+            current_day_nr = str(amsterdam_now. strftime("%w"))
 
             #using point time to log things will ensure that everything uses the same time
-            PointTime = datetime.utcnow().strftime(self.Timeformat)
+            point_time = datetime.utcnow().strftime(self.time_format)
 
-            CurrentDayOfYear = amsterdam_now.timetuple().tm_yday
+            current_day_of_year = amsterdam_now.timetuple().tm_yday
 
-            Influx.AddDataPoint(Measurement, Host , CurrentYear, CurrentMonthNr, CurrentWeekNr, CurrentDayNr, CurrentDayOfYear, "Version", version, PointTime )
+            Influx.AddDataPoint(measurement, host , current_year, current_month_nr, current_week_nr, current_day_nr, current_day_of_year, "Version", version, point_time )
 
-    def CreateRawPointLocally(self, Measurement, Host, LineNr, Value):
+    def create_raw_point_locally(self, measurement, host, line_nr, Value):
 
             #using point time to log things will ensure that everything uses the same time
-            PointTime = datetime.utcnow().strftime(self.Timeformat)
+            point_time = datetime.utcnow().strftime(self.time_format)
 
-            Influx.AddRawPoint(Measurement, Host, LineNr, "Raw", Value, PointTime)
+            Influx.AddRawPoint(measurement, host, line_nr, "Raw", Value, point_time)
 
 
-    def CreateDataPointLocally(self, Measurement, Host, ValueName, Value, Phase=None):
+    def create_data_point_locally(self, measurement, host, ValueName, Value, Phase=None):
         ### mk: measurement and host should not be needed as input
 
 
@@ -235,75 +253,75 @@ class Meter():
             amsterdam_now = datetime.now(tz)
 
             # tag values that allows searching based on time tags
-            CurrentYear = str(amsterdam_now.strftime("%Y"))
-            CurrentMonthNr = str(amsterdam_now.strftime("%m"))
-            CurrentWeekNr = str(amsterdam_now.strftime("%U"))
-            CurrentDayNr = str(amsterdam_now. strftime("%w"))
+            current_year = str(amsterdam_now.strftime("%Y"))
+            current_month_nr = str(amsterdam_now.strftime("%m"))
+            current_week_nr = str(amsterdam_now.strftime("%U"))
+            current_day_nr = str(amsterdam_now. strftime("%w"))
             
-            CurrentDayOfYear = amsterdam_now.timetuple().tm_yday
+            current_day_of_year = amsterdam_now.timetuple().tm_yday
 
             #using point time to log things will ensure that everything uses the same time
-            PointTime = datetime.utcnow().strftime(self.Timeformat)
+            point_time = datetime.utcnow().strftime(self.time_format)
 
-            Influx.AddDataPoint(Measurement, Host, CurrentYear, CurrentMonthNr, CurrentWeekNr, CurrentDayNr, CurrentDayOfYear, ValueName, Value, PointTime, Phase)
+            Influx.AddDataPoint(measurement, host, current_year, current_month_nr, current_week_nr, current_day_nr, current_day_of_year, ValueName, Value, point_time, Phase)
 
-    def ParseLine(self, In_Line):
-        Out_Line = None
+    def ParseLine(self, in_line):
+        out_line = None
 
         try:
-            if In_Line.count('*') > 0:
-                if In_Line.count(')') == 2:
-                    Out_Line = float(In_Line[In_Line.index(')')+2:In_Line.index('*')])
+            if in_line.count('*') > 0:
+                if in_line.count(')') == 2:
+                    out_line = float(in_line[in_line.index(')')+2:in_line.index('*')])
                 else:
-                    Out_Line = float(In_Line[In_Line.index('(')+1:In_Line.index('*')])
+                    out_line = float(in_line[in_line.index('(')+1:in_line.index('*')])
             else:    
-                Out_Line = float(In_Line[In_Line.index('(')+1:In_Line.index(')')])
+                out_line = float(in_line[in_line.index('(')+1:in_line.index(')')])
 
         except Exception as e:
             print(e)
 
-        return Out_Line
+        return out_line
 
-    def MainLoop(self):
+    def main_loop(self):
 
-        timeinbetween = 3600
-        lastDateTime = datetime.utcnow()
-        initrun = True
+        time_in_between = 3600
+        last_date_time = datetime.utcnow()
+        init_run = True
 
         #load system and modbus variables from the environment
-        self.LoadEnvVar_Sys()
-        self.LoadEnvVar_ModBus()
+        self.load_env_var_sys()
+        self.load_env_var_modbus()
 
         #the variables that are loaded
-        global IslocalTest, doTRACE, IsVarRun
-        global Device, Baud, Parity, Variables
+        global is_local_test, do_trace, is_var_run
+        global device, baud, parity, variables
 
         #parse the list of variables as defined in the environment
-        ListOfVar = self.ParseVariables(Variables)
+        list_of_var = self.parse_variables(variables)
 
         # safety check: did we detect variables
-        if (not (ListOfVar is None)) and len(ListOfVar) > 0:
+        if (not (list_of_var is None)) and len(list_of_var) > 0:
 
             # load environment variables regarding influx
-            if self.LoadEnvVar_Influx():
+            if self.load_env_var_influx():
 
                 #the variables that where loaded
-                global Influx_url, Influx_port, Influx_user, Influx_password, Influx_database, Influx_measurement, influx_host
+                global influx_url, influx_port, influx_user, influx_password, influx_database, influx_measurement, influx_host
 
                 # init the influx connection
-                #Influx.Init_Influx(Influx_url, Influx_org, Influx_bucket, IslocalTest, Influx_token, doTRACE)
-                Influx.Init_Influx(Influx_user, Influx_password, Influx_url, Influx_port, Influx_database, IslocalTest, doTRACE)
+                #Influx.Init_Influx(influx_url, Influx_org, Influx_bucket, is_local_test, Influx_token, do_trace)
+                Influx.Init_Influx(influx_user, influx_password, influx_url, influx_port, influx_database, is_local_test, do_trace)
 
                 #Set COM port config
                 ser = serial.Serial()
                 
-                ser.baudrate = Baud
-                ser.port= Device
+                ser.baudrate = baud
+                ser.port= device
 
-                if Parity == "E":
-                    ser.parity=serial.PARITY_EVEN
+                if parity == "E":
+                    ser.parity=serial.parity_EVEN
                 else:
-                    ser.parity=serial.PARITY_ODD
+                    ser.parity=serial.parity_ODD
 
                 #others
                 ser.bytesize=serial.SEVENBITS              
@@ -319,11 +337,11 @@ class Meter():
                     sys.exit ("Fout bij het openen van %s. Aaaaarch."  % ser.name)
 
 
-                Vorigewaarde = 0.0
-                Vorigewaarde2 = 0.0
+                vorige_waarde = 0.0
+                vorige_waarde_2 = 0.0
 
-                FirstRun = True
-                SecondRun = True
+                first_run = True
+                second_run = True
 
                 totaal_verbruik_dal = 0.0
                 totaal_verbruik_piek = 0.0
@@ -337,6 +355,8 @@ class Meter():
                                 
                 received_huidig_verbruik = 0
                 received_huidig_terug = 0
+
+                ### code smells checked up to here
 
                 Volt1 = None
                 Watt_terug1 = None
@@ -358,13 +378,13 @@ class Meter():
                 while True:
 
                     # update the influx database on the version we are running
-                    if (((datetime.utcnow() - lastDateTime).total_seconds()) > timeinbetween) or initrun:
+                    if (((datetime.utcnow() - last_date_time).total_seconds()) > time_in_between) or init_run:
                         
                         #update time
-                        lastDateTime = datetime.utcnow()
+                        last_date_time = datetime.utcnow()
                         
                         #send version number to influx
-                        self.UpdateVersion(Influx_measurement, influx_host)
+                        self.update_version(influx_measurement, influx_host)
 
                         try:
                             counter = 0
@@ -391,12 +411,12 @@ class Meter():
                                     if (not(FoundFirst)):
                                         if "1-0:1.7.0" in p1_line:
                                             FoundFirst = True
-                                            self.CreateRawPointLocally(Influx_measurement, influx_host, counter, p1_line)
+                                            self.create_raw_point_locally(influx_measurement, influx_host, counter, p1_line)
                                     else:
                                         if "1-0:1.7.0" in p1_line:
                                             FinishedRaw = True 
                                         else:
-                                            self.CreateRawPointLocally(Influx_measurement, influx_host, counter, p1_line)
+                                            self.create_raw_point_locally(influx_measurement, influx_host, counter, p1_line)
                                             linefound += 1                                       
 
                             try:
@@ -411,9 +431,9 @@ class Meter():
 
 
                         #was this the first run
-                        if initrun:
+                        if init_run:
                             #not anymore now
-                            initrun = False 
+                            init_run = False 
 
 
 
@@ -436,7 +456,7 @@ class Meter():
                         p1_line=p1_str.strip()
 
                         if "1-3:0.2.8" in p1_line:
-                            self.CreateDataPointLocally(Influx_measurement, influx_host, "dsmr", self.ParseLine(p1_line))
+                            self.create_data_point_locally(influx_measurement, influx_host, "dsmr", self.ParseLine(p1_line))
 
                             if receivedcounter > 1:
 
@@ -452,10 +472,10 @@ class Meter():
                                     huidig = (huidig_verbruik - huidig_terug)*1000
 
                                     #also send 0's to know difference between null and 0
-                                    self.CreateDataPointLocally(Influx_measurement, influx_host, "huidig_verbruik", (huidig_verbruik*1000))                                
-                                    self.CreateDataPointLocally(Influx_measurement, influx_host, "huidig_terug", (huidig_terug*1000))
+                                    self.create_data_point_locally(influx_measurement, influx_host, "huidig_verbruik", (huidig_verbruik*1000))                                
+                                    self.create_data_point_locally(influx_measurement, influx_host, "huidig_terug", (huidig_terug*1000))
 
-                                    self.CreateDataPointLocally(Influx_measurement, influx_host, "huidig", huidig)                
+                                    self.create_data_point_locally(influx_measurement, influx_host, "huidig", huidig)                
 
 
 
@@ -465,7 +485,7 @@ class Meter():
                                         if Watt_terug1 is None:
                                             Watt_terug1 = 0
 
-                                        self.CreateDataPointLocally(Influx_measurement, influx_host, "Amp1_calc", ((Watt_ver1 - Watt_terug1) / Volt1))
+                                        self.create_data_point_locally(influx_measurement, influx_host, "Amp1_calc", ((Watt_ver1 - Watt_terug1) / Volt1))
 
 
 
@@ -476,7 +496,7 @@ class Meter():
                                         if Watt_terug2 is None:
                                             Watt_terug2 = 0
 
-                                        self.CreateDataPointLocally(Influx_measurement, influx_host, "Amp2_calc", ((Watt_ver2 - Watt_terug2) / Volt2))
+                                        self.create_data_point_locally(influx_measurement, influx_host, "Amp2_calc", ((Watt_ver2 - Watt_terug2) / Volt2))
 
 
 
@@ -487,26 +507,26 @@ class Meter():
                                         if Watt_terug3 is None:
                                             Watt_terug3 = 0
 
-                                        self.CreateDataPointLocally(Influx_measurement, influx_host, "Amp3_calc", ((Watt_ver3 - Watt_terug3) / Volt3))
+                                        self.create_data_point_locally(influx_measurement, influx_host, "Amp3_calc", ((Watt_ver3 - Watt_terug3) / Volt3))
 
 
 
 
 
-                                    if FirstRun:
-                                        Vorigewaarde = huidig
-                                        FirstRun = False
-                                    elif SecondRun:
-                                        Vorigewaarde = huidig
-                                        Vorigewaarde2 = Vorigewaarde
-                                        SecondRun = False
+                                    if first_run:
+                                        vorige_waarde = huidig
+                                        first_run = False
+                                    elif second_run:
+                                        vorige_waarde = huidig
+                                        vorige_waarde_2 = vorige_waarde
+                                        second_run = False
                                     else: 
-                                        Current_delta = huidig - Vorigewaarde
-                                        Current_delta2 = huidig - Vorigewaarde2
-                                        self.CreateDataPointLocally(Influx_measurement, influx_host, "Current_delta", Current_delta)
-                                        self.CreateDataPointLocally(Influx_measurement, influx_host, "Current_delta2", Current_delta2)
-                                        Vorigewaarde2 = Vorigewaarde
-                                        Vorigewaarde = huidig
+                                        Current_delta = huidig - vorige_waarde
+                                        Current_delta2 = huidig - vorige_waarde_2
+                                        self.create_data_point_locally(influx_measurement, influx_host, "Current_delta", Current_delta)
+                                        self.create_data_point_locally(influx_measurement, influx_host, "Current_delta2", Current_delta2)
+                                        vorige_waarde_2 = vorige_waarde
+                                        vorige_waarde = huidig
 
 
                                     huidig_verbruik_cum = 0.0
@@ -558,42 +578,42 @@ class Meter():
                                 if "0-0:96.14.0" in p1_line:
                                     dal_piek = self.ParseLine(p1_line)
                                     if not (dal_piek is None):
-                                        self.CreateDataPointLocally(Influx_measurement, influx_host, "dal_piek_fl", dal_piek)
+                                        self.create_data_point_locally(influx_measurement, influx_host, "dal_piek_fl", dal_piek)
 
                                 if "1-0:1.8.1" in p1_line:
                                     totaal_verbruik_dal = self.ParseLine(p1_line)
 
                                     if not (totaal_verbruik_dal is None):
-                                        self.CreateDataPointLocally(Influx_measurement, influx_host, "totaal_verbruik_dal_fl", totaal_verbruik_dal)
+                                        self.create_data_point_locally(influx_measurement, influx_host, "totaal_verbruik_dal_fl", totaal_verbruik_dal)
 
                                         #check for 24h change in this value
                                         DailyChange = Transform.manage_daily_usage("totaal_verbruik_dal_fl", totaal_verbruik_dal)
                                         if not DailyChange is None: # if there was a daily value to store
-                                            self.CreateDataPointLocally(Influx_measurement, influx_host, "totaal_verbruik_dal_fl_change", DailyChange)
+                                            self.create_data_point_locally(influx_measurement, influx_host, "totaal_verbruik_dal_fl_change", DailyChange)
 
 
                                 if "1-0:1.8.2" in p1_line:
                                     totaal_verbruik_piek = self.ParseLine(p1_line)
 
                                     if not (totaal_verbruik_piek is None):
-                                        self.CreateDataPointLocally(Influx_measurement, influx_host, "totaal_verbruik_piek_fl", totaal_verbruik_piek)
+                                        self.create_data_point_locally(influx_measurement, influx_host, "totaal_verbruik_piek_fl", totaal_verbruik_piek)
 
                                         #check for 24h change in this value
                                         DailyChange = Transform.manage_daily_usage("totaal_verbruik_piek_fl", totaal_verbruik_piek)
                                         if not DailyChange is None: # if there was a daily value to store
-                                            self.CreateDataPointLocally(Influx_measurement, influx_host, "totaal_verbruik_piek_fl_change", DailyChange)
+                                            self.create_data_point_locally(influx_measurement, influx_host, "totaal_verbruik_piek_fl_change", DailyChange)
 
 
                                 if "1-0:2.8.1" in p1_line:
                                     totaal_terug_dal = self.ParseLine(p1_line)
 
                                     if not (totaal_terug_dal is None):
-                                        self.CreateDataPointLocally(Influx_measurement, influx_host, "totaal_terug_dal_fl", totaal_terug_dal)
+                                        self.create_data_point_locally(influx_measurement, influx_host, "totaal_terug_dal_fl", totaal_terug_dal)
 
                                         #check for 24h change in this value
                                         DailyChange = Transform.manage_daily_usage("totaal_terug_dal_fl", totaal_terug_dal)
                                         if not DailyChange is None: # if there was a daily value to store
-                                            self.CreateDataPointLocally(Influx_measurement, influx_host, "totaal_terug_dal_fl_change", DailyChange)
+                                            self.create_data_point_locally(influx_measurement, influx_host, "totaal_terug_dal_fl_change", DailyChange)
 
 
 
@@ -601,12 +621,12 @@ class Meter():
                                     totaal_terug_piek = self.ParseLine(p1_line)
 
                                     if not (totaal_terug_piek is None) :
-                                        self.CreateDataPointLocally(Influx_measurement, influx_host, "totaal_terug_piek_fl", totaal_terug_piek)
+                                        self.create_data_point_locally(influx_measurement, influx_host, "totaal_terug_piek_fl", totaal_terug_piek)
 
                                         #check for 24h change in this value
                                         DailyChange = Transform.manage_daily_usage("totaal_terug_piek_fl", totaal_terug_piek)
                                         if not DailyChange is None: # if there was a daily value to store
-                                            self.CreateDataPointLocally(Influx_measurement, influx_host, "totaal_terug_piek_fl_change", DailyChange)
+                                            self.create_data_point_locally(influx_measurement, influx_host, "totaal_terug_piek_fl_change", DailyChange)
 
 
 
@@ -615,7 +635,7 @@ class Meter():
                                     Volt1 = self.ParseLine(p1_line)
 
                                     if not (Volt1 is None):
-                                        self.CreateDataPointLocally(Influx_measurement, influx_host, "volt", Volt1, "L1")
+                                        self.create_data_point_locally(influx_measurement, influx_host, "volt", Volt1, "L1")
 
                                         if DidAFullRaw:
                                             DoRawLog = False
@@ -626,83 +646,83 @@ class Meter():
                                     Amp1 = self.ParseLine(p1_line)
 
                                     if not (Amp1 is None):
-                                        self.CreateDataPointLocally(Influx_measurement, influx_host, "Amp", Amp1, "L1")
+                                        self.create_data_point_locally(influx_measurement, influx_host, "Amp", Amp1, "L1")
 
                                 if "1-0:21.7.0" in p1_line:
                                     Watt_ver1 = self.ParseLine(p1_line)
 
                                     if not (Watt_ver1 is None):
-                                        self.CreateDataPointLocally(Influx_measurement, influx_host, "Watt_verbruik", Watt_ver1, "L1")
+                                        self.create_data_point_locally(influx_measurement, influx_host, "Watt_verbruik", Watt_ver1, "L1")
 
                                 if "1-0:22.7.0" in p1_line:
                                     Watt_terug1 = self.ParseLine(p1_line)
 
                                     if not (Watt_terug1 is None):
-                                        self.CreateDataPointLocally(Influx_measurement, influx_host, "Watt_terug", Watt_terug1, "L1")
+                                        self.create_data_point_locally(influx_measurement, influx_host, "Watt_terug", Watt_terug1, "L1")
 
                                 if "1-0:52.7.0" in p1_line:
                                     Volt2 = self.ParseLine(p1_line)
 
                                     if not (Volt2 is None):
-                                        self.CreateDataPointLocally(Influx_measurement, influx_host, "volt", Volt2, "L2")
+                                        self.create_data_point_locally(influx_measurement, influx_host, "volt", Volt2, "L2")
 
                                 if "1-0:51.7.0" in p1_line:
                                     Amp2 = self.ParseLine(p1_line)
 
                                     if not (Amp2 is None):
-                                        self.CreateDataPointLocally(Influx_measurement, influx_host, "Amp", Amp2, "L2")
+                                        self.create_data_point_locally(influx_measurement, influx_host, "Amp", Amp2, "L2")
 
                                 if "1-0:41.7.0" in p1_line:
                                     Watt_ver2 = self.ParseLine(p1_line)
 
                                     if not (Watt_ver2 is None):
-                                        self.CreateDataPointLocally(Influx_measurement, influx_host, "Watt_verbruik", Watt_ver2, "L2")
+                                        self.create_data_point_locally(influx_measurement, influx_host, "Watt_verbruik", Watt_ver2, "L2")
 
                                 if "1-0:42.7.0" in p1_line:
                                     Watt_terug2 = self.ParseLine(p1_line)
 
                                     if not (Watt_terug2 is None):
-                                        self.CreateDataPointLocally(Influx_measurement, influx_host, "Watt_terug", Watt_terug2, "L2")
+                                        self.create_data_point_locally(influx_measurement, influx_host, "Watt_terug", Watt_terug2, "L2")
 
                                 if "1-0:72.7.0" in p1_line:
                                     Volt3 = self.ParseLine(p1_line)
 
                                     if not (Volt3 is None):
-                                        self.CreateDataPointLocally(Influx_measurement, influx_host, "volt", Volt3, "L3")
+                                        self.create_data_point_locally(influx_measurement, influx_host, "volt", Volt3, "L3")
 
                                 if "1-0:71.7.0" in p1_line:
                                     Amp3 = self.ParseLine(p1_line)
 
                                     if not (Amp3 is None):
-                                        self.CreateDataPointLocally(Influx_measurement, influx_host, "Amp", Amp3, "L3")
+                                        self.create_data_point_locally(influx_measurement, influx_host, "Amp", Amp3, "L3")
 
                                 if "1-0:61.7.0" in p1_line:
                                     Watt_ver3 = self.ParseLine(p1_line)
 
                                     if not (Watt_ver3 is None):
-                                        self.CreateDataPointLocally(Influx_measurement, influx_host, "Watt_verbruik", Watt_ver3, "L3")
+                                        self.create_data_point_locally(influx_measurement, influx_host, "Watt_verbruik", Watt_ver3, "L3")
 
                                 if "1-0:62.7.0" in p1_line:
                                     Watt_terug3 = self.ParseLine(p1_line)
 
                                     if not (Watt_terug3 is None):
-                                        self.CreateDataPointLocally(Influx_measurement, influx_host, "Watt_terug", Watt_terug3, "L3")
+                                        self.create_data_point_locally(influx_measurement, influx_host, "Watt_terug", Watt_terug3, "L3")
 
                                 if "0-1:24.2.1" in p1_line:
                                     Gas_Volume = self.ParseLine(p1_line)
 
                                     if not (Gas_Volume is None):
-                                        self.CreateDataPointLocally(Influx_measurement, influx_host, "Gas_Volume", Gas_Volume)
+                                        self.create_data_point_locally(influx_measurement, influx_host, "Gas_Volume", Gas_Volume)
 
                                         #check for 24h change in this value
                                         DailyChange = Transform.manage_daily_usage("Gas_Volume", Gas_Volume)
                                         if not DailyChange is None: # if there was a daily value to store
-                                            self.CreateDataPointLocally(Influx_measurement, influx_host, "Gas_Volume_change", DailyChange)
+                                            self.create_data_point_locally(influx_measurement, influx_host, "Gas_Volume_change", DailyChange)
 
                                         Gas_Flow = Transform.gas_flow("Gas_Flow",Gas_Volume)
 
                                         if not (Gas_Flow is None):
-                                            self.CreateDataPointLocally(Influx_measurement, influx_host, "Gas_Flow", Gas_Flow)
+                                            self.create_data_point_locally(influx_measurement, influx_host, "Gas_Flow", Gas_Flow)
 
 
                     try:
@@ -725,4 +745,4 @@ class Meter():
 
 if __name__ == '__main__':
     Meterclass = Meter()
-    Meterclass.MainLoop()
+    Meterclass.main_loop()

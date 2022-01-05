@@ -23,67 +23,67 @@ sudo docker pull containrrr/watchtower\
 \
 **Run Examples**\
 
-sudo docker run -v /dev:/dev --privileged --name smartmeter -e doTRACE= "False" -e ISLOCALTEST= "False" -e ISVARRUN= "False" -e MODBUS_DEVICE = "/dev/ttyUSB0" -e MODBUS_BAUD= 115200 -e MODBUS_PARITY= "E" -e MODBUS_VARIABLES = "" -e INFLUX_URL = "<server ip>" -e INFLUX_PORT = 8086 -e INFLUX_USER = "grafana" -e INFLUX_PASSWORD = "<influx password>" -e INFLUX_DATABASE = "home" -e INFLUX_MEASUREMENT = "Slimme_meter" -e INFLUX_HOST = "<fill in random device identifier>" xyphedocker/xyphe_private_docker:smartmeter_influx_v0001
+sudo docker run -v /dev:/dev --privileged --name smartmeter -e do_trace= "False" -e is_local_test= "False" -e is_var_run= "False" -e modbus_device = "/dev/ttyUSB0" -e modbus_baud= 115200 -e modbus_parity= "E" -e modbus_variables = "" -e influx_url = "<server ip>" -e influx_port = 8086 -e influx_user = "grafana" -e influx_password = "<influx password>" -e influx_database = "home" -e influx_measurement = "Slimme_meter" -e INFLUX_host = "<fill in random device identifier>" xyphedocker/xyphe_private_docker:smartmeter_influx_v0001
 
 docker run -d --name watchtower -v /var/run/docker.sock:/var/run/docker.sock containrrr/watchtower smartmeter --debug --interval=300
 \
 ## Environment variables
 These are the variables that can be set through the environment\
 \
-*Note: Variables that do not have a default (for example the influx variables) , need to be set!* \
-*Note: By default ISVARRUN is set to true, in this environment variables regarding influx are not loaded and therefore do not need to be defined* \
+*Note: variables that do not have a default (for example the influx variables) , need to be set!* \
+*Note: By default is_var_run is set to true, in this environment variables regarding influx are not loaded and therefore do not need to be defined* \
 \
 **General**\
-doTRACE\
+do_trace\
 Description: By default our logging level is at logging.info, set this to false and info messages will be filtered out\
 Defailt: True \
 \
-ISLOCALTEST\
+is_local_test\
 Description: When we are running as a local test data will not be send to influx\
 Default: False\
 \
-ISVARRUN\
+is_var_run\
 Description: When this is set to true this script will only print the variables as received by the modbus device to the screen, this is so we can pick variables that we want to log to influx\
 Default: True\
 \
-**Modbus**\
-MODBUS_DEVICE\
+**modbus**\
+modbus_device\
 Description: The port the modbus device is connected to\
 Default: "/dev/ttyUSB0"\
 \
-MODBUS_BAUD \ 
+modbus_baud \ 
 Default: 115200\
 \
-MODBUS_PARITY\
+modbus_parity\
 Default: "E" \
 \
-MODBUS_VARIABLES\
+modbus_variables\
 Description: The variables that we want to read from the modbus device, ',' seperated. e.g. "Variable A,Another Var Called B,..."  \
 Default: ""\
 \
 **Influx**\
 
-Influx_url, Influx_port, Influx_user, Influx_password, Influx_database, Influx_measurement, influx_host
+influx_url, influx_port, influx_user, influx_password, influx_database, influx_measurement, influx_host
 
-INFLUX_URL\
+influx_url\
 Description: the influx database url, for example "http://127.0.0.1:8086"\
 
-INFLUX_PORT\
+influx_port\
 Description: the port on which influx in running  
 \
-INFLUX_USER\
+influx_user\
 Description: The influx user that is used as authentification\
 \
-INFLUX_PASSWORD\
+influx_password\
 Description: The influx password that is used as authentification\
 \
-INFLUX_DATABASE\
+influx_database\
 Description: The database to which we want to write the data\
 \
-INFLUX_MEASUREMENT\
+influx_measurement\
 Description: \
 \
-INFLUX_HOST\
+INFLUX_host\
 Description: \
 \
 **uses**\
