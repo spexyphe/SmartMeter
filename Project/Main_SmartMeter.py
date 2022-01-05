@@ -25,35 +25,39 @@ except Exception as e:
 
 try:
     import Mod_Transform as Transform
-    Transform.Init_Transform()
+    Transform.init_transform()
 except Exception as e:
     logging.error("failed to load custom Transform module: " + str(e))
 
 
 class Meter():
 
+    Timeformat = '%Y-%m-%dT%H:%M:%SZ'
+
     def __init__(self):
         print("init smartmeter")
 
-    def NewLog(self, StrMessage, AnException = None):
+    def new_log(self, str_Message, an_exception = None):
         global doTRACE
 
-        if("ERROR" in StrMessage):
-            logging.error( "Eastron.py, " + StrMessage)
-            
-            if not (AnException is None):
-                logging.error(str(AnException))    
-        elif("WARNING" in StrMessage):
-            logging.warning( "Eastron.py, " + StrMessage)
+        Module_Name = "Mod_SmartMeter.py, "
 
-            if not (AnException is None):
-                logging.warning(str(AnException))   
+        if("ERROR" in str_Message):
+            logging.error( Module_Name + str_Message)
+            
+            if not (an_exception is None):
+                logging.error(str(an_exception))    
+        elif("WARNING" in str_Message):
+            logging.warning( Module_Name + str_Message)
+
+            if not (an_exception is None):
+                logging.warning(str(an_exception))   
         else:
             if doTRACE:
-                logging.info( "Eastron.py, " + StrMessage)
+                logging.info( Module_Name + str_Message)
 
-                if not (AnException is None):
-                    logging.info(str(AnException)) 
+                if not (an_exception is None):
+                    logging.info(str(an_exception)) 
 
     def LoadEnvVar_Sys(self):
         global doTRACE, IslocalTest, IsVarRun
@@ -65,21 +69,21 @@ class Meter():
         
         try: #doTRACE
             doTRACE = eval( os.environ['doTRACE'] )
-            self.NewLog("OK: succesfully loaded environment variable for system 'doTRACE'")
+            self.new_log("OK: succesfully loaded environment variable for system 'doTRACE'")
         except Exception as e:
-            self.NewLog("ERROR: environment variable for system 'doTRACE' FAILED", e)
+            self.new_log("ERROR: environment variable for system 'doTRACE' FAILED", e)
 
         try: #ISLOCALTEST
             IslocalTest = eval( os.environ['ISLOCALTEST'] )
-            self.NewLog("OK: succesfully loaded environment variable for system 'ISLOCALTEST': " + str(IslocalTest))
+            self.new_log("OK: succesfully loaded environment variable for system 'ISLOCALTEST': " + str(IslocalTest))
         except Exception as e:
-            self.NewLog("ERROR: environment variable for system 'ISLOCALTEST' FAILED", e)
+            self.new_log("ERROR: environment variable for system 'ISLOCALTEST' FAILED", e)
 
         try: #ISVARRUN
             IsVarRun = eval( os.environ['ISVARRUN'] )
-            self.NewLog("OK: succesfully loaded environment variable for system 'ISVARRUN'")
+            self.new_log("OK: succesfully loaded environment variable for system 'ISVARRUN'")
         except Exception as e:
-            self.NewLog("ERROR: environment variable for system 'ISVARRUN' FAILED", e)
+            self.new_log("ERROR: environment variable for system 'ISVARRUN' FAILED", e)
 
     def LoadEnvVar_ModBus(self):
 
@@ -92,27 +96,27 @@ class Meter():
 
         try: #MODBUS_DEVICE
             Device = os.environ['MODBUS_DEVICE']
-            self.NewLog("OK: succesfully loaded environment variable for Modbus 'MODBUS_DEVICE'")
+            self.new_log("OK: succesfully loaded environment variable for Modbus 'MODBUS_DEVICE'")
         except Exception as e:
-            self.NewLog("ERROR: environment variable for Modbus 'MODBUS_DEVICE' FAILED", e)
+            self.new_log("ERROR: environment variable for Modbus 'MODBUS_DEVICE' FAILED", e)
 
         try: #MODBUS_BAUD
             Baud = int(os.environ['MODBUS_BAUD'])
-            self.NewLog("OK: succesfully loaded environment variable for Modbus 'MODBUS_BAUD'")
+            self.new_log("OK: succesfully loaded environment variable for Modbus 'MODBUS_BAUD'")
         except Exception as e:
-            self.NewLog("ERROR: environment variable for Modbus 'MODBUS_BAUD' FAILED", e)
+            self.new_log("ERROR: environment variable for Modbus 'MODBUS_BAUD' FAILED", e)
         
         try: #MODBUS_PARITY
             Parity = os.environ['MODBUS_PARITY']
-            self.NewLog("OK: succesfully loaded environment variable for Modbus 'MODBUS_PARITY'")
+            self.new_log("OK: succesfully loaded environment variable for Modbus 'MODBUS_PARITY'")
         except Exception as e:
-            self.NewLog("ERROR: environment variable for Modbus 'MODBUS_PARITY' FAILED", e)
+            self.new_log("ERROR: environment variable for Modbus 'MODBUS_PARITY' FAILED", e)
 
         try: #MODBUS_VARIABLES
             Variables = os.environ['MODBUS_VARIABLES']
-            self.NewLog("OK: succesfully loaded environment variable for Modbus 'MODBUS_VARIABLES'")
+            self.new_log("OK: succesfully loaded environment variable for Modbus 'MODBUS_VARIABLES'")
         except Exception as e:
-            self.NewLog("ERROR: environment variable for Modbus 'MODBUS_VARIABLES' FAILED", e)
+            self.new_log("ERROR: environment variable for Modbus 'MODBUS_VARIABLES' FAILED", e)
 
     def ParseVariables(self, IN_Variables):
         OUT_Variables = None
@@ -120,7 +124,7 @@ class Meter():
         try:
             OUT_Variables = IN_Variables.split(",")    
         except Exception as e:
-            self.NewLog("ERROR, ParseVariables Failed", e)
+            self.new_log("ERROR, ParseVariables Failed", e)
         
         return OUT_Variables
 
@@ -131,51 +135,51 @@ class Meter():
         
         try: #INFLUX_URL
             Influx_url = os.environ['INFLUX_URL']
-            self.NewLog("OK: succesfully loaded environment variable for influx 'INFLUX_URL'")
+            self.new_log("OK: succesfully loaded environment variable for influx 'INFLUX_URL'")
         except Exception as e:
-            self.NewLog("ERROR: environment variable for influx 'INFLUX_URL' FAILED", e)
+            self.new_log("ERROR: environment variable for influx 'INFLUX_URL' FAILED", e)
             EnvVarInfluxSuccess = False
 
         try: #INFLUX_PORT
             Influx_port = int(os.environ['INFLUX_PORT'])
-            self.NewLog("OK: succesfully loaded environment variable for influx 'INFLUX_PORT'")
+            self.new_log("OK: succesfully loaded environment variable for influx 'INFLUX_PORT'")
         except Exception as e:
-            self.NewLog("ERROR: environment variable for influx 'INFLUX_PORT' FAILED", e)
+            self.new_log("ERROR: environment variable for influx 'INFLUX_PORT' FAILED", e)
             EnvVarInfluxSuccess = False
 
         try: #INFLUX_USER
             Influx_user = os.environ['INFLUX_USER']
-            self.NewLog("OK: succesfully loaded environment variable for influx 'INFLUX_USER'")
+            self.new_log("OK: succesfully loaded environment variable for influx 'INFLUX_USER'")
         except Exception as e:
-            self.NewLog("ERROR: environment variable for influx 'INFLUX_USER' FAILED", e)
+            self.new_log("ERROR: environment variable for influx 'INFLUX_USER' FAILED", e)
             EnvVarInfluxSuccess = False
 
         try: #INFLUX_PASSWORD
             Influx_password = os.environ['INFLUX_PASSWORD']
-            self.NewLog("OK: succesfully loaded environment variable for influx 'INFLUX_PASSWORD'")
+            self.new_log("OK: succesfully loaded environment variable for influx 'INFLUX_PASSWORD'")
         except Exception as e:
-            self.NewLog("ERROR: environment variable for influx 'INFLUX_PASSWORD' FAILED", e)
+            self.new_log("ERROR: environment variable for influx 'INFLUX_PASSWORD' FAILED", e)
             EnvVarInfluxSuccess = False
 
         try: #INFLUX_DATABASE
             Influx_database = os.environ['INFLUX_DATABASE']
-            self.NewLog("OK: succesfully loaded environment variable for influx 'INFLUX_DATABASE'")
+            self.new_log("OK: succesfully loaded environment variable for influx 'INFLUX_DATABASE'")
         except Exception as e:
-            self.NewLog("ERROR: environment variable for influx 'INFLUX_DATABASE' FAILED", e)
+            self.new_log("ERROR: environment variable for influx 'INFLUX_DATABASE' FAILED", e)
             EnvVarInfluxSuccess = False
 
         try: #INFLUX_MEASUREMENT
             Influx_measurement = os.environ['INFLUX_MEASUREMENT']
-            self.NewLog("OK: succesfully loaded environment variable for influx 'INFLUX_MEASUREMENT'")
+            self.new_log("OK: succesfully loaded environment variable for influx 'INFLUX_MEASUREMENT'")
         except Exception as e:
-            self.NewLog("ERROR: environment variable for influx 'INFLUX_MEASUREMENT' FAILED", e)
+            self.new_log("ERROR: environment variable for influx 'INFLUX_MEASUREMENT' FAILED", e)
             EnvVarInfluxSuccess = False
 
         try: #INFLUX_HOST
             influx_host = os.environ['INFLUX_HOST']
-            self.NewLog("OK: succesfully loaded environment variable for influx 'INFLUX_HOST'")
+            self.new_log("OK: succesfully loaded environment variable for influx 'INFLUX_HOST'")
         except Exception as e:
-            self.NewLog("ERROR: environment variable for influx 'INFLUX_HOST' FAILED", e)
+            self.new_log("ERROR: environment variable for influx 'INFLUX_HOST' FAILED", e)
             EnvVarInfluxSuccess = False
 
         return EnvVarInfluxSuccess
@@ -197,25 +201,25 @@ class Meter():
             # Hence for tags we need the current timezone
             #Else we get a timezone difference
             tz = pytz.timezone('Europe/Amsterdam')
-            Amsterdam_now = datetime.now(tz)
+            amsterdam_now = datetime.now(tz)
 
             # tag values that allows searching based on time tags
-            CurrentYear = str(Amsterdam_now.strftime("%Y"))
-            CurrentMonthNr = str(Amsterdam_now.strftime("%m"))
-            CurrentWeekNr = str(Amsterdam_now.strftime("%U"))
-            CurrentDayNr = str(Amsterdam_now. strftime("%w"))
+            CurrentYear = str(amsterdam_now.strftime("%Y"))
+            CurrentMonthNr = str(amsterdam_now.strftime("%m"))
+            CurrentWeekNr = str(amsterdam_now.strftime("%U"))
+            CurrentDayNr = str(amsterdam_now. strftime("%w"))
 
             #using point time to log things will ensure that everything uses the same time
-            PointTime = datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ')
+            PointTime = datetime.utcnow().strftime(self.Timeformat)
 
-            CurrentDayOfYear = Amsterdam_now.timetuple().tm_yday
+            CurrentDayOfYear = amsterdam_now.timetuple().tm_yday
 
             Influx.AddDataPoint(Measurement, Host , CurrentYear, CurrentMonthNr, CurrentWeekNr, CurrentDayNr, CurrentDayOfYear, "Version", version, PointTime )
 
     def CreateRawPointLocally(self, Measurement, Host, LineNr, Value):
 
             #using point time to log things will ensure that everything uses the same time
-            PointTime = datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ')
+            PointTime = datetime.utcnow().strftime(self.Timeformat)
 
             Influx.AddRawPoint(Measurement, Host, LineNr, "Raw", Value, PointTime)
 
@@ -228,18 +232,18 @@ class Meter():
             # Hence for tags we need the current timezone
             #Else we get a timezone difference
             tz = pytz.timezone('Europe/Amsterdam')
-            Amsterdam_now = datetime.now(tz)
+            amsterdam_now = datetime.now(tz)
 
             # tag values that allows searching based on time tags
-            CurrentYear = str(Amsterdam_now.strftime("%Y"))
-            CurrentMonthNr = str(Amsterdam_now.strftime("%m"))
-            CurrentWeekNr = str(Amsterdam_now.strftime("%U"))
-            CurrentDayNr = str(Amsterdam_now. strftime("%w"))
+            CurrentYear = str(amsterdam_now.strftime("%Y"))
+            CurrentMonthNr = str(amsterdam_now.strftime("%m"))
+            CurrentWeekNr = str(amsterdam_now.strftime("%U"))
+            CurrentDayNr = str(amsterdam_now. strftime("%w"))
             
-            CurrentDayOfYear = Amsterdam_now.timetuple().tm_yday
+            CurrentDayOfYear = amsterdam_now.timetuple().tm_yday
 
             #using point time to log things will ensure that everything uses the same time
-            PointTime = datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ')
+            PointTime = datetime.utcnow().strftime(self.Timeformat)
 
             Influx.AddDataPoint(Measurement, Host, CurrentYear, CurrentMonthNr, CurrentWeekNr, CurrentDayNr, CurrentDayOfYear, ValueName, Value, PointTime, Phase)
 
@@ -497,10 +501,10 @@ class Meter():
                                         Vorigewaarde2 = Vorigewaarde
                                         SecondRun = False
                                     else: 
-                                        Current_Delta = huidig - Vorigewaarde
-                                        Current_Delta2 = huidig - Vorigewaarde2
-                                        self.CreateDataPointLocally(Influx_measurement, influx_host, "Current_Delta", Current_Delta)
-                                        self.CreateDataPointLocally(Influx_measurement, influx_host, "Current_Delta2", Current_Delta2)
+                                        Current_delta = huidig - Vorigewaarde
+                                        Current_delta2 = huidig - Vorigewaarde2
+                                        self.CreateDataPointLocally(Influx_measurement, influx_host, "Current_delta", Current_delta)
+                                        self.CreateDataPointLocally(Influx_measurement, influx_host, "Current_delta2", Current_delta2)
                                         Vorigewaarde2 = Vorigewaarde
                                         Vorigewaarde = huidig
 
@@ -563,7 +567,7 @@ class Meter():
                                         self.CreateDataPointLocally(Influx_measurement, influx_host, "totaal_verbruik_dal_fl", totaal_verbruik_dal)
 
                                         #check for 24h change in this value
-                                        DailyChange = Transform.ManageDailyUsage("totaal_verbruik_dal_fl", totaal_verbruik_dal)
+                                        DailyChange = Transform.manage_daily_usage("totaal_verbruik_dal_fl", totaal_verbruik_dal)
                                         if not DailyChange is None: # if there was a daily value to store
                                             self.CreateDataPointLocally(Influx_measurement, influx_host, "totaal_verbruik_dal_fl_change", DailyChange)
 
@@ -575,7 +579,7 @@ class Meter():
                                         self.CreateDataPointLocally(Influx_measurement, influx_host, "totaal_verbruik_piek_fl", totaal_verbruik_piek)
 
                                         #check for 24h change in this value
-                                        DailyChange = Transform.ManageDailyUsage("totaal_verbruik_piek_fl", totaal_verbruik_piek)
+                                        DailyChange = Transform.manage_daily_usage("totaal_verbruik_piek_fl", totaal_verbruik_piek)
                                         if not DailyChange is None: # if there was a daily value to store
                                             self.CreateDataPointLocally(Influx_measurement, influx_host, "totaal_verbruik_piek_fl_change", DailyChange)
 
@@ -587,7 +591,7 @@ class Meter():
                                         self.CreateDataPointLocally(Influx_measurement, influx_host, "totaal_terug_dal_fl", totaal_terug_dal)
 
                                         #check for 24h change in this value
-                                        DailyChange = Transform.ManageDailyUsage("totaal_terug_dal_fl", totaal_terug_dal)
+                                        DailyChange = Transform.manage_daily_usage("totaal_terug_dal_fl", totaal_terug_dal)
                                         if not DailyChange is None: # if there was a daily value to store
                                             self.CreateDataPointLocally(Influx_measurement, influx_host, "totaal_terug_dal_fl_change", DailyChange)
 
@@ -600,7 +604,7 @@ class Meter():
                                         self.CreateDataPointLocally(Influx_measurement, influx_host, "totaal_terug_piek_fl", totaal_terug_piek)
 
                                         #check for 24h change in this value
-                                        DailyChange = Transform.ManageDailyUsage("totaal_terug_piek_fl", totaal_terug_piek)
+                                        DailyChange = Transform.manage_daily_usage("totaal_terug_piek_fl", totaal_terug_piek)
                                         if not DailyChange is None: # if there was a daily value to store
                                             self.CreateDataPointLocally(Influx_measurement, influx_host, "totaal_terug_piek_fl_change", DailyChange)
 
@@ -691,11 +695,11 @@ class Meter():
                                         self.CreateDataPointLocally(Influx_measurement, influx_host, "Gas_Volume", Gas_Volume)
 
                                         #check for 24h change in this value
-                                        DailyChange = Transform.ManageDailyUsage("Gas_Volume", Gas_Volume)
+                                        DailyChange = Transform.manage_daily_usage("Gas_Volume", Gas_Volume)
                                         if not DailyChange is None: # if there was a daily value to store
                                             self.CreateDataPointLocally(Influx_measurement, influx_host, "Gas_Volume_change", DailyChange)
 
-                                        Gas_Flow = Transform.GasFlow("Gas_Flow",Gas_Volume)
+                                        Gas_Flow = Transform.gas_flow("Gas_Flow",Gas_Volume)
 
                                         if not (Gas_Flow is None):
                                             self.CreateDataPointLocally(Influx_measurement, influx_host, "Gas_Flow", Gas_Flow)

@@ -10,117 +10,128 @@ except Exception as e:
     logging.error("failed to load custom pytz module: " + str(e))
 
 
-def NewLog(StrMessage):
-    global LogTransform
+def new_log(str_Message, an_exception = None):
+    global log_transform
 
-    if("ERROR" in StrMessage):
-        logging.error( "Mod_Transform.py, " + StrMessage)
-    elif("WARNING" in StrMessage):
-        logging.warning( "Mod_Transform.py, " + StrMessage)
+    Module_Name = "Mod_SmartMeter.py, "
+
+    if("ERROR" in str_Message):
+        logging.error( Module_Name + str_Message)
+        
+        if not (an_exception is None):
+            logging.error(str(an_exception))    
+    elif("WARNING" in str_Message):
+        logging.warning( Module_Name + str_Message)
+
+        if not (an_exception is None):
+            logging.warning(str(an_exception))   
     else:
-        if LogTransform:
-            logging.info( "Mod_Transform.py, " + StrMessage)
+        if log_transform:
+            logging.info( Module_Name + str_Message)
 
-def ManageDailyUsage(VarName, VarValue):
-    global T_state
+            if not (an_exception is None):
+                logging.info(str(an_exception)) 
+
+def manage_daily_usage(var_name, var_value):
+    global transform_mem_state
 
     fmt = '%Y%m%d%H%M%S' # ex. 20110104172008 -> Jan. 04, 2011 5:20:08pm 
 
     tz = pytz.timezone('Europe/Amsterdam')
-    Amsterdam_now = datetime.now(tz)
+    amsterdam_now = datetime.now(tz)
 
     #can we access the memory
-    if not T_state is None:
+    if not transform_mem_state is None:
 
         #is this a known var
-        if VarName in T_state:
+        if var_name in transform_mem_state:
             # do we have day and daystartvalue in our memory
-            if "VarValue_DayStart" in T_state[VarName] and "oldday" in T_state[VarName] and "oldhour" in T_state[VarName]:
+            if "var_value_day_start" in transform_mem_state[var_name] and "old_day" in transform_mem_state[var_name] and "old_hour" in transform_mem_state[var_name]:
                              
                 #what is the day and hour memory
-                old_day = T_state[VarName]["oldday"]
-                old_hour = T_state[VarName]["oldhour"]
+                old_day = transform_mem_state[var_name]["old_day"]
+                old_hour = transform_mem_state[var_name]["old_hour"]
 
                 #is there a difference in day in our memory and the current day
-                if old_day != Amsterdam_now.day :
+                if old_day != amsterdam_now.day :
 
                     #was the previous daystart recorded around hour 0
                     #else we are recording false values (say, when the program restarts around hour 22)
                     if old_hour == 0:
                         #te change is the value at the end of the day minus the start of the day
-                        DailyChange = VarValue - T_state[VarName]["VarValue_DayStart"]
+                        DailyChange = var_value - transform_mem_state[var_name]["var_value_day_start"]
                         
                         #remember this as the first value of the day
-                        T_state[VarName]["VarValue_DayStart"] = VarValue
-                        T_state[VarName]["oldday"] = Amsterdam_now.day
-                        T_state[VarName]["oldhour"] = Amsterdam_now.hour
+                        transform_mem_state[var_name]["var_value_day_start"] = var_value
+                        transform_mem_state[var_name]["old_day"] = amsterdam_now.day
+                        transform_mem_state[var_name]["old_hour"] = amsterdam_now.hour
 
                         return  DailyChange
                     else:
                         #remember this as the first value of the day
-                        T_state[VarName]["VarValue_DayStart"] = VarValue
-                        T_state[VarName]["oldday"] = Amsterdam_now.day
-                        T_state[VarName]["oldhour"] = Amsterdam_now.hour
+                        transform_mem_state[var_name]["var_value_day_start"] = var_value
+                        transform_mem_state[var_name]["old_day"] = amsterdam_now.day
+                        transform_mem_state[var_name]["old_hour"] = amsterdam_now.hour
 
             else:
                 #this should not happen
                 #repopulate memory for this var
-                T_state[VarName]["VarValue_DayStart"] = VarValue
-                T_state[VarName]["oldday"] = Amsterdam_now.day
-                T_state[VarName]["oldhour"] = Amsterdam_now.hour
+                transform_mem_state[var_name]["var_value_day_start"] = var_value
+                transform_mem_state[var_name]["old_day"] = amsterdam_now.day
+                transform_mem_state[var_name]["old_hour"] = amsterdam_now.hour
         else:
             #create new memory for this var
-            T_state[VarName] = {}
-            T_state[VarName]["VarValue_DayStart"] = VarValue
-            T_state[VarName]["oldday"] = Amsterdam_now.day
-            T_state[VarName]["oldhour"] = Amsterdam_now.hour
+            transform_mem_state[var_name] = {}
+            transform_mem_state[var_name]["var_value_day_start"] = var_value
+            transform_mem_state[var_name]["old_day"] = amsterdam_now.day
+            transform_mem_state[var_name]["old_hour"] = amsterdam_now.hour
     else:
-        T_state = json.loads('' or '{}')
+        transform_mem_state = json.loads('{}')
 
     #there was no change in day so there is no daily change known
     return None
 
-def GasFlow(VarName, VarValue):
-    global T_state
+def gas_flow(var_name, var_value):
+    global transform_mem_state
 
-    Delta = None
+    delta = None
 
     #validate that the unput is a float
-    if type(VarValue) is float:
+    if type(var_value) is float:
 
         #can we access the memory
-        if not T_state is None:
+        if not transform_mem_state is None:
 
             #is this a known var
-            if VarName in T_state:
+            if var_name in transform_mem_state:
                 # do we have day and daystartvalue in our memory
-                if "VarValue_Previous" in T_state[VarName]:
-                    Delta = round(VarValue - T_state[VarName]["VarValue_Previous"],2)
-                    T_state[VarName]["VarValue_Previous"] = VarValue
+                if "var_value_previous" in transform_mem_state[var_name]:
+                    delta = round(var_value - transform_mem_state[var_name]["var_value_previous"],2)
+                    transform_mem_state[var_name]["var_value_previous"] = var_value
 
                 else:
                     #this should not happen
                     #repopulate memory for this var
-                    T_state[VarName]["VarValue_Previous"] = VarValue
+                    transform_mem_state[var_name]["var_value_previous"] = var_value
 
             else:
                 #create new memory for this var
-                T_state[VarName] = {}
-                T_state[VarName]["VarValue_Previous"] = VarValue
+                transform_mem_state[var_name] = {}
+                transform_mem_state[var_name]["var_value_previous"] = var_value
 
         else:
-            T_state = json.loads('' or '{}')
+            transform_mem_state = json.loads('{}')
 
     else:
-        print(str(VarValue) + " is a " + str(type(VarValue)))
+        print(str(var_value) + " is a " + str(type(var_value)))
         
 
     #there was no change in day so there is no daily change known
-    return Delta
+    return delta
 
-def Init_Transform():
-    global LogTransform
-    LogTransform = False
+def init_transform():
+    global log_transform
+    log_transform = False
 
-    global T_state 
-    T_state = json.loads('' or '{}')
+    global transform_mem_state 
+    transform_mem_state = json.loads('{}')

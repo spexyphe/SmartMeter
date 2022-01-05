@@ -9,16 +9,18 @@ except Exception as e:
     logging.error("failed to load influx modules: " + str(e))
 
 
-def NewLog(StrMessage):
+def new_log(str_Message):
     global LogInflux
 
-    if("ERROR" in StrMessage):
-        logging.error( "Mod_Influx.py, " + StrMessage)
-    elif("WARNING" in StrMessage):
-        logging.warning( "Mod_Influx.py, " + StrMessage)
+    Module_Name = "Mod_Influx.py, "
+
+    if("ERROR" in str_Message):
+        logging.error( Module_Name + str_Message)
+    elif("WARNING" in str_Message):
+        logging.warning( Module_Name + str_Message)
     else:
         if LogInflux:
-            logging.info( "Mod_Influx.py, " + StrMessage)
+            logging.info( Module_Name + str_Message)
 
 def CheckTags(DataYear, DataMonth, DataWeek, DataDay):
 
@@ -40,7 +42,7 @@ def CheckTags(DataYear, DataMonth, DataWeek, DataDay):
 
     except Exception as e:
         answer = False
-        NewLog("ERROR: CheckTags: " + str(e))
+        new_log("ERROR: CheckTags: " + str(e))
 
     return answer
 
@@ -67,7 +69,7 @@ def AddRawPoint(Measurement, DataHost, LineNr, ValueName, Value, PointTime):
 
     RawDataJsonPoint["time"] = PointTime
 
-    NewLog("OK: " + DataHost + "-" + ValueName + "(" + str(Value) + ")"  + ": " + PointTime)
+    new_log("OK: " + DataHost + "-" + ValueName + "(" + str(Value) + ")"  + ": " + PointTime)
 
     DataPoints.append(RawDataJsonPoint)
 
@@ -114,12 +116,12 @@ def AddDataPoint(Measurement, DataHost, DataYear, DataMonth, DataWeek, DataDay, 
 
         RawDataJsonPoint["time"] = PointTime
 
-        NewLog("OK: " + DataHost + "-" + ValueName + "(" + str(Value) + ")"  + ": " + PointTime)
+        new_log("OK: " + DataHost + "-" + ValueName + "(" + str(Value) + ")"  + ": " + PointTime)
 
         DataPoints.append(RawDataJsonPoint)
 
     else:
-        NewLog("ERROR: AddDataPointStatus, date tag issue")
+        new_log("ERROR: AddDataPointStatus, date tag issue")
 
 def WriteData():
     global DataPoints
@@ -136,7 +138,7 @@ def WriteData():
                 #write point to influx 
                 function_influx_client.write_points(DataPoints)
 
-                NewLog("OK, WriteData, writing data points: " + str(len(DataPoints)))
+                new_log("OK, WriteData, writing data points: " + str(len(DataPoints)))
             
                 DataPoints = []
 
@@ -156,14 +158,14 @@ def WriteData():
                             WriteData()
                         
                     except Exception as e2:
-                        NewLog("WARNING, could not find index in error " + str(e) + ", with error: " + str(e2))
+                        new_log("WARNING, could not find index in error " + str(e) + ", with error: " + str(e2))
                         DataPoints = []
 
                 else:
-                    NewLog("WARNING, could not find index in error " + str(e))
+                    new_log("WARNING, could not find index in error " + str(e))
                     DataPoints = []
     else:
-        NewLog("WARNING, WriteData, local test is true")
+        new_log("WARNING, WriteData, local test is true")
 
 def Init_Influx(IN_username, IN_password, IN_host, IN_port=8086, IN_database='home', IN_LocalTest=False, IN_DEBUG= False):
     #IN_username = string
@@ -182,6 +184,6 @@ def Init_Influx(IN_username, IN_password, IN_host, IN_port=8086, IN_database='ho
         function_influx_client = InfluxDBClient(host=IN_host, port=IN_port, username=IN_username, password=IN_password, database=IN_database)
 
     except Exception as e:
-        NewLog("ERROR: failed to init influx client: " + str(e))
+        new_log("ERROR: failed to init influx client: " + str(e))
 
 
