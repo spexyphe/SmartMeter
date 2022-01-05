@@ -28,12 +28,6 @@ class TestStringMethods(unittest.TestCase):
         self.assertIn("Gas_Flow", Transform.transform_mem_state)
         self.assertIn("var_value_previous", Transform.transform_mem_state["Gas_Flow"])
         
-    #with a first input the return should be None, but the transform_mem_state should now contain gas_flow
-    def test_3_0_1_gas_flow(self):
-        self.assertIsNone(Transform.gas_flow("Gas_Flow", 0.001))
-        self.assertIn("Gas_Flow", Transform.transform_mem_state)
-        self.assertIn("var_value_previous", Transform.transform_mem_state["Gas_Flow"])
-
     # the second value will create a dif response 
     # following values should also create a response       
     def test_3_0_2_gas_flow(self):

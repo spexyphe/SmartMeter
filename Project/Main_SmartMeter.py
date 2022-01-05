@@ -1,4 +1,4 @@
-version = "0.1.3"
+version = "0.1.4"
 
 import os
 import logging
@@ -37,24 +37,24 @@ class Meter():
     def __init__(self):
         print("init smartmeter")
 
-    def new_log(self, str_Message, an_exception = None):
+    def new_log(self, str_message, an_exception = None):
         global do_trace
 
-        Module_Name = "Mod_SmartMeter.py, "
+        module_name = "Mod_SmartMeter.py, "
 
-        if("ERROR" in str_Message):
-            logging.error( Module_Name + str_Message)
+        if("ERROR" in str_message):
+            logging.error( module_name + str_message)
             
             if not (an_exception is None):
                 logging.error(str(an_exception))    
-        elif("WARNING" in str_Message):
-            logging.warning( Module_Name + str_Message)
+        elif("WARNING" in str_message):
+            logging.warning( module_name + str_message)
 
             if not (an_exception is None):
                 logging.warning(str(an_exception))   
         else:
             if do_trace:
-                logging.info( Module_Name + str_Message)
+                logging.info( module_name + str_message)
 
                 if not (an_exception is None):
                     logging.info(str(an_exception)) 
@@ -232,17 +232,17 @@ class Meter():
 
             current_day_of_year = amsterdam_now.timetuple().tm_yday
 
-            Influx.AddDataPoint(measurement, host , current_year, current_month_nr, current_week_nr, current_day_nr, current_day_of_year, "Version", version, point_time )
+            Influx.add_data_point(measurement, host , current_year, current_month_nr, current_week_nr, current_day_nr, current_day_of_year, "Version", version, point_time )
 
     def create_raw_point_locally(self, measurement, host, line_nr, Value):
 
             #using point time to log things will ensure that everything uses the same time
             point_time = datetime.utcnow().strftime(self.time_format)
 
-            Influx.AddRawPoint(measurement, host, line_nr, "Raw", Value, point_time)
+            Influx.add_raw_point(measurement, host, line_nr, "Raw", Value, point_time)
 
 
-    def create_data_point_locally(self, measurement, host, ValueName, Value, Phase=None):
+    def create_data_point_locally(self, measurement, host, value_name, Value, Phase=None):
         ### mk: measurement and host should not be needed as input
 
 
@@ -263,7 +263,7 @@ class Meter():
             #using point time to log things will ensure that everything uses the same time
             point_time = datetime.utcnow().strftime(self.time_format)
 
-            Influx.AddDataPoint(measurement, host, current_year, current_month_nr, current_week_nr, current_day_nr, current_day_of_year, ValueName, Value, point_time, Phase)
+            Influx.add_data_point(measurement, host, current_year, current_month_nr, current_week_nr, current_day_nr, current_day_of_year, value_name, Value, point_time, Phase)
 
     def ParseLine(self, in_line):
         out_line = None
@@ -420,7 +420,7 @@ class Meter():
                                             linefound += 1                                       
 
                             try:
-                                Influx.WriteData()
+                                Influx.write_data()
                             except Exception as e:
                                 print(e)
                                 print("write raw data to influx error")
@@ -726,7 +726,7 @@ class Meter():
 
 
                     try:
-                        Influx.WriteData()
+                        Influx.write_data()
                     except Exception as e:
                         print(e)
                         print("write error")

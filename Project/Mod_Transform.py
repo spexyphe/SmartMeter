@@ -10,24 +10,24 @@ except Exception as e:
     logging.error("failed to load custom pytz module: " + str(e))
 
 
-def new_log(str_Message, an_exception = None):
+def new_log(str_message, an_exception = None):
     global log_transform
 
-    Module_Name = "Mod_SmartMeter.py, "
+    module_name = "Mod_SmartMeter.py, "
 
-    if("ERROR" in str_Message):
-        logging.error( Module_Name + str_Message)
+    if("ERROR" in str_message):
+        logging.error( module_name + str_message)
         
         if not (an_exception is None):
             logging.error(str(an_exception))    
-    elif("WARNING" in str_Message):
-        logging.warning( Module_Name + str_Message)
+    elif("WARNING" in str_message):
+        logging.warning( module_name + str_message)
 
         if not (an_exception is None):
             logging.warning(str(an_exception))   
     else:
         if log_transform:
-            logging.info( Module_Name + str_Message)
+            logging.info( module_name + str_message)
 
             if not (an_exception is None):
                 logging.info(str(an_exception)) 

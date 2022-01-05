@@ -1,4 +1,15 @@
 0.0.1
-First version (backup from old versio)
-added docker file
-vars now loaded through env var
+- First version (backup from old versio)
+- added docker file
+- vars now loaded through env var
+
+0.1.5 (summary)
+- decreased data flow
+- improved modbus var parsing
+- includes voltage and amp_calc for each phase
+- includes gas and gas_flow
+- include day of year
+- includes daily summaries
+- cleaned up 
+  - code vulnarabilities
+  - large number of code smells due to using ['A-Z'] in var names
