@@ -319,9 +319,9 @@ class Meter():
                 ser.port= device
 
                 if parity == "E":
-                    ser.parity=serial.parity_EVEN
+                    ser.parity=serial.PARITY_EVEN
                 else:
-                    ser.parity=serial.parity_ODD
+                    ser.parity=serial.PARITY_ODD
 
                 #others
                 ser.bytesize=serial.SEVENBITS              
