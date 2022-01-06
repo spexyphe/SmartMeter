@@ -14,7 +14,10 @@
   - code vulnarabilities
   - large number of code smells due to using ['A-Z'] in var names
 
-
 0.1.6 (summary)
 - fixed great number of code smells
 - some variables have changed!
+- fixed issue with counter for raw logs
+
+0.1.7
+- fix a influx name issue

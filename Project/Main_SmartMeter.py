@@ -1,4 +1,4 @@
-version = "0.1.6"
+version = "0.1.7"
 
 import os
 import logging
@@ -506,7 +506,7 @@ class Meter():
                                         if watt_terug_3 is None:
                                             watt_terug_3 = 0
 
-                                        self.create_data_point_locally(influx_measurement, influx_host, "Amp_calc", ((watt_ver_3 - watt_terug_3) / volt_3), "l3")
+                                        self.create_data_point_locally(influx_measurement, influx_host, "amp_calc", ((watt_ver_3 - watt_terug_3) / volt_3), "l3")
 
 
 
