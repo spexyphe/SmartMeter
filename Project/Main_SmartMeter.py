@@ -507,7 +507,7 @@ class Meter():
                                         if watt_terug_3 is None:
                                             watt_terug_3 = 0
 
-                                        self.create_data_point_locally(influx_measurement, influx_host, "Ampcalc", ((watt_ver_3 - watt_terug_3) / volt_3), "l3")
+                                        self.create_data_point_locally(influx_measurement, influx_host, "Amp_calc", ((watt_ver_3 - watt_terug_3) / volt_3), "l3")
 
 
 
@@ -635,7 +635,7 @@ class Meter():
                                     volt_1 = self.ParseLine(p1_line)
 
                                     if not (volt_1 is None):
-                                        self.create_data_point_locally(influx_measurement, influx_host, "volt", volt_1, "L1")
+                                        self.create_data_point_locally(influx_measurement, influx_host, "volt", volt_1, "l1")
 
                                         if completed_a_full_raw:
                                             do_raw_log = False
@@ -646,7 +646,7 @@ class Meter():
                                     amp_1 = self.ParseLine(p1_line)
 
                                     if not (amp_1 is None):
-                                        self.create_data_point_locally(influx_measurement, influx_host, "amp", amp_1, "L1")
+                                        self.create_data_point_locally(influx_measurement, influx_host, "amp", amp_1, "l1")
 
                                 if "1-0:21.7.0" in p1_line:
                                     watt_ver_1 = self.ParseLine(p1_line)
