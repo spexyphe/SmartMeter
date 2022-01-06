@@ -13,7 +13,7 @@ class TestStringMethods(unittest.TestCase):
     # run a number of tests on parsing
     def test_1_0_0_Parse(self):
         
-        Parser = Meter().ParseLine
+        Parser = Meter().parse_line
 
         for line in self.Lines:
 
