@@ -46,7 +46,7 @@ def check_tags(data_year, data_month, data_week, data_day):
 
     return answer
 
-def add_raw_point(measurement, data_host, line_nr, value_name, Value, point_time):
+def add_raw_point(measurement, data_host, line_nr, value_name, value, point_time):
     global data_points
 
     raw_data_json_point = json.loads('{}')
@@ -65,17 +65,17 @@ def add_raw_point(measurement, data_host, line_nr, value_name, Value, point_time
         raw_data_json_point["fields"] = {}
 
     if not (value_name in raw_data_json_point["fields"]):
-        raw_data_json_point["fields"][value_name] = Value
+        raw_data_json_point["fields"][value_name] = value
 
     raw_data_json_point["time"] = point_time
 
-    new_log("OK: " + data_host + "-" + value_name + "(" + str(Value) + ")"  + ": " + point_time)
+    new_log("OK: " + data_host + "-" + value_name + "(" + str(value) + ")"  + ": " + point_time)
 
     data_points.append(raw_data_json_point)
 
 
 
-def add_data_point(measurement, data_host, data_year, data_month, data_week, data_day, DayOfYear, value_name, Value, point_time, Phase=None):
+def add_data_point(measurement, data_host, data_year, data_month, data_week, data_day, day_of_year, value_name, value, point_time, phase=None):
     global data_points
 
     raw_data_json_point = json.loads('{}')
@@ -102,21 +102,21 @@ def add_data_point(measurement, data_host, data_year, data_month, data_week, dat
             raw_data_json_point["tags"]["day"] = data_day
 
         if not ("day_of_year" in raw_data_json_point["tags"]):
-            raw_data_json_point["tags"]["day_of_year"] = DayOfYear
+            raw_data_json_point["tags"]["day_of_year"] = day_of_year
 
-        if not (Phase is None):
+        if not (phase is None):
             if not ("phase" in raw_data_json_point["tags"]):
-                raw_data_json_point["tags"]["phase"] = Phase
+                raw_data_json_point["tags"]["phase"] = phase
 
         if not ("fields" in raw_data_json_point):
             raw_data_json_point["fields"] = {}
 
         if not (value_name in raw_data_json_point["fields"]):
-            raw_data_json_point["fields"][value_name] = Value
+            raw_data_json_point["fields"][value_name] = value
 
         raw_data_json_point["time"] = point_time
 
-        new_log("OK: " + data_host + "-" + value_name + "(" + str(Value) + ")"  + ": " + point_time)
+        new_log("OK: " + data_host + "-" + value_name + "(" + str(value) + ")"  + ": " + point_time)
 
         data_points.append(raw_data_json_point)
 
@@ -167,7 +167,7 @@ def write_data():
     else:
         new_log("WARNING, write_data, local test is true")
 
-def Init_Influx(in_username, in_password, in_host, in_port=8086, in_database='home', in_local_test=False, in_debug= False):
+def init_influx(in_username, in_password, in_host, in_port=8086, in_database='home', in_local_test=False, in_debug= False):
 
     global log_influx
     log_influx = in_debug

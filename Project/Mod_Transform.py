@@ -35,8 +35,6 @@ def new_log(str_message, an_exception = None):
 def manage_daily_usage(var_name, var_value):
     global transform_mem_state
 
-    fmt = '%Y%m%d%H%M%S' # ex. 20110104172008 -> Jan. 04, 2011 5:20:08pm 
-
     tz = pytz.timezone('Europe/Amsterdam')
     amsterdam_now = datetime.now(tz)
 
@@ -59,14 +57,14 @@ def manage_daily_usage(var_name, var_value):
                     #else we are recording false values (say, when the program restarts around hour 22)
                     if old_hour == 0:
                         #te change is the value at the end of the day minus the start of the day
-                        DailyChange = var_value - transform_mem_state[var_name]["var_value_day_start"]
+                        daily_change = var_value - transform_mem_state[var_name]["var_value_day_start"]
                         
                         #remember this as the first value of the day
                         transform_mem_state[var_name]["var_value_day_start"] = var_value
                         transform_mem_state[var_name]["old_day"] = amsterdam_now.day
                         transform_mem_state[var_name]["old_hour"] = amsterdam_now.hour
 
-                        return  DailyChange
+                        return  daily_change
                     else:
                         #remember this as the first value of the day
                         transform_mem_state[var_name]["var_value_day_start"] = var_value
