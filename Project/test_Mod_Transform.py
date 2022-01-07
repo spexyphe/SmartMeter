@@ -3,7 +3,7 @@ import time
 import unittest
 import sys
 
-import Mod_Transform as Transform
+import module_transform as Transform
 
 class TestStringMethods(unittest.TestCase):
 

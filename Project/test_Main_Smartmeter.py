@@ -3,7 +3,7 @@ import time
 import unittest
 import sys
 
-from Main_SmartMeter import Meter
+from main_smart_meter import meter
 
 class TestStringMethods(unittest.TestCase):
 
@@ -13,7 +13,7 @@ class TestStringMethods(unittest.TestCase):
     # run a number of tests on parsing
     def test_1_0_0_Parse(self):
         
-        Parser = Meter().parse_line
+        Parser = meter().parse_line
 
         for line in self.Lines:
 
