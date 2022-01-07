@@ -1,4 +1,4 @@
-version = "0.1.7"
+version = "0.1.8"
 
 import os
 import logging
@@ -19,18 +19,18 @@ except Exception as e:
     logging.error("failed to load custom serial module: " + str(e))
 
 try:
-    import Mod_Influx as Influx
+    import module_influx as influx
 except Exception as e:
     logging.error("failed to load custom influx module: " + str(e))
 
 try:
-    import Mod_Transform as Transform
-    Transform.init_transform()
+    import module_transform as transform
+    transform.init_transform()
 except Exception as e:
     logging.error("failed to load custom Transform module: " + str(e))
 
 
-class Meter():
+class meter():
 
     time_format = '%Y-%m-%dT%H:%M:%SZ'
 
@@ -40,7 +40,7 @@ class Meter():
     def new_log(self, str_message, an_exception = None):
         global do_trace
 
-        module_name = "Mod_SmartMeter.py, "
+        module_name = "main_smart_meter.py, "
 
         if("ERROR" in str_message):
             logging.error( module_name + str_message)
@@ -232,14 +232,14 @@ class Meter():
 
             current_day_of_year = amsterdam_now.timetuple().tm_yday
 
-            Influx.add_data_point(measurement, host , current_year, current_month_nr, current_week_nr, current_day_nr, current_day_of_year, "Version", version, point_time )
+            influx.add_data_point(measurement, host , current_year, current_month_nr, current_week_nr, current_day_nr, current_day_of_year, "Version", version, point_time )
 
     def create_raw_point_locally(self, measurement, host, line_nr, value):
 
             #using point time to log things will ensure that everything uses the same time
             point_time = datetime.utcnow().strftime(self.time_format)
 
-            Influx.add_raw_point(measurement, host, line_nr, "Raw", value, point_time)
+            influx.add_raw_point(measurement, host, line_nr, "Raw", value, point_time)
 
 
     def create_data_point_locally(self, measurement, host, value_name, value, phase=None):
@@ -263,7 +263,7 @@ class Meter():
             #using point time to log things will ensure that everything uses the same time
             point_time = datetime.utcnow().strftime(self.time_format)
 
-            Influx.add_data_point(measurement, host, current_year, current_month_nr, current_week_nr, current_day_nr, current_day_of_year, value_name, value, point_time, phase)
+            influx.add_data_point(measurement, host, current_year, current_month_nr, current_week_nr, current_day_nr, current_day_of_year, value_name, value, point_time, phase)
 
     def parse_line(self, in_line):
         out_line = None
@@ -310,7 +310,7 @@ class Meter():
 
                 # init the influx connection
                 #Influx.init_influx(influx_url, Influx_org, Influx_bucket, is_local_test, Influx_token, do_trace)
-                Influx.init_influx(influx_user, influx_password, influx_url, influx_port, influx_database, is_local_test, do_trace)
+                influx.init_influx(influx_user, influx_password, influx_url, influx_port, influx_database, is_local_test, do_trace)
 
                 #Set COM port config
                 ser = serial.Serial()
@@ -334,39 +334,39 @@ class Meter():
                 try:
                     ser.open()
                 except:
-                    sys.exit ("Fout bij het openen van %s. Aaaaarch."  % ser.name)
+                    sys.exit ("Issue with opening serial port %s. Aaaaarch."  % ser.name)
 
 
-                vorige_waarde = 0.0
-                vorige_waarde_2 = 0.0
+                e_previous_value = 0.0
+                e_previous_value_2 = 0.0
 
                 first_run = True
                 second_run = True
 
-                totaal_verbruik_dal = 0.0
-                totaal_verbruik_piek = 0.0
-                totaal_terug_piek = 0.0
-                totaal_terug_dal = 0.0
-                huidig_verbruik_cum = 0.0
-                huidig_terug_cum = 0.0
-                dal_piek = 0
-                huidig_verbruik = 0.0
-                huidig_terug = 0.0
+                e_current_consumption_low_hours = 0.0
+                e_current_consumption_high_hours = 0.0
+                e_current_production_high_hours = 0.0
+                e_current_production_low_hours = 0.0
+                e_current_consumption_cummulative = 0.0
+                e_current_production_cummulative = 0.0
+                e_low_or_high_hour = 0
+                e_current_consumption = 0.0
+                e_current_production = 0.0
                                 
-                received_huidig_verbruik = 0
-                received_huidig_terug = 0
+                received_e_current_consumption = 0
+                received_e_current_production = 0
 
                 ### code smells checked up to here
 
-                volt_1 = None
-                watt_terug_1 = None
-                watt_ver_1 = None
-                volt_2 = None
-                watt_terug_2 = None
-                watt_ver_2 = None
-                volt_3 = None
-                watt_terug_3 = None
-                watt_ver_3 = None
+                e_volt_level_p1 = None
+                e_watt_production_p1 = None
+                e_watt_consumption_p1 = None
+                e_volt_level_p2 = None
+                e_watt_production_p2 = None
+                e_watt_production_p2 = None
+                e_volt__level_p3 = None
+                e_watt_production_p3 = None
+                e_watt_consumption_p3 = None
 
                 received_counter = 0
                 old_time = datetime.utcnow()
@@ -419,7 +419,7 @@ class Meter():
                                             counter += 1                                       
 
                             try:
-                                Influx.write_data()
+                                influx.write_data()
                             except Exception as e:
                                 print(e)
                                 print("write raw data to influx error")
@@ -464,87 +464,79 @@ class Meter():
 
                                 if difference_in_seconds > 60:
                                     
-                                    huidig_verbruik = ( huidig_verbruik_cum / received_huidig_verbruik)
-                                    # print (str(huidig_verbruik_cum) + "/" + str(received_huidig_verbruik) + "=" + str($
-                                    huidig_terug = ( huidig_terug_cum / received_huidig_terug )
-                                    # print (str(huidig_terug_cum) + "/" + str(received_huidig_terug) + "=" + str(huidig$
-                                    huidig = (huidig_verbruik - huidig_terug)*1000
+                                    e_current_consumption = ( e_current_consumption_cummulative / received_e_current_consumption)
+                                    # print (str(e_current_consumption_cummulative) + "/" + str(received_e_current_consumption) + "=" + str($
+                                    e_current_production = ( e_current_production_cummulative / received_e_current_production )
+                                    # print (str(e_current_production_cummulative) + "/" + str(received_e_current_production) + "=" + str(e_current$
+                                    e_current = (e_current_consumption - e_current_production)*1000
 
                                     #also send 0's to know difference between null and 0
-                                    self.create_data_point_locally(influx_measurement, influx_host, "huidig_verbruik", (huidig_verbruik*1000))                                
-                                    self.create_data_point_locally(influx_measurement, influx_host, "huidig_terug", (huidig_terug*1000))
+                                    self.create_data_point_locally(influx_measurement, influx_host, "e_current_consumption", (e_current_consumption*1000))                                
+                                    self.create_data_point_locally(influx_measurement, influx_host, "e_current_production", (e_current_production*1000))
 
-                                    self.create_data_point_locally(influx_measurement, influx_host, "huidig", huidig)                
-
-
-
-                                    if not(volt_1 is None) and ( not(watt_terug_1) or not(watt_ver_1) ):
-                                        if watt_ver_1 is None:
-                                            watt_ver_1 = 0
-                                        if watt_terug_1 is None:
-                                            watt_terug_1 = 0
-
-                                        self.create_data_point_locally(influx_measurement, influx_host, "amp_calc", ((watt_ver_1 - watt_terug_1) / volt_1), "l1")
+                                    self.create_data_point_locally(influx_measurement, influx_host, "e_current", e_current)                
 
 
+                                    if not(e_volt_level_p1 is None) and ( not(e_watt_production_p1) or not(e_watt_consumption_p1) ):
+                                        if e_watt_consumption_p1 is None:
+                                            e_watt_consumption_p1 = 0
+                                        if e_watt_production_p1 is None:
+                                            e_watt_production_p1 = 0
+
+                                        self.create_data_point_locally(influx_measurement, influx_host, "amp_calc", ((e_watt_consumption_p1 - e_watt_production_p1) / e_volt_level_p1), "l1")
 
 
-                                    if not(volt_2 is None) and ( not(watt_terug_2) or not(watt_ver_2) ):
-                                        if watt_ver_2 is None:
-                                            watt_ver_2 = 0
-                                        if watt_terug_2 is None:
-                                            watt_terug_2 = 0
+                                    if not(e_volt_level_p2 is None) and ( not(e_watt_production_p2) or not(e_watt_production_p2) ):
+                                        if e_watt_production_p2 is None:
+                                            e_watt_production_p2 = 0
+                                        if e_watt_production_p2 is None:
+                                            e_watt_production_p2 = 0
 
-                                        self.create_data_point_locally(influx_measurement, influx_host, "amp_calc", ((watt_ver_2 - watt_terug_2) / volt_2), "l2")
-
-
+                                        self.create_data_point_locally(influx_measurement, influx_host, "amp_calc", ((e_watt_production_p2 - e_watt_production_p2) / e_volt_level_p2), "l2")
 
 
-                                    if not(volt_3 is None) and ( not(watt_terug_3) or not(watt_ver_3) ):
-                                        if watt_ver_3 is None:
-                                            watt_ver_3 = 0
-                                        if watt_terug_3 is None:
-                                            watt_terug_3 = 0
+                                    if not(e_volt__level_p3 is None) and ( not(e_watt_production_p3) or not(e_watt_consumption_p3) ):
+                                        if e_watt_consumption_p3 is None:
+                                            e_watt_consumption_p3 = 0
+                                        if e_watt_production_p3 is None:
+                                            e_watt_production_p3 = 0
 
-                                        self.create_data_point_locally(influx_measurement, influx_host, "amp_calc", ((watt_ver_3 - watt_terug_3) / volt_3), "l3")
-
-
-
+                                        self.create_data_point_locally(influx_measurement, influx_host, "amp_calc", ((e_watt_consumption_p3 - e_watt_production_p3) / e_volt__level_p3), "l3")
 
 
                                     if first_run:
-                                        vorige_waarde = huidig
+                                        e_previous_value = e_current
                                         first_run = False
                                     elif second_run:
-                                        vorige_waarde = huidig
-                                        vorige_waarde_2 = vorige_waarde
+                                        e_previous_value = e_current
+                                        e_previous_value_2 = e_previous_value
                                         second_run = False
                                     else: 
-                                        current_delta = huidig - vorige_waarde
-                                        current_delta_2 = huidig - vorige_waarde_2
+                                        current_delta = e_current - e_previous_value
+                                        current_delta_2 = e_current - e_previous_value_2
                                         self.create_data_point_locally(influx_measurement, influx_host, "current_delta", current_delta)
                                         self.create_data_point_locally(influx_measurement, influx_host, "current_delta_2", current_delta_2)
-                                        vorige_waarde_2 = vorige_waarde
-                                        vorige_waarde = huidig
+                                        e_previous_value_2 = e_previous_value
+                                        e_previous_value = e_current
 
 
-                                    huidig_verbruik_cum = 0.0
-                                    received_huidig_verbruik = 0
-                                    huidig_terug_cum = 0.0
-                                    received_huidig_terug = 0
-                                    huidig_verbruik = 0.0
-                                    huidig_terug = 0.0
+                                    e_current_consumption_cummulative = 0.0
+                                    received_e_current_consumption = 0
+                                    e_current_production_cummulative = 0.0
+                                    received_e_current_production = 0
+                                    e_current_consumption = 0.0
+                                    e_current_production = 0.0
 
 
-                                    volt_1 = None
-                                    watt_terug_1 = None
-                                    watt_ver_1 = None
-                                    volt_2 = None
-                                    watt_terug_2 = None
-                                    watt_ver_2 = None
-                                    volt_3 = None
-                                    watt_terug_3 = None
-                                    watt_ver_3 = None
+                                    e_volt_level_p1 = None
+                                    e_watt_production_p1 = None
+                                    e_watt_consumption_p1 = None
+                                    e_volt_level_p2 = None
+                                    e_watt_production_p2 = None
+                                    e_watt_production_p2 = None
+                                    e_volt__level_p3 = None
+                                    e_watt_production_p3 = None
+                                    e_watt_consumption_p3 = None
 
 
                                     old_time = datetime.utcnow()
@@ -563,78 +555,78 @@ class Meter():
                             if "1-0:1.7.0" in p1_line:
                                 verbruik_waarde = self.parse_line(p1_line)
                                 if not(verbruik_waarde is None):
-                                    huidig_verbruik_cum += verbruik_waarde
-                                    received_huidig_verbruik += 1
+                                    e_current_consumption_cummulative += verbruik_waarde
+                                    received_e_current_consumption += 1
 
                             if "1-0:2.7.0" in p1_line:
                                 terug_waarde = self.parse_line(p1_line)
                                 if not(terug_waarde is None):
-                                    huidig_terug_cum += terug_waarde
-                                    received_huidig_terug += 1
+                                    e_current_production_cummulative += terug_waarde
+                                    received_e_current_production += 1
 
                             if do_raw_log:
 
                                 if "0-0:96.14.0" in p1_line:
-                                    dal_piek = self.parse_line(p1_line)
-                                    if not (dal_piek is None):
-                                        self.create_data_point_locally(influx_measurement, influx_host, "dal_piek_fl", dal_piek)
+                                    e_low_or_high_hour = self.parse_line(p1_line)
+                                    if not (e_low_or_high_hour is None):
+                                        self.create_data_point_locally(influx_measurement, influx_host, "e_low_or_high_hour_fl", e_low_or_high_hour)
 
                                 if "1-0:1.8.1" in p1_line:
-                                    totaal_verbruik_dal = self.parse_line(p1_line)
+                                    e_current_consumption_low_hours = self.parse_line(p1_line)
 
-                                    if not (totaal_verbruik_dal is None):
-                                        self.create_data_point_locally(influx_measurement, influx_host, "totaal_verbruik_dal_fl", totaal_verbruik_dal)
+                                    if not (e_current_consumption_low_hours is None):
+                                        self.create_data_point_locally(influx_measurement, influx_host, "e_current_consumption_low_hours", e_current_consumption_low_hours)
 
                                         #check for 24h change in this value
-                                        daily_change = Transform.manage_daily_usage("totaal_verbruik_dal_fl", totaal_verbruik_dal)
+                                        daily_change = transform.manage_daily_usage("e_current_consumption_low_hours", e_current_consumption_low_hours)
                                         if not daily_change is None: # if there was a daily value to store
-                                            self.create_data_point_locally(influx_measurement, influx_host, "totaal_verbruik_dal_fl_change", daily_change)
+                                            self.create_data_point_locally(influx_measurement, influx_host, "e_current_consumption_low_hours_change", daily_change)
 
 
                                 if "1-0:1.8.2" in p1_line:
-                                    totaal_verbruik_piek = self.parse_line(p1_line)
+                                    e_current_consumption_high_hours = self.parse_line(p1_line)
 
-                                    if not (totaal_verbruik_piek is None):
-                                        self.create_data_point_locally(influx_measurement, influx_host, "totaal_verbruik_piek_fl", totaal_verbruik_piek)
+                                    if not (e_current_consumption_high_hours is None):
+                                        self.create_data_point_locally(influx_measurement, influx_host, "e_current_consumption_high_hours", e_current_consumption_high_hours)
 
                                         #check for 24h change in this value
-                                        daily_change = Transform.manage_daily_usage("totaal_verbruik_piek_fl", totaal_verbruik_piek)
+                                        daily_change = transform.manage_daily_usage("e_current_consumption_high_hours", e_current_consumption_high_hours)
                                         if not daily_change is None: # if there was a daily value to store
-                                            self.create_data_point_locally(influx_measurement, influx_host, "totaal_verbruik_piek_fl_change", daily_change)
+                                            self.create_data_point_locally(influx_measurement, influx_host, "e_current_consumption_high_hours_change", daily_change)
 
 
                                 if "1-0:2.8.1" in p1_line:
-                                    totaal_terug_dal = self.parse_line(p1_line)
+                                    e_current_production_low_hours = self.parse_line(p1_line)
 
-                                    if not (totaal_terug_dal is None):
-                                        self.create_data_point_locally(influx_measurement, influx_host, "totaal_terug_dal_fl", totaal_terug_dal)
+                                    if not (e_current_production_low_hours is None):
+                                        self.create_data_point_locally(influx_measurement, influx_host, "e_current_production_low_hours", e_current_production_low_hours)
 
                                         #check for 24h change in this value
-                                        daily_change = Transform.manage_daily_usage("totaal_terug_dal_fl", totaal_terug_dal)
+                                        daily_change = transform.manage_daily_usage("e_current_production_low_hours", e_current_production_low_hours)
                                         if not daily_change is None: # if there was a daily value to store
-                                            self.create_data_point_locally(influx_measurement, influx_host, "totaal_terug_dal_fl_change", daily_change)
+                                            self.create_data_point_locally(influx_measurement, influx_host, "e_current_production_low_hours_change", daily_change)
 
 
 
                                 if "1-0:2.8.2" in p1_line:
-                                    totaal_terug_piek = self.parse_line(p1_line)
+                                    e_current_production_high_hours = self.parse_line(p1_line)
 
-                                    if not (totaal_terug_piek is None) :
-                                        self.create_data_point_locally(influx_measurement, influx_host, "totaal_terug_piek_fl", totaal_terug_piek)
+                                    if not (e_current_production_high_hours is None) :
+                                        self.create_data_point_locally(influx_measurement, influx_host, "e_current_production_high_hours", e_current_production_high_hours)
 
                                         #check for 24h change in this value
-                                        daily_change = Transform.manage_daily_usage("totaal_terug_piek_fl", totaal_terug_piek)
+                                        daily_change = transform.manage_daily_usage("e_current_production_high_hours", e_current_production_high_hours)
                                         if not daily_change is None: # if there was a daily value to store
-                                            self.create_data_point_locally(influx_measurement, influx_host, "totaal_terug_piek_fl_change", daily_change)
+                                            self.create_data_point_locally(influx_measurement, influx_host, "e_current_production_high_hours_change", daily_change)
 
 
 
 
                                 if "1-0:32.7.0" in p1_line:
-                                    volt_1 = self.parse_line(p1_line)
+                                    e_volt_level_p1 = self.parse_line(p1_line)
 
-                                    if not (volt_1 is None):
-                                        self.create_data_point_locally(influx_measurement, influx_host, "volt", volt_1, "l1")
+                                    if not (e_volt_level_p1 is None):
+                                        self.create_data_point_locally(influx_measurement, influx_host, "volt", e_volt_level_p1, "l1")
 
                                         if completed_a_full_raw:
                                             do_raw_log = False
@@ -648,22 +640,22 @@ class Meter():
                                         self.create_data_point_locally(influx_measurement, influx_host, "amp", amp_1, "l1")
 
                                 if "1-0:21.7.0" in p1_line:
-                                    watt_ver_1 = self.parse_line(p1_line)
+                                    e_watt_consumption_p1 = self.parse_line(p1_line)
 
-                                    if not (watt_ver_1 is None):
-                                        self.create_data_point_locally(influx_measurement, influx_host, "watt_verbruik", watt_ver_1, "l1")
+                                    if not (e_watt_consumption_p1 is None):
+                                        self.create_data_point_locally(influx_measurement, influx_host, "e_watt_consumption", e_watt_consumption_p1, "l1")
 
                                 if "1-0:22.7.0" in p1_line:
-                                    watt_terug_1 = self.parse_line(p1_line)
+                                    e_watt_production_p1 = self.parse_line(p1_line)
 
-                                    if not (watt_terug_1 is None):
-                                        self.create_data_point_locally(influx_measurement, influx_host, "watt_terug", watt_terug_1, "l1")
+                                    if not (e_watt_production_p1 is None):
+                                        self.create_data_point_locally(influx_measurement, influx_host, "e_watt_production", e_watt_production_p1, "l1")
 
                                 if "1-0:52.7.0" in p1_line:
-                                    volt_2 = self.parse_line(p1_line)
+                                    e_volt_level_p2 = self.parse_line(p1_line)
 
-                                    if not (volt_2 is None):
-                                        self.create_data_point_locally(influx_measurement, influx_host, "volt", volt_2, "l2")
+                                    if not (e_volt_level_p2 is None):
+                                        self.create_data_point_locally(influx_measurement, influx_host, "volt", e_volt_level_p2, "l2")
 
                                 if "1-0:51.7.0" in p1_line:
                                     amp_2 = self.parse_line(p1_line)
@@ -672,22 +664,22 @@ class Meter():
                                         self.create_data_point_locally(influx_measurement, influx_host, "amp", amp_2, "l2")
 
                                 if "1-0:41.7.0" in p1_line:
-                                    watt_ver_2 = self.parse_line(p1_line)
+                                    e_watt_production_p2 = self.parse_line(p1_line)
 
-                                    if not (watt_ver_2 is None):
-                                        self.create_data_point_locally(influx_measurement, influx_host, "watt_verbruik", watt_ver_2, "l2")
+                                    if not (e_watt_production_p2 is None):
+                                        self.create_data_point_locally(influx_measurement, influx_host, "e_watt_consumption", e_watt_production_p2, "l2")
 
                                 if "1-0:42.7.0" in p1_line:
-                                    watt_terug_2 = self.parse_line(p1_line)
+                                    e_watt_production_p2 = self.parse_line(p1_line)
 
-                                    if not (watt_terug_2 is None):
-                                        self.create_data_point_locally(influx_measurement, influx_host, "watt_terug", watt_terug_2, "l2")
+                                    if not (e_watt_production_p2 is None):
+                                        self.create_data_point_locally(influx_measurement, influx_host, "e_watt_production", e_watt_production_p2, "l2")
 
                                 if "1-0:72.7.0" in p1_line:
-                                    volt_3 = self.parse_line(p1_line)
+                                    e_volt__level_p3 = self.parse_line(p1_line)
 
-                                    if not (volt_3 is None):
-                                        self.create_data_point_locally(influx_measurement, influx_host, "volt", volt_3, "l3")
+                                    if not (e_volt__level_p3 is None):
+                                        self.create_data_point_locally(influx_measurement, influx_host, "volt", e_volt__level_p3, "l3")
 
                                 if "1-0:71.7.0" in p1_line:
                                     amp_3 = self.parse_line(p1_line)
@@ -696,52 +688,41 @@ class Meter():
                                         self.create_data_point_locally(influx_measurement, influx_host, "amp", amp_3, "l3")
 
                                 if "1-0:61.7.0" in p1_line:
-                                    watt_ver_3 = self.parse_line(p1_line)
+                                    e_watt_consumption_p3 = self.parse_line(p1_line)
 
-                                    if not (watt_ver_3 is None):
-                                        self.create_data_point_locally(influx_measurement, influx_host, "watt_verbruik", watt_ver_3, "l3")
+                                    if not (e_watt_consumption_p3 is None):
+                                        self.create_data_point_locally(influx_measurement, influx_host, "e_watt_consumption", e_watt_consumption_p3, "l3")
 
                                 if "1-0:62.7.0" in p1_line:
-                                    watt_terug_3 = self.parse_line(p1_line)
+                                    e_watt_production_p3 = self.parse_line(p1_line)
 
-                                    if not (watt_terug_3 is None):
-                                        self.create_data_point_locally(influx_measurement, influx_host, "watt_terug", watt_terug_3, "l3")
+                                    if not (e_watt_production_p3 is None):
+                                        self.create_data_point_locally(influx_measurement, influx_host, "e_watt_production", e_watt_production_p3, "l3")
 
                                 if "0-1:24.2.1" in p1_line:
-                                    gas_volume = self.parse_line(p1_line)
+                                    g_volume = self.parse_line(p1_line)
 
-                                    if not (gas_volume is None):
-                                        self.create_data_point_locally(influx_measurement, influx_host, "gas_volume", gas_volume)
+                                    if not (g_volume is None):
+                                        self.create_data_point_locally(influx_measurement, influx_host, "g_volume", g_volume)
 
                                         #check for 24h change in this value
-                                        daily_change = Transform.manage_daily_usage("gas_volume", gas_volume)
+                                        daily_change = transform.manage_daily_usage("g_volume", g_volume)
                                         if not daily_change is None: # if there was a daily value to store
-                                            self.create_data_point_locally(influx_measurement, influx_host, "gas_volume_change", daily_change)
+                                            self.create_data_point_locally(influx_measurement, influx_host, "g_volume_change", daily_change)
 
-                                        gas_flow = Transform.gas_flow("gas_flow",gas_volume)
+                                        g_flow = transform.gas_flow("g_flow",g_volume)
 
-                                        if not (gas_flow is None):
-                                            self.create_data_point_locally(influx_measurement, influx_host, "gas_flow", gas_flow)
+                                        if not (g_flow is None):
+                                            self.create_data_point_locally(influx_measurement, influx_host, "g_flow", g_flow)
 
 
                     try:
-                        Influx.write_data()
+                        influx.write_data()
                     except Exception as e:
                         print(e)
                         print("write error")
 
 
-
-                    # #Close port and show status
-                    # try:
-                    #     print("closed unexpectedly")
-                    #     ser.close()
-                    # except:
-                    #     print("error at close")
-
-
-
-
 if __name__ == '__main__':
-    Meterclass = Meter()
+    Meterclass = meter()
     Meterclass.main_loop()

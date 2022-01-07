@@ -12,7 +12,7 @@ except Exception as e:
 def new_log(str_message):
     global log_influx
 
-    module_name = "Mod_Influx.py, "
+    module_name = "module_influx.py, "
 
     if("ERROR" in str_message):
         logging.error( module_name + str_message)

@@ -13,7 +13,7 @@ except Exception as e:
 def new_log(str_message, an_exception = None):
     global log_transform
 
-    module_name = "Mod_SmartMeter.py, "
+    module_name = "module_transform.py, "
 
     if("ERROR" in str_message):
         logging.error( module_name + str_message)
