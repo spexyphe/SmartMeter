@@ -1,4 +1,4 @@
-version = "0.1.8"
+version = "0.1.9"
 
 import os
 import logging
@@ -626,7 +626,7 @@ class meter():
                                     e_volt_level_p1 = self.parse_line(p1_line)
 
                                     if not (e_volt_level_p1 is None):
-                                        self.create_data_point_locally(influx_measurement, influx_host, "volt", e_volt_level_p1, "l1")
+                                        self.create_data_point_locally(influx_measurement, influx_host, "e_volt", e_volt_level_p1, "l1")
 
                                         if completed_a_full_raw:
                                             do_raw_log = False
