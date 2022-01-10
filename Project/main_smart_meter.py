@@ -343,10 +343,10 @@ class meter():
                 first_run = True
                 second_run = True
 
-                e_current_consumption_low_hours = 0.0
-                e_current_consumption_high_hours = 0.0
-                e_current_production_high_hours = 0.0
-                e_current_production_low_hours = 0.0
+                e_consumption_low_hours = 0.0
+                e_consumption_high_hours = 0.0
+                e_production_high_hours = 0.0
+                e_production_low_hours = 0.0
                 e_current_consumption_cummulative = 0.0
                 e_current_production_cummulative = 0.0
                 e_low_or_high_hour = 0
@@ -572,50 +572,50 @@ class meter():
                                         self.create_data_point_locally(influx_measurement, influx_host, "e_low_or_high_hour_fl", e_low_or_high_hour)
 
                                 if "1-0:1.8.1" in p1_line:
-                                    e_current_consumption_low_hours = self.parse_line(p1_line)
+                                    e_consumption_low_hours = self.parse_line(p1_line)
 
-                                    if not (e_current_consumption_low_hours is None):
-                                        self.create_data_point_locally(influx_measurement, influx_host, "e_current_consumption_low_hours", e_current_consumption_low_hours)
+                                    if not (e_consumption_low_hours is None):
+                                        self.create_data_point_locally(influx_measurement, influx_host, "e_consumption_low_hours", e_consumption_low_hours)
 
                                         #check for 24h change in this value
-                                        daily_change = transform.manage_daily_usage("e_current_consumption_low_hours", e_current_consumption_low_hours)
+                                        daily_change = transform.manage_daily_usage("e_consumption_low_hours", e_consumption_low_hours)
                                         if not daily_change is None: # if there was a daily value to store
-                                            self.create_data_point_locally(influx_measurement, influx_host, "e_current_consumption_low_hours_change", daily_change)
+                                            self.create_data_point_locally(influx_measurement, influx_host, "e_consumption_low_hours_change", daily_change)
 
 
                                 if "1-0:1.8.2" in p1_line:
-                                    e_current_consumption_high_hours = self.parse_line(p1_line)
+                                    e_consumption_high_hours = self.parse_line(p1_line)
 
-                                    if not (e_current_consumption_high_hours is None):
-                                        self.create_data_point_locally(influx_measurement, influx_host, "e_current_consumption_high_hours", e_current_consumption_high_hours)
+                                    if not (e_consumption_high_hours is None):
+                                        self.create_data_point_locally(influx_measurement, influx_host, "e_consumption_high_hours", e_consumption_high_hours)
 
                                         #check for 24h change in this value
-                                        daily_change = transform.manage_daily_usage("e_current_consumption_high_hours", e_current_consumption_high_hours)
+                                        daily_change = transform.manage_daily_usage("e_consumption_high_hours", e_consumption_high_hours)
                                         if not daily_change is None: # if there was a daily value to store
-                                            self.create_data_point_locally(influx_measurement, influx_host, "e_current_consumption_high_hours_change", daily_change)
+                                            self.create_data_point_locally(influx_measurement, influx_host, "e_consumption_high_hours_change", daily_change)
 
 
                                 if "1-0:2.8.1" in p1_line:
-                                    e_current_production_low_hours = self.parse_line(p1_line)
+                                    e_production_low_hours = self.parse_line(p1_line)
 
-                                    if not (e_current_production_low_hours is None):
-                                        self.create_data_point_locally(influx_measurement, influx_host, "e_current_production_low_hours", e_current_production_low_hours)
+                                    if not (e_production_low_hours is None):
+                                        self.create_data_point_locally(influx_measurement, influx_host, "e_production_low_hours", e_production_low_hours)
 
                                         #check for 24h change in this value
-                                        daily_change = transform.manage_daily_usage("e_current_production_low_hours", e_current_production_low_hours)
+                                        daily_change = transform.manage_daily_usage("e_production_low_hours", e_production_low_hours)
                                         if not daily_change is None: # if there was a daily value to store
-                                            self.create_data_point_locally(influx_measurement, influx_host, "e_current_production_low_hours_change", daily_change)
+                                            self.create_data_point_locally(influx_measurement, influx_host, "e_production_low_hours_change", daily_change)
 
 
 
                                 if "1-0:2.8.2" in p1_line:
-                                    e_current_production_high_hours = self.parse_line(p1_line)
+                                    e_production_high_hours = self.parse_line(p1_line)
 
                                     if not (e_current_production_high_hours is None) :
-                                        self.create_data_point_locally(influx_measurement, influx_host, "e_current_production_high_hours", e_current_production_high_hours)
+                                        self.create_data_point_locally(influx_measurement, influx_host, "e_current_production_high_hours", e_production_high_hours)
 
                                         #check for 24h change in this value
-                                        daily_change = transform.manage_daily_usage("e_current_production_high_hours", e_current_production_high_hours)
+                                        daily_change = transform.manage_daily_usage("e_current_production_high_hours", e_production_high_hours)
                                         if not daily_change is None: # if there was a daily value to store
                                             self.create_data_point_locally(influx_measurement, influx_host, "e_current_production_high_hours_change", daily_change)
 
