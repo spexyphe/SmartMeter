@@ -611,13 +611,13 @@ class meter():
                                 if "1-0:2.8.2" in p1_line:
                                     e_production_high_hours = self.parse_line(p1_line)
 
-                                    if not (e_current_production_high_hours is None) :
-                                        self.create_data_point_locally(influx_measurement, influx_host, "e_current_production_high_hours", e_production_high_hours)
+                                    if not (e_production_high_hours is None) :
+                                        self.create_data_point_locally(influx_measurement, influx_host, "e_production_high_hours", e_production_high_hours)
 
                                         #check for 24h change in this value
-                                        daily_change = transform.manage_daily_usage("e_current_production_high_hours", e_production_high_hours)
+                                        daily_change = transform.manage_daily_usage("e_production_high_hours", e_production_high_hours)
                                         if not daily_change is None: # if there was a daily value to store
-                                            self.create_data_point_locally(influx_measurement, influx_host, "e_current_production_high_hours_change", daily_change)
+                                            self.create_data_point_locally(influx_measurement, influx_host, "e_production_high_hours", daily_change)
 
 
 
