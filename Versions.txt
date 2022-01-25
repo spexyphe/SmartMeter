@@ -1,3 +1,7 @@
+0.1.10
+- removed a number of tags to reduce cardinality
+- added try and except to hopefully catch issues with write
+
 0.1.9
 - 1 e_volt was not named correctly
 

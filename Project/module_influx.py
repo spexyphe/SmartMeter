@@ -47,7 +47,7 @@ def check_tags(data_year, data_month, data_week, data_day):
     return answer
 
 def add_raw_point(measurement, data_host, line_nr, value_name, value, point_time):
-    global data_points
+    global raw_data_points
 
     raw_data_json_point = json.loads('{}')
     raw_data_json_point["measurement"] = measurement
@@ -71,7 +71,7 @@ def add_raw_point(measurement, data_host, line_nr, value_name, value, point_time
 
     new_log("OK: " + data_host + "-" + value_name + "(" + str(value) + ")"  + ": " + point_time)
 
-    data_points.append(raw_data_json_point)
+    raw_data_points.append(raw_data_json_point)
 
 
 
@@ -95,14 +95,14 @@ def add_data_point(measurement, data_host, data_year, data_month, data_week, dat
         if not ("month" in raw_data_json_point["tags"]):
             raw_data_json_point["tags"]["month"] = data_month
 
-        if not ("week" in raw_data_json_point["tags"]):
-            raw_data_json_point["tags"]["week"] = data_week
+        # if not ("week" in raw_data_json_point["tags"]):
+        #     raw_data_json_point["tags"]["week"] = data_week
 
         if not ("day" in raw_data_json_point["tags"]):
             raw_data_json_point["tags"]["day"] = data_day
 
-        if not ("day_of_year" in raw_data_json_point["tags"]):
-            raw_data_json_point["tags"]["day_of_year"] = day_of_year
+        # if not ("day_of_year" in raw_data_json_point["tags"]):
+        #     raw_data_json_point["tags"]["day_of_year"] = day_of_year
 
         if not (phase is None):
             if not ("phase" in raw_data_json_point["tags"]):
@@ -125,56 +125,96 @@ def add_data_point(measurement, data_host, data_year, data_month, data_week, dat
 
 def write_data():
     global data_points
+    global raw_data_points
     global function_influx_client
     global is_local_test
 
-    if not is_local_test:
+    try:
 
-        #is there something to add
-        if len(data_points) > 0:
+        if not is_local_test:
 
-            try:
+            if len(raw_data_points) > 0:
+                try:
 
-                #write point to influx 
-                function_influx_client.write_points(data_points)
+                    #write point to influx 
+                    function_influx_client.write_points(raw_data_points)
 
-                new_log("OK, write_data, writing data points: " + str(len(data_points)))
-            
-                data_points = []
+                    new_log("OK, write_data, writing data points: " + str(len(raw_data_points)))
+                
+                    raw_data_points = []
 
-            except Exception as e:
+                except Exception as e:
 
-                if "dropped" in str(e):
-                    parse_error = str(e)
+                    if "dropped" in str(e):
+                        parse_error = str(e)
 
-                    try:
-                        linedropped = int(parse_error[parse_error.index('=')+1:parse_error.index('}')-1])
+                        try:
+                            linedropped = int(parse_error[parse_error.index('=')+1:parse_error.index('}')-1])
 
-                        if len(data_points) > linedropped:
-                            #remove the identified line
-                            data_points.pop(linedropped)
+                            if len(raw_data_points) > linedropped:
+                                #remove the identified line
+                                raw_data_points.pop(linedropped)
 
-                            #retry
-                            write_data()
-                        
-                    except Exception as e2:
-                        new_log("WARNING, could not find index in error " + str(e) + ", with error: " + str(e2))
-                        data_points = []
+                                #retry
+                                write_data()
+                            
+                        except Exception as e2:
+                            new_log("WARNING, could not find index in error " + str(e) + ", with error: " + str(e2))
+                            raw_data_points = []
 
-                else:
-                    new_log("WARNING, could not find index in error " + str(e))
+                    else:
+                        new_log("WARNING, could not find index in error " + str(e))
+                        raw_data_points = []
+
+            #is there something to add
+            if len(data_points) > 0:
+
+                try:
+
+                    #write point to influx 
+                    function_influx_client.write_points(data_points)
+
+                    new_log("OK, write_data, writing data points: " + str(len(data_points)))
+                
                     data_points = []
-    else:
-        new_log("WARNING, write_data, local test is true")
+
+                except Exception as e:
+
+                    if "dropped" in str(e):
+                        parse_error = str(e)
+
+                        try:
+                            linedropped = int(parse_error[parse_error.index('=')+1:parse_error.index('}')-1])
+
+                            if len(data_points) > linedropped:
+                                #remove the identified line
+                                data_points.pop(linedropped)
+
+                                #retry
+                                write_data()
+                            
+                        except Exception as e2:
+                            new_log("WARNING, could not find index in error " + str(e) + ", with error: " + str(e2))
+                            data_points = []
+
+                    else:
+                        new_log("WARNING, could not find index in error " + str(e))
+                        data_points = []
+        else:
+            new_log("WARNING, write_data, local test is true")
+
+    except Exception as e_main_write:
+        new_log("WARNING,issue with write " + str(e_main_write))
 
 def init_influx(in_username, in_password, in_host, in_port=8086, in_database='home', in_local_test=False, in_debug= False):
 
     global log_influx
     log_influx = in_debug
 
-    global function_influx_client, is_local_test, data_points
+    global function_influx_client, is_local_test, data_points, raw_data_points
     is_local_test = in_local_test
     data_points = []
+    raw_data_points = []
 
     try:
         function_influx_client = InfluxDBClient(host=in_host, port=in_port, username=in_username, password=in_password, database=in_database)
