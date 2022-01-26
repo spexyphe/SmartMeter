@@ -23,7 +23,7 @@ sudo docker pull containrrr/watchtower\
 \
 **Run Examples**
 
-sudo docker run -v /dev:/dev --privileged --name smartmeter -e do_trace= "False" -e is_local_test= "False" -e is_var_run= "False" -e modbus_device = "/dev/ttyUSB0" -e modbus_baud= 115200 -e modbus_parity= "E" -e modbus_variables = "" -e influx_url = "<server ip>" -e influx_port = 8086 -e influx_user = "grafana" -e influx_password = "<influx password>" -e influx_database = "home" -e influx_measurement = "Slimme_meter" -e INFLUX_host = "<fill in random device identifier>" xyphedocker/xyphe_private_docker:smartmeter_influx_v0001
+sudo docker run -v /dev:/dev --privileged --name smartmeter -e do_trace= "False" -e is_local_test= "False" -e is_var_run= "False" -e modbus_device = "/dev/ttyUSB0" -e modbus_baud= 115200 -e modbus_parity= "E" -e modbus_variables = "" -e influx_url = "<server ip>" -e influx_port = 8086 -e influx_user = "grafana" -e influx_password = '<influx password>' -e influx_database = "home" -e influx_measurement = "Slimme_meter" -e INFLUX_host = "<fill in random device identifier>" xyphedocker/home_power:smartmeter_influx_v0001
 
 docker run -d --name watchtower -v /var/run/docker.sock:/var/run/docker.sock containrrr/watchtower smartmeter --debug --interval=300
 
