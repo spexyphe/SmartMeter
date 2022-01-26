@@ -1,3 +1,6 @@
+0.1.12 06-01-2022
+- only upload e_current when data was read
+
 0.1.11 06-01-2022
  - fix bug: crash in case that either consumption or production did not receive data
 

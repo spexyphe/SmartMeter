@@ -1,4 +1,4 @@
-version = "0.1.11"
+version = "0.1.12"
 
 import os
 import logging
@@ -477,15 +477,6 @@ class meter():
                                         # print (str(e_current_production_cummulative) + "/" + str(received_e_current_production) + "=" + str(e_current$
                                         e_current = (e_current_consumption - e_current_production)*1000
                                         self.create_data_point_locally(influx_measurement, influx_host, "e_current", e_current)                
-
-                                    elif (received_e_current_consumption > 0) and (received_e_current_production <= 0):
-                                        e_current = e_current_consumption * 1000
-                                        self.create_data_point_locally(influx_measurement, influx_host, "e_current", e_current) 
-
-                                    elif (received_e_current_consumption <= 0) and (received_e_current_production > 0):  
-                                        e_current = e_current_production * 1000
-                                        self.create_data_point_locally(influx_measurement, influx_host, "e_current", e_current)                
-
 
                                     if not(e_volt_level_p1 is None) and ( not(e_watt_production_p1) or not(e_watt_consumption_p1) ):
                                         if e_watt_consumption_p1 is None:
