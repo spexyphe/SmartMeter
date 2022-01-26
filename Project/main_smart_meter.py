@@ -464,7 +464,7 @@ class meter():
 
                                 if difference_in_seconds > 60:
                                     #did we received consumption data
-                                    if e_current_consumption > 0:
+                                    if received_e_current_consumption > 0:
                                         e_current_consumption = ( e_current_consumption_cummulative / received_e_current_consumption)
                                         self.create_data_point_locally(influx_measurement, influx_host, "e_current_consumption", (e_current_consumption*1000))                                
 
