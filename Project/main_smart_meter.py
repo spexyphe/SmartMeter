@@ -473,16 +473,16 @@ class meter():
                                         e_current_production = ( e_current_production_cummulative / received_e_current_production )
                                         self.create_data_point_locally(influx_measurement, influx_host, "e_current_production", (e_current_production*1000))
                                     
-                                    if (e_current_consumption > 0) and (received_e_current_production > 0):    
+                                    if (received_e_current_consumption > 0) and (received_e_current_production > 0):    
                                         # print (str(e_current_production_cummulative) + "/" + str(received_e_current_production) + "=" + str(e_current$
                                         e_current = (e_current_consumption - e_current_production)*1000
                                         self.create_data_point_locally(influx_measurement, influx_host, "e_current", e_current)                
 
-                                    elif (e_current_consumption > 0) and (received_e_current_production <= 0):
+                                    elif (received_e_current_consumption > 0) and (received_e_current_production <= 0):
                                         e_current = e_current_consumption * 1000
                                         self.create_data_point_locally(influx_measurement, influx_host, "e_current", e_current) 
 
-                                    elif (e_current_consumption <= 0) and (received_e_current_production > 0):  
+                                    elif (received_e_current_consumption <= 0) and (received_e_current_production > 0):  
                                         e_current = e_current_production * 1000
                                         self.create_data_point_locally(influx_measurement, influx_host, "e_current", e_current)                
 
