@@ -1,4 +1,4 @@
-version = "0.1.10"
+version = "0.1.11"
 
 import os
 import logging
@@ -463,18 +463,28 @@ class meter():
                                 difference_in_seconds = difference.total_seconds()
 
                                 if difference_in_seconds > 60:
+                                    #did we received consumption data
+                                    if e_current_consumption > 0:
+                                        e_current_consumption = ( e_current_consumption_cummulative / received_e_current_consumption)
+                                        self.create_data_point_locally(influx_measurement, influx_host, "e_current_consumption", (e_current_consumption*1000))                                
+
+                                    #did we receive production data
+                                    if received_e_current_production > 0:
+                                        e_current_production = ( e_current_production_cummulative / received_e_current_production )
+                                        self.create_data_point_locally(influx_measurement, influx_host, "e_current_production", (e_current_production*1000))
                                     
-                                    e_current_consumption = ( e_current_consumption_cummulative / received_e_current_consumption)
-                                    # print (str(e_current_consumption_cummulative) + "/" + str(received_e_current_consumption) + "=" + str($
-                                    e_current_production = ( e_current_production_cummulative / received_e_current_production )
-                                    # print (str(e_current_production_cummulative) + "/" + str(received_e_current_production) + "=" + str(e_current$
-                                    e_current = (e_current_consumption - e_current_production)*1000
+                                    if (e_current_consumption > 0) and (received_e_current_production > 0):    
+                                        # print (str(e_current_production_cummulative) + "/" + str(received_e_current_production) + "=" + str(e_current$
+                                        e_current = (e_current_consumption - e_current_production)*1000
+                                        self.create_data_point_locally(influx_measurement, influx_host, "e_current", e_current)                
 
-                                    #also send 0's to know difference between null and 0
-                                    self.create_data_point_locally(influx_measurement, influx_host, "e_current_consumption", (e_current_consumption*1000))                                
-                                    self.create_data_point_locally(influx_measurement, influx_host, "e_current_production", (e_current_production*1000))
+                                    elif (e_current_consumption > 0) and (received_e_current_production <= 0):
+                                        e_current = e_current_consumption * 1000
+                                        self.create_data_point_locally(influx_measurement, influx_host, "e_current", e_current) 
 
-                                    self.create_data_point_locally(influx_measurement, influx_host, "e_current", e_current)                
+                                    elif (e_current_consumption <= 0) and (received_e_current_production > 0):  
+                                        e_current = e_current_production * 1000
+                                        self.create_data_point_locally(influx_measurement, influx_host, "e_current", e_current)                
 
 
                                     if not(e_volt_level_p1 is None) and ( not(e_watt_production_p1) or not(e_watt_consumption_p1) ):
