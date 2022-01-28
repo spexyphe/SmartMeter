@@ -1,3 +1,7 @@
+0.1.14 28-01-2022
+- develop now pushes to a different container
+  -> this way this can be picked up by specific watchtower listeners and be ignored by others
+
 0.1.13 28-01-2022
 - now includes a develop branch
 - develop branch does not upload to dockerhub
