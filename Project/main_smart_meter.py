@@ -488,8 +488,8 @@ class meter():
 
 
                                     if not(e_volt_level_p2 is None) and ( not(e_watt_production_p2  is None) or not(e_watt_consumption_p2 is None) ):
-                                        if e_watt_production_p2 is None:
-                                            e_watt_production_p2 = 0
+                                        if e_watt_consumption_p2 is None:
+                                            e_watt_consumption_p2 = 0
                                         if e_watt_production_p2 is None:
                                             e_watt_production_p2 = 0
 
