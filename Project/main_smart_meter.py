@@ -534,7 +534,7 @@ class meter():
                                     e_watt_consumption_p1 = None
                                     e_volt_level_p2 = None
                                     e_watt_production_p2 = None
-                                    e_watt_production_p2 = None
+                                    e_watt_consumption_p2 = None
                                     e_volt_level_p3 = None
                                     e_watt_production_p3 = None
                                     e_watt_consumption_p3 = None
