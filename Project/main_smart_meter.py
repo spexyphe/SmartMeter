@@ -466,16 +466,16 @@ class meter():
                                     #did we received consumption data
                                     if received_e_current_consumption > 0:
                                         e_current_consumption = ( e_current_consumption_cummulative / received_e_current_consumption)
-                                        self.create_data_point_locally(influx_measurement, influx_host, "e_current_consumption", (e_current_consumption*1000))                                
+                                        self.create_data_point_locally(influx_measurement, influx_host, "e_current_consumption", (e_current_consumption))                                
 
                                     #did we receive production data
                                     if received_e_current_production > 0:
                                         e_current_production = ( e_current_production_cummulative / received_e_current_production )
-                                        self.create_data_point_locally(influx_measurement, influx_host, "e_current_production", (e_current_production*1000))
+                                        self.create_data_point_locally(influx_measurement, influx_host, "e_current_production", (e_current_production))
                                     
                                     if (received_e_current_consumption > 0) and (received_e_current_production > 0):    
                                         # print (str(e_current_production_cummulative) + "/" + str(received_e_current_production) + "=" + str(e_current$
-                                        e_current = (e_current_consumption - e_current_production)*1000
+                                        e_current = (e_current_consumption - e_current_production)
                                         self.create_data_point_locally(influx_measurement, influx_host, "e_current", e_current)                
 
                                     if not(e_volt_level_p1 is None) and ( not(e_watt_production_p1 is None) or not(e_watt_consumption_p1 is None) ):
