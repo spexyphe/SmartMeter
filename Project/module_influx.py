@@ -10,7 +10,7 @@ except Exception as e:
 
 
 def new_log(str_message):
-    global log_influx
+    global log_influx, is_local_test
 
     module_name = "module_influx.py, "
 
@@ -21,6 +21,8 @@ def new_log(str_message):
     else:
         if log_influx:
             logging.info( module_name + str_message)
+        if is_local_test:
+            print(str_message)
 
 def check_tags(data_year, data_month, data_week, data_day):
 
@@ -201,7 +203,7 @@ def write_data():
                         new_log("WARNING, could not find index in error " + str(e))
                         data_points = []
         else:
-            new_log("WARNING, write_data, local test is true")
+            new_log(str(data_points))
 
     except Exception as e_main_write:
         new_log("WARNING,issue with write " + str(e_main_write))
