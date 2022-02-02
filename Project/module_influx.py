@@ -204,6 +204,7 @@ def write_data():
                         data_points = []
         else:
             new_log(str(data_points))
+            data_points = []
 
     except Exception as e_main_write:
         new_log("WARNING,issue with write " + str(e_main_write))
