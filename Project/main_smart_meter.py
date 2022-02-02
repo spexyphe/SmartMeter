@@ -478,7 +478,7 @@ class meter():
                                         e_current = (e_current_consumption - e_current_production)*1000
                                         self.create_data_point_locally(influx_measurement, influx_host, "e_current", e_current)                
 
-                                    if not(e_volt_level_p1 is None) and ( not(e_watt_production_p1) or not(e_watt_consumption_p1) ):
+                                    if not(e_volt_level_p1 is None) and ( not(e_watt_production_p1 is None) or not(e_watt_consumption_p1 is None) ):
                                         if e_watt_consumption_p1 is None:
                                             e_watt_consumption_p1 = 0
                                         if e_watt_production_p1 is None:
@@ -487,16 +487,16 @@ class meter():
                                         self.create_data_point_locally(influx_measurement, influx_host, "e_amp_calc", ((e_watt_consumption_p1 - e_watt_production_p1) / e_volt_level_p1), "l1")
 
 
-                                    if not(e_volt_level_p2 is None) and ( not(e_watt_production_p2) or not(e_watt_production_p2) ):
+                                    if not(e_volt_level_p2 is None) and ( not(e_watt_production_p2  is None) or not(e_watt_consumption_p2 is None) ):
                                         if e_watt_production_p2 is None:
                                             e_watt_production_p2 = 0
                                         if e_watt_production_p2 is None:
                                             e_watt_production_p2 = 0
 
-                                        self.create_data_point_locally(influx_measurement, influx_host, "e_amp_calc", ((e_watt_production_p2 - e_watt_production_p2) / e_volt_level_p2), "l2")
+                                        self.create_data_point_locally(influx_measurement, influx_host, "e_amp_calc", ((e_watt_production_p2 - e_watt_consumption_p2) / e_volt_level_p2), "l2")
 
 
-                                    if not(e_volt_level_p3 is None) and ( not(e_watt_production_p3) or not(e_watt_consumption_p3) ):
+                                    if not(e_volt_level_p3 is None) and ( not(e_watt_production_p3 is None) or not(e_watt_consumption_p3 is None) ):
                                         if e_watt_consumption_p3 is None:
                                             e_watt_consumption_p3 = 0
                                         if e_watt_production_p3 is None:
@@ -555,13 +555,18 @@ class meter():
                             # als je alles wil zien moet je de volgende line uncommenten print (p1_li$
                             if "1-0:1.7.0" in p1_line:
                                 verbruik_waarde = self.parse_line(p1_line)
+
                                 if not(verbruik_waarde is None):
+                                    if "kW" in p1_line:
+                                        verbruik_waarde = verbruik_waarde * 1000
                                     e_current_consumption_cummulative += verbruik_waarde
                                     received_e_current_consumption += 1
 
                             if "1-0:2.7.0" in p1_line:
                                 terug_waarde = self.parse_line(p1_line)
                                 if not(terug_waarde is None):
+                                    if "kW" in p1_line:
+                                        terug_waarde = terug_waarde * 1000
                                     e_current_production_cummulative += terug_waarde
                                     received_e_current_production += 1
 
@@ -644,12 +649,16 @@ class meter():
                                     e_watt_consumption_p1 = self.parse_line(p1_line)
 
                                     if not (e_watt_consumption_p1 is None):
+                                        if "kW" in p1_line:
+                                            e_watt_consumption_p1 = e_watt_consumption_p1 * 1000
                                         self.create_data_point_locally(influx_measurement, influx_host, "e_watt_consumption", e_watt_consumption_p1, "l1")
 
                                 if "1-0:22.7.0" in p1_line:
                                     e_watt_production_p1 = self.parse_line(p1_line)
 
                                     if not (e_watt_production_p1 is None):
+                                        if "kW" in p1_line:
+                                            e_watt_production_p1 = e_watt_production_p1 * 1000
                                         self.create_data_point_locally(influx_measurement, influx_host, "e_watt_production", e_watt_production_p1, "l1")
 
                                 if "1-0:52.7.0" in p1_line:
@@ -665,15 +674,19 @@ class meter():
                                         self.create_data_point_locally(influx_measurement, influx_host, "e_amp", e_amp_2, "l2")
 
                                 if "1-0:41.7.0" in p1_line:
-                                    e_watt_production_p2 = self.parse_line(p1_line)
+                                    e_watt_consumption_p2 = self.parse_line(p1_line)
 
-                                    if not (e_watt_production_p2 is None):
-                                        self.create_data_point_locally(influx_measurement, influx_host, "e_watt_consumption", e_watt_production_p2, "l2")
+                                    if not (e_watt_consumption_p2 is None):
+                                        if "kW" in p1_line:
+                                            e_watt_consumption_p2 = e_watt_consumption_p2 * 1000
+                                        self.create_data_point_locally(influx_measurement, influx_host, "e_watt_consumption", e_watt_consumption_p2, "l2")
 
                                 if "1-0:42.7.0" in p1_line:
                                     e_watt_production_p2 = self.parse_line(p1_line)
 
                                     if not (e_watt_production_p2 is None):
+                                        if "kW" in p1_line:
+                                            e_watt_production_p2 = e_watt_production_p2 * 1000
                                         self.create_data_point_locally(influx_measurement, influx_host, "e_watt_production", e_watt_production_p2, "l2")
 
                                 if "1-0:72.7.0" in p1_line:
@@ -692,12 +705,16 @@ class meter():
                                     e_watt_consumption_p3 = self.parse_line(p1_line)
 
                                     if not (e_watt_consumption_p3 is None):
+                                        if "kW" in p1_line:
+                                            e_watt_consumption_p3 = e_watt_consumption_p3 * 1000
                                         self.create_data_point_locally(influx_measurement, influx_host, "e_watt_consumption", e_watt_consumption_p3, "l3")
 
                                 if "1-0:62.7.0" in p1_line:
                                     e_watt_production_p3 = self.parse_line(p1_line)
 
                                     if not (e_watt_production_p3 is None):
+                                        if "kW" in p1_line:
+                                            e_watt_production_p3 = e_watt_production_p3 * 1000
                                         self.create_data_point_locally(influx_measurement, influx_host, "e_watt_production", e_watt_production_p3, "l3")
 
                                 if "0-1:24.2.1" in p1_line:
