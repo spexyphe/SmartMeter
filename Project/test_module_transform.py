@@ -18,6 +18,48 @@ class TestStringMethods(unittest.TestCase):
         transform.set_influx_module(influx, "smartmeter", "my_tiny_house")
         self.assertIsNotNone(transform.transform_mem_state)
 
+    #happy flow - succesfully create a point
+    def test_2_0_0_create_data_point_locally(self):
+        # unit test pre-cleanup
+        influx.clear_points()
+
+        # add the point
+        transform.create_data_point_locally("test_name", 111.12, "l1")
+
+        # validate that the point was added.
+        # other validation points are done by the influx test
+        self.assertEqual(len(influx.data_points), 1)
+
+    #happy flow - succesfully create a point
+    def test_2_0_1_create_data_point_locally(self):
+        # unit test pre-cleanup
+        influx.clear_points()
+
+        # add the point
+        transform.create_data_point_locally("test_name", 111.12)
+
+        # validate that the point was added.
+        # other validation points are done by the influx test
+        self.assertEqual(len(influx.data_points), 1)
+
+    # def test_2_1_0_create_data_point_locally(self):
+    #     # unit test pre-cleanup
+    #     influx.clear_points()
+
+    #     # add the point
+    #     transform.create_data_point_locally(None, None)
+
+    #     # validate that the point was added.
+    #     # other validation points are done by the influx test
+    #     self.assertEqual(len(influx.data_points), 0)
+
+
+
+
+
+
+
+
 
     # def test_3_0_0_gas_flow(self):
     #     self.assertIsNone(transform.gas_flow("gas_flow", None))

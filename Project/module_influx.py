@@ -208,6 +208,12 @@ def write_data():
     except Exception as e_main_write:
         new_log("WARNING,issue with write " + str(e_main_write))
 
+# thos os a function to assist unit tests
+def clear_points():
+    global data_points, raw_data_points
+    data_points = []
+    raw_data_points = []
+
 def init_influx(in_username, in_password, in_host, in_port=8086, in_database='home', in_local_test=False, in_debug= False):
 
     global log_influx
