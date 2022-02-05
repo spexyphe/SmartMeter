@@ -76,7 +76,6 @@ def add_raw_point(measurement, data_host, line_nr, value_name, value, point_time
     raw_data_points.append(raw_data_json_point)
 
 
-
 def add_data_point(measurement, data_host, data_year, data_month, data_week, data_day, day_of_year, value_name, value, point_time, phase=None):
     global data_points
 

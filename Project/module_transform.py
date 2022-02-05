@@ -9,6 +9,41 @@ try:
 except Exception as e:
     logging.error("failed to load custom pytz module: " + str(e))
 
+time_format = '%Y-%m-%dT%H:%M:%SZ'
+
+code_list = [ "1-0:1.7.0", "1-0:2.7.0", "1-0:32.7.0", "1-0:52.7.0", "1-0:72.7.0", "1-0:31.7.0", "1-0:51.7.0", "1-0:71.7.0", "1-0:21.7.0", "1-0:41.7.0", "1-0:61.7.0", "1-0:22.7.0", "1-0:42.7.0", "1-0:62.7.0", "0-1:24.2.1", "1-0:1.8.1", "1-0:1.8.2", "1-0:2.8.1", "1-0:2.8.2", "0-0:96.14.0"],
+
+#name - phase - 24h
+var_list = [["e_current_consumption", None, False], ["e_current_production", None, False], 
+["e_volt", "l1", False], ["e_volt", "l2", False], ["e_volt", "l3", False], 
+["e_amp", "l1", False], ["e_amp", "l2", False], ["e_amp", "l3", False], 
+["e_watt_consumption", "l1", False], ["e_watt_consumption", "l2", False], ["e_watt_consumption", "l3", False],
+["e_watt_production", "l1", False], ["e_watt_production", "l2", False], ["e_watt_production", "l3", False],
+["g_volume", None, True], ["e_consumption_low_hours", None, True], ["e_consumption_high_hours", None, True], ["e_production_low_hours", None, True], ["e_production_high_hours", None, True], 
+["e_low_or_high_hour_fl", None, False]]
+
+
+
+#"1-0:1.7.0" # (verbruik_waarde) (e_current_consumption_cummulative)
+#"1-0:2.7.0" # (terug_waarde) (e_current_production_cummulative)                                                                                                                                                      
+#"1-0:32.7.0" # (e_volt - l1)                                                                                                                                                     
+#"1-0:52.7.0" # (e_volt - l2)                                                                                                                                                      
+#"1-0:72.7.0" # (e_volt - l3)                                                                                                                                                     
+#"1-0:31.7.0" # (e_amp - l1)                                                                                                                                                       
+#"1-0:51.7.0" # (e_amp - l2)                                                                                                                                                       
+#"1-0:71.7.0" # (e_amp - l3)                                                                                                                                                        
+#"1-0:21.7.0" # (e_watt_consumption - l1)                                                                                                                                                   
+#"1-0:41.7.0" # (e_watt_consumption - l2)                                                                                                                                                 
+#"1-0:61.7.0" # (e_watt_consumption - l3)                                                                                                                                                   
+#"1-0:22.7.0" # (e_watt_production - l1)                                                                                                                                                   
+#"1-0:42.7.0" # (e_watt_production - l2)                                                                                                                                                   
+#"1-0:62.7.0" # (e_watt_production - l3)                                                                                                                                                                                                                                                                         
+#"0-1:24.2.1" # (g_volume) (parsed: g_flow)                                                                                                                                                                                                                                                        
+#"1-0:1.8.1" # (e_consumption_low_hours)                                                                                                                                           
+#"1-0:1.8.2" # (e_consumption_high_hours)                                                                                                                                               
+#"1-0:2.8.1" # (e_production_low_hours)                                                                                                                                               
+#"1-0:2.8.2" # (e_production_high_hours)                                                                                                                                               
+
 
 def new_log(str_message, an_exception = None):
     global log_transform
@@ -31,6 +66,175 @@ def new_log(str_message, an_exception = None):
 
             if not (an_exception is None):
                 logging.info(str(an_exception)) 
+
+def create_data_point_locally(value_name, value, phase=None):
+    influx_measurement, influx_host
+    ### mk: measurement and host should not be needed as input
+    global time_format
+
+    # Tags are fixed values, that are not time zone transformed
+    # Hence for tags we need the current timezone
+    #Else we get a timezone difference
+    tz = pytz.timezone('Europe/Amsterdam')
+    amsterdam_now = datetime.now(tz)
+
+    # tag values that allows searching based on time tags
+    current_year = str(amsterdam_now.strftime("%Y"))
+    current_month_nr = str(amsterdam_now.strftime("%m"))
+    current_week_nr = str(amsterdam_now.strftime("%U"))
+    current_day_nr = str(amsterdam_now. strftime("%w"))
+    
+    current_day_of_year = amsterdam_now.timetuple().tm_yday
+
+    #using point time to log things will ensure that everything uses the same time
+    point_time = datetime.utcnow().strftime(time_format)
+
+    influx.add_data_point(influx_measurement, influx_host, current_year, current_month_nr, current_week_nr, current_day_nr, current_day_of_year, value_name, value, point_time, phase)
+
+
+def create_raw_point_locally(measurement, host, line_nr, value):
+    global time_format
+
+    if not (influx is None):
+        #using point time to log things will ensure that everything uses the same time
+        point_time = datetime.utcnow().strftime(time_format)
+
+        influx.add_raw_point(measurement, host, line_nr, "Raw", value, point_time)
+
+def store_last_value(var_info, value):
+    global lastvalues
+
+    item_mem = {}
+    if not(var_info[1] is None):
+        item_mem[var_info[1]] = {}
+        item_mem[var_info[1]] ["value"] = value
+        item_mem[var_info[1]] ["time"] = datetime.utcnow()
+        item_mem[var_info[1]] ["updated"] = True
+    else:
+        item_mem= {}
+        item_mem["value"] = value
+        item_mem["time"] = datetime.utcnow()
+        item_mem["updated"] = True
+
+    lastvalues[var_info[0]] = item_mem
+
+def reset_stored():
+    global lastvalues
+
+    for a_val in lastvalues:
+        if "updated" in a_val:
+            a_val["updated"] = False
+        else:
+            for ph in a_val:
+                ph["updated"] = False
+
+def time_to_update(var_info, value, deltatime):
+    global lastvalues
+
+    try:
+        if var_info[0] in lastvalues:
+            if "time" in var_info[0]:
+                data = lastvalues[var_info[0]]
+            else:
+                data = lastvalues[var_info[0]][var_info[1]]
+            if (datetime.utcnow() - data["time"]).total_seconds() > deltatime:
+                store_last_value(var_info, value)
+                return True
+        else:
+            store_last_value(var_info, value)
+
+    except Exception as e:
+        new_log("WARNING: time_to_update, timerissue: " + str(e))
+
+    return False
+
+def update(code, value, deltatime):
+    global code_list, var_list
+
+    if code_list.count(code) > 0:
+        var_info = var_list[code_list.index(code)] #name - phase - 24h
+
+        if time_to_update(var_info, value, deltatime):
+            create_data_point_locally(var_info[0], value, var_info[1])
+
+            #calculate 24 hour change
+            if var_info[2]:
+                manage_daily_usage(var_info[0], value)
+
+            if var_info[0] == "g_volume":
+                gas_flow("g_volume", value)
+
+def calculated_values():
+
+    global lastvalues
+
+    if ("e_volt" in lastvalues) and ("e_watt_consumption" in lastvalues) and ("e_watt_production" in lastvalues):
+        if ("l1" in lastvalues["e_volt"]) and ("l2" in lastvalues["e_volt"]) and ("l3" in lastvalues["e_volt"] and 
+            "l1" in lastvalues["e_watt_consumption"]) and ("l2" in lastvalues["e_watt_consumption"]) and ("l3" in lastvalues["e_watt_consumption"] and 
+            "l1" in lastvalues["e_watt_production"]) and ("l2" in lastvalues["e_watt_production"]) and ("l3" in lastvalues["e_watt_production"]):
+
+            if lastvalues["e_volt"]["l1"]["updated"] and lastvalues["e_watt_consumption"]["l1"]["updated"] and lastvalues["e_watt_production"]["l1"]["updated"]:
+                e_amp_calc_l1 = (abs(lastvalues["e_watt_consumption"]["l1"]["value"] - lastvalues["e_watt_production"]["l1"]["value"])) / lastvalues["e_volt"]["l1"]["value"]
+                create_data_point_locally(influx_measurement, influx_host, "e_amp_calc", e_amp_calc_l1, "l1")
+
+            if lastvalues["e_volt"]["l2"]["updated"] and lastvalues["e_watt_consumption"]["l2"]["updated"] and lastvalues["e_watt_production"]["l2"]["updated"]:
+                e_amp_calc_l2 = (abs(lastvalues["e_watt_consumption"]["l2"]["value"] - lastvalues["e_watt_production"]["l2"]["value"])) / lastvalues["e_volt"]["l2"]["value"]
+                create_data_point_locally(influx_measurement, influx_host, "e_amp_calc", e_amp_calc_l2, "l2")
+
+            if lastvalues["e_volt"]["l3"]["updated"] and lastvalues["e_watt_consumption"]["l3"]["updated"] and lastvalues["e_watt_production"]["l3"]["updated"]:
+                e_amp_calc_l3 = (abs(lastvalues["e_watt_consumption"]["l3"]["value"] - lastvalues["e_watt_production"]["l3"]["value"])) / lastvalues["e_volt"]["l3"]["value"]
+                create_data_point_locally(influx_measurement, influx_host, "e_amp_calc", e_amp_calc_l3, "l3")
+
+def parse_line(in_line, deltatime):
+    global influx_measurement, influx_host
+
+    out_line = None
+    raw_code = None
+
+    try:
+        raw_code = in_line[:in_line.index('(') ]
+
+        if not(raw_code in raw_variables_mem):
+            x = raw_variables_mem["count"] + 1
+            raw_variables_mem["count"] = x
+            
+            raw_variables_mem[raw_code] = "parsed"
+
+            create_raw_point_locally(influx_measurement, influx_host, x, raw_code )
+
+    except Exception as e:
+        new_log("WARNING: parse_line, raw_liner: " + str(e))
+
+    try:
+        if in_line.count('*') > 0:
+            if in_line.count(')') == 2:
+                out_line = float(in_line[in_line.index(')')+2:in_line.index('*')])
+            else:
+                out_line = float(in_line[in_line.index('(')+1:in_line.index('*')])
+        else:  
+            out_line = float(in_line[in_line.index('(')+1:in_line.index(')')])
+
+    except Exception as e:
+        new_log("WARNING: parse_line, value: " + str(e))
+
+    try:
+        if (not (raw_code is None)) and (not (out_line is None)):
+            update(raw_code, out_line, deltatime)
+
+    except Exception as e:
+        new_log("WARNING: parse_line, upload: " + str(e))
+
+    return out_line
+
+def parse_variables(in_variables):
+    out_variables = None
+
+    try:
+        out_variables = in_variables.split(",")    
+    except Exception as e:
+        new_log("ERROR, parse_variables Failed", e)
+    
+    return out_variables
 
 def manage_daily_usage(var_name, var_value):
     global transform_mem_state
@@ -59,6 +263,8 @@ def manage_daily_usage(var_name, var_value):
                         #te change is the value at the end of the day minus the start of the day
                         daily_change = var_value - transform_mem_state[var_name]["var_value_day_start"]
                         
+                        create_data_point_locally(var_name + "_change", daily_change)
+
                         #remember this as the first value of the day
                         transform_mem_state[var_name]["var_value_day_start"] = var_value
                         transform_mem_state[var_name]["old_day"] = amsterdam_now.day
@@ -86,13 +292,20 @@ def manage_daily_usage(var_name, var_value):
     else:
         transform_mem_state = json.loads('{}')
 
-    #there was no change in day so there is no daily change known
-    return None
+def func_calc_amp(in_watt_consume, in_watt_prod, in_volt):
+    if not(in_volt is None) and ( not(in_watt_prod is None) or not(in_watt_consume is None) ):
+        if in_watt_consume is None:
+            in_watt_consume = 0
+        if in_watt_prod is None:
+            in_watt_prod = 0
+    
+                # (abs(943 - 0) / 230) = 4.1
+        return (abs(in_watt_consume - in_watt_prod) / in_volt)
+    else:
+        return 0
 
 def gas_flow(var_name, var_value):
     global transform_mem_state
-
-    delta = None
 
     #validate that the unput is a float
     if type(var_value) is float:
@@ -105,6 +318,9 @@ def gas_flow(var_name, var_value):
                 # do we have day and daystartvalue in our memory
                 if "var_value_previous" in transform_mem_state[var_name]:
                     delta = round(var_value - transform_mem_state[var_name]["var_value_previous"],2)
+
+                    create_data_point_locally("g_flow", delta)
+
                     transform_mem_state[var_name]["var_value_previous"] = var_value
 
                 else:
@@ -122,10 +338,15 @@ def gas_flow(var_name, var_value):
 
     else:
         print(str(var_value) + " is a " + str(type(var_value)))
-        
 
-    #there was no change in day so there is no daily change known
-    return delta
+
+def set_influx_module(in_influx, in_influx_measurement, in_influx_host):
+    global influx
+    influx = in_influx
+
+    global influx_measurement, influx_host
+    influx_measurement = in_influx_measurement
+    influx_host = in_influx_host
 
 def init_transform():
     global log_transform
@@ -133,3 +354,13 @@ def init_transform():
 
     global transform_mem_state 
     transform_mem_state = json.loads('{}')
+
+    global raw_variables_mem 
+    raw_variables_mem = json.loads('{}')
+    raw_variables_mem["count"] = 0
+
+    global lastvalues 
+    lastvalues = json.loads('{}')
+
+    global influx
+    influx = None
