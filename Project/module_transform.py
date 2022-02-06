@@ -11,7 +11,7 @@ except Exception as e:
 
 time_format = '%Y-%m-%dT%H:%M:%SZ'
 
-code_list = [ "1-0:1.7.0", "1-0:2.7.0", "1-0:32.7.0", "1-0:52.7.0", "1-0:72.7.0", "1-0:31.7.0", "1-0:51.7.0", "1-0:71.7.0", "1-0:21.7.0", "1-0:41.7.0", "1-0:61.7.0", "1-0:22.7.0", "1-0:42.7.0", "1-0:62.7.0", "0-1:24.2.1", "1-0:1.8.1", "1-0:1.8.2", "1-0:2.8.1", "1-0:2.8.2", "0-0:96.14.0"],
+code_list = [ "1-0:1.7.0", "1-0:2.7.0", "1-0:32.7.0", "1-0:52.7.0", "1-0:72.7.0", "1-0:31.7.0", "1-0:51.7.0", "1-0:71.7.0", "1-0:21.7.0", "1-0:41.7.0", "1-0:61.7.0", "1-0:22.7.0", "1-0:42.7.0", "1-0:62.7.0", "0-1:24.2.1", "1-0:1.8.1", "1-0:1.8.2", "1-0:2.8.1", "1-0:2.8.2", "0-0:96.14.0"]
 
 #name - phase - 24h
 var_list = [["e_current_consumption", None, False], ["e_current_production", None, False], 
@@ -68,7 +68,7 @@ def new_log(str_message, an_exception = None):
                 logging.info(str(an_exception)) 
 
 def create_data_point_locally(value_name, value, phase=None):
-    influx_measurement, influx_host
+    global influx_measurement, influx_host
     ### mk: measurement and host should not be needed as input
     global time_format
 
@@ -92,14 +92,16 @@ def create_data_point_locally(value_name, value, phase=None):
     influx.add_data_point(influx_measurement, influx_host, current_year, current_month_nr, current_week_nr, current_day_nr, current_day_of_year, value_name, value, point_time, phase)
 
 
-def create_raw_point_locally(measurement, host, line_nr, value):
+def create_raw_point_locally(line_nr, value):
+    global influx_measurement, influx_host
+
     global time_format
 
     if not (influx is None):
         #using point time to log things will ensure that everything uses the same time
         point_time = datetime.utcnow().strftime(time_format)
 
-        influx.add_raw_point(measurement, host, line_nr, "Raw", value, point_time)
+        influx.add_raw_point(influx_measurement, influx_host, line_nr, "Raw", value, point_time)
 
 def store_last_value(var_info, value):
     global lastvalues
@@ -133,7 +135,7 @@ def time_to_update(var_info, value, deltatime):
 
     try:
         if var_info[0] in lastvalues:
-            if "time" in var_info[0]:
+            if "time" in lastvalues[var_info[0]]:
                 data = lastvalues[var_info[0]]
             else:
                 data = lastvalues[var_info[0]][var_info[1]]
@@ -142,48 +144,90 @@ def time_to_update(var_info, value, deltatime):
                 return True
         else:
             store_last_value(var_info, value)
+            return True
 
     except Exception as e:
         new_log("WARNING: time_to_update, timerissue: " + str(e))
 
     return False
 
-def update(code, value, deltatime):
-    global code_list, var_list
 
-    if code_list.count(code) > 0:
-        var_info = var_list[code_list.index(code)] #name - phase - 24h
+def gas_flow(var_name, var_value):
+    global transform_mem_state
 
-        if time_to_update(var_info, value, deltatime):
-            create_data_point_locally(var_info[0], value, var_info[1])
+    #validate that the unput is a float
+    if type(var_value) is float:
 
-            #calculate 24 hour change
-            if var_info[2]:
-                manage_daily_usage(var_info[0], value)
+        #can we access the memory
+        if not transform_mem_state is None:
 
-            if var_info[0] == "g_volume":
-                gas_flow("g_volume", value)
+            #is this a known var
+            if var_name in transform_mem_state:
+                # do we have day and daystartvalue in our memory
+                if "var_value_previous" in transform_mem_state[var_name]:
+                    delta = round(var_value - transform_mem_state[var_name]["var_value_previous"],2)
+
+                    create_data_point_locally("g_flow", delta)
+
+                    transform_mem_state[var_name]["var_value_previous"] = var_value
+
+                else:
+                    #this should not happen
+                    #repopulate memory for this var
+                    transform_mem_state[var_name]["var_value_previous"] = var_value
+
+            else:
+                #create new memory for this var
+                transform_mem_state[var_name] = {}
+                transform_mem_state[var_name]["var_value_previous"] = var_value
+
+        else:
+            transform_mem_state = json.loads('{}')
+
+    else:
+        print(str(var_value) + " is a " + str(type(var_value)))
+
 
 def calculated_values():
 
     global lastvalues
 
     if ("e_volt" in lastvalues) and ("e_watt_consumption" in lastvalues) and ("e_watt_production" in lastvalues):
-        if ("l1" in lastvalues["e_volt"]) and ("l2" in lastvalues["e_volt"]) and ("l3" in lastvalues["e_volt"] and 
-            "l1" in lastvalues["e_watt_consumption"]) and ("l2" in lastvalues["e_watt_consumption"]) and ("l3" in lastvalues["e_watt_consumption"] and 
-            "l1" in lastvalues["e_watt_production"]) and ("l2" in lastvalues["e_watt_production"]) and ("l3" in lastvalues["e_watt_production"]):
+        if ("l1" in lastvalues["e_volt"]) and ("l1" in lastvalues["e_watt_consumption"]) and ("l1" in lastvalues["e_watt_production"]):
 
             if lastvalues["e_volt"]["l1"]["updated"] and lastvalues["e_watt_consumption"]["l1"]["updated"] and lastvalues["e_watt_production"]["l1"]["updated"]:
-                e_amp_calc_l1 = (abs(lastvalues["e_watt_consumption"]["l1"]["value"] - lastvalues["e_watt_production"]["l1"]["value"])) / lastvalues["e_volt"]["l1"]["value"]
-                create_data_point_locally(influx_measurement, influx_host, "e_amp_calc", e_amp_calc_l1, "l1")
+                e_amp_calc_l1 = round((((abs(lastvalues["e_watt_consumption"]["l1"]["value"] - lastvalues["e_watt_production"]["l1"]["value"]))*1000) / lastvalues["e_volt"]["l1"]["value"]),3)
+                create_data_point_locally("e_amp_calc", e_amp_calc_l1, "l1")
 
+        if ("l2" in lastvalues["e_volt"]) and ("l2" in lastvalues["e_watt_consumption"]) and ("l2" in lastvalues["e_watt_production"]):
             if lastvalues["e_volt"]["l2"]["updated"] and lastvalues["e_watt_consumption"]["l2"]["updated"] and lastvalues["e_watt_production"]["l2"]["updated"]:
-                e_amp_calc_l2 = (abs(lastvalues["e_watt_consumption"]["l2"]["value"] - lastvalues["e_watt_production"]["l2"]["value"])) / lastvalues["e_volt"]["l2"]["value"]
-                create_data_point_locally(influx_measurement, influx_host, "e_amp_calc", e_amp_calc_l2, "l2")
+                e_amp_calc_l2 = round((((abs(lastvalues["e_watt_consumption"]["l2"]["value"] - lastvalues["e_watt_production"]["l2"]["value"]))*1000) / lastvalues["e_volt"]["l2"]["value"]),3)
+                create_data_point_locally("e_amp_calc", e_amp_calc_l2, "l2")
 
+        if ("l3" in lastvalues["e_volt"]) and ("l3" in lastvalues["e_watt_consumption"]) and ("l3" in lastvalues["e_watt_production"]):
             if lastvalues["e_volt"]["l3"]["updated"] and lastvalues["e_watt_consumption"]["l3"]["updated"] and lastvalues["e_watt_production"]["l3"]["updated"]:
-                e_amp_calc_l3 = (abs(lastvalues["e_watt_consumption"]["l3"]["value"] - lastvalues["e_watt_production"]["l3"]["value"])) / lastvalues["e_volt"]["l3"]["value"]
-                create_data_point_locally(influx_measurement, influx_host, "e_amp_calc", e_amp_calc_l3, "l3")
+                e_amp_calc_l3 = round((((abs(lastvalues["e_watt_consumption"]["l3"]["value"] - lastvalues["e_watt_production"]["l3"]["value"]))*1000) / lastvalues["e_volt"]["l3"]["value"]),3)
+                create_data_point_locally("e_amp_calc", e_amp_calc_l3, "l3")
+
+
+def update(code, value, deltatime):
+    global code_list, var_list
+
+    print(code)
+
+    if code_list.count(code) > 0:
+        var_info = var_list[code_list.index(code)] #name - phase - 24h
+        print(var_info)
+
+        if time_to_update(var_info, value, deltatime):
+            create_data_point_locally(var_info[0], value, var_info[1])
+
+            if var_info[0] == "g_volume":
+                gas_flow("g_volume", value)
+
+            #calculate 24 hour change
+            if var_info[2]:
+                manage_daily_usage(var_info[0], value)
 
 def parse_line(in_line, deltatime):
     global influx_measurement, influx_host
@@ -200,7 +244,7 @@ def parse_line(in_line, deltatime):
             
             raw_variables_mem[raw_code] = "parsed"
 
-            create_raw_point_locally(influx_measurement, influx_host, x, raw_code )
+            create_raw_point_locally(x, raw_code )
 
     except Exception as e:
         new_log("WARNING: parse_line, raw_liner: " + str(e))
@@ -220,11 +264,11 @@ def parse_line(in_line, deltatime):
     try:
         if (not (raw_code is None)) and (not (out_line is None)):
             update(raw_code, out_line, deltatime)
+        else:
+            print("issue")
 
     except Exception as e:
         new_log("WARNING: parse_line, upload: " + str(e))
-
-    return out_line
 
 def parse_variables(in_variables):
     out_variables = None
@@ -292,54 +336,6 @@ def manage_daily_usage(var_name, var_value):
     else:
         transform_mem_state = json.loads('{}')
 
-def func_calc_amp(in_watt_consume, in_watt_prod, in_volt):
-    if not(in_volt is None) and ( not(in_watt_prod is None) or not(in_watt_consume is None) ):
-        if in_watt_consume is None:
-            in_watt_consume = 0
-        if in_watt_prod is None:
-            in_watt_prod = 0
-    
-                # (abs(943 - 0) / 230) = 4.1
-        return (abs(in_watt_consume - in_watt_prod) / in_volt)
-    else:
-        return 0
-
-def gas_flow(var_name, var_value):
-    global transform_mem_state
-
-    #validate that the unput is a float
-    if type(var_value) is float:
-
-        #can we access the memory
-        if not transform_mem_state is None:
-
-            #is this a known var
-            if var_name in transform_mem_state:
-                # do we have day and daystartvalue in our memory
-                if "var_value_previous" in transform_mem_state[var_name]:
-                    delta = round(var_value - transform_mem_state[var_name]["var_value_previous"],2)
-
-                    create_data_point_locally("g_flow", delta)
-
-                    transform_mem_state[var_name]["var_value_previous"] = var_value
-
-                else:
-                    #this should not happen
-                    #repopulate memory for this var
-                    transform_mem_state[var_name]["var_value_previous"] = var_value
-
-            else:
-                #create new memory for this var
-                transform_mem_state[var_name] = {}
-                transform_mem_state[var_name]["var_value_previous"] = var_value
-
-        else:
-            transform_mem_state = json.loads('{}')
-
-    else:
-        print(str(var_value) + " is a " + str(type(var_value)))
-
-
 def set_influx_module(in_influx, in_influx_measurement, in_influx_host):
     global influx
     influx = in_influx
@@ -347,6 +343,17 @@ def set_influx_module(in_influx, in_influx_measurement, in_influx_host):
     global influx_measurement, influx_host
     influx_measurement = in_influx_measurement
     influx_host = in_influx_host
+
+def clear_mem():
+    global transform_mem_state 
+    transform_mem_state = json.loads('{}')
+
+    global raw_variables_mem 
+    raw_variables_mem = json.loads('{}')
+    raw_variables_mem["count"] = 0
+
+    global lastvalues 
+    lastvalues = json.loads('{}')
 
 def init_transform():
     global log_transform

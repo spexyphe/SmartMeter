@@ -161,6 +161,7 @@ class meter():
 
                     try:
                         influx.write_data()
+                        transform.reset_stored()
                     except Exception as e:
                         print(e)
                         print("write error")
