@@ -247,6 +247,7 @@ def parse_line(in_line, deltatime):
             create_raw_point_locally(x, raw_code )
 
     except Exception as e:
+        print(in_line)
         new_log("WARNING: parse_line, raw_liner: " + str(e))
 
     try:
@@ -259,6 +260,7 @@ def parse_line(in_line, deltatime):
             out_line = float(in_line[in_line.index('(')+1:in_line.index(')')])
 
     except Exception as e:
+        print(in_line)
         new_log("WARNING: parse_line, value: " + str(e))
 
     try:
@@ -268,6 +270,7 @@ def parse_line(in_line, deltatime):
             print("issue")
 
     except Exception as e:
+        print(in_line)
         new_log("WARNING: parse_line, upload: " + str(e))
 
 def parse_variables(in_variables):
