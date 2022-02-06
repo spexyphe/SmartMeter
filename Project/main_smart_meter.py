@@ -81,7 +81,7 @@ class meter():
         succes_var_modbus, device, baud, parity, variables = env_var.load_env_var_modbus()
 
         #parse the list of variables as defined in the environment
-        list_of_var = env_var.parse_variables(variables)
+        list_of_var = transform.parse_variables(variables)
 
         # safety check: did we detect variables
         if (not (list_of_var is None)) and len(list_of_var) > 0:
@@ -123,8 +123,6 @@ class meter():
                     ser.open()
                 except:
                     sys.exit ("Issue with opening serial port %s. Aaaaarch."  % ser.name)
-
-                old_time = datetime.utcnow()
 
                 # run our program cotiniously
                 while True:

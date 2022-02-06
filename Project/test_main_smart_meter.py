@@ -7,18 +7,11 @@ from main_smart_meter import meter
 
 class TestStringMethods(unittest.TestCase):
 
-
-
-                                                                                                                                          
- 
-
+                                                                                                                        
     mainmodule = meter()
 
     def test_dummy(self):
         self.assertEqual(True, True)
-
-
-
 
 
 
