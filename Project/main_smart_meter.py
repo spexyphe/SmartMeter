@@ -91,7 +91,7 @@ class meter():
             succes_var_influx, influx_url, influx_port, influx_user, influx_password, influx_database, influx_measurement, influx_host = env_var.load_env_var_influx()
 
             # load environment variables regarding influx
-            if self.succes_var_influx:
+            if succes_var_influx:
                 
                 # init the influx connection
                 #Influx.init_influx(influx_url, Influx_org, Influx_bucket, is_local_test, Influx_token, do_trace)
