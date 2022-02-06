@@ -213,11 +213,8 @@ def calculated_values():
 def update(code, value, deltatime):
     global code_list, var_list
 
-    print(code)
-
     if code_list.count(code) > 0:
         var_info = var_list[code_list.index(code)] #name - phase - 24h
-        print(var_info)
 
         if time_to_update(var_info, value, deltatime):
             create_data_point_locally(var_info[0], value, var_info[1])
@@ -232,8 +229,10 @@ def update(code, value, deltatime):
 def parse_line(in_line, deltatime):
     global influx_measurement, influx_host
 
-    out_line = None
+    line_value = None
     raw_code = None
+
+    logging.warning(in_line)
 
     try:
         raw_code = in_line[:in_line.index('(') ]
@@ -247,30 +246,27 @@ def parse_line(in_line, deltatime):
             create_raw_point_locally(x, raw_code )
 
     except Exception as e:
-        print(in_line)
+        new_log("WARNING: " + in_line)
         new_log("WARNING: parse_line, raw_liner: " + str(e))
 
     try:
         if in_line.count('*') > 0:
             if in_line.count(')') == 2:
-                out_line = float(in_line[in_line.index(')')+2:in_line.index('*')])
+                line_value = float(in_line[in_line.index(')')+2:in_line.index('*')])
             else:
-                out_line = float(in_line[in_line.index('(')+1:in_line.index('*')])
+                line_value = float(in_line[in_line.index('(')+1:in_line.index('*')])
         else:  
-            out_line = float(in_line[in_line.index('(')+1:in_line.index(')')])
+            line_value = float(in_line[in_line.index('(')+1:in_line.index(')')])
 
     except Exception as e:
-        print(in_line)
+        new_log("WARNING: " + in_line)
         new_log("WARNING: parse_line, value: " + str(e))
 
     try:
-        if (not (raw_code is None)) and (not (out_line is None)):
-            update(raw_code, out_line, deltatime)
-        else:
-            print("issue")
+        if (not (raw_code is None)) and (not (line_value is None)):
+            update(raw_code, line_value, deltatime)
 
     except Exception as e:
-        print(in_line)
         new_log("WARNING: parse_line, upload: " + str(e))
 
 def parse_variables(in_variables):
