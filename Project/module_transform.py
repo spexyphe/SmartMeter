@@ -149,6 +149,7 @@ def time_to_update(var_info, value, deltatime):
     except Exception as e:
       
         new_log("WARNING: time_to_update, timerissue: " + str(e))
+        new_log("WARNING: " + str(lastvalues))
         new_log("WARNING: " + str(var_info))
         new_log("WARNING: " + str(value))
         new_log("WARNING: " + str(deltatime))
