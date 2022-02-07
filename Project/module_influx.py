@@ -131,6 +131,7 @@ def write_data():
     global is_local_test
 
     try:
+        logging.warning(data_points)
 
         if not is_local_test:
 

@@ -151,6 +151,8 @@ class meter():
                         p1_str=str(p1_raw)
                         p1_line=p1_str.strip()
 
+                        logging.warning(p1_line)
+
                         if "1-3:0.2.8" in p1_line:
                             transform.calculated_values()
 
