@@ -44,6 +44,28 @@ class meter():
     def __init__(self):
         print("init smartmeter")
 
+    def new_log(self, str_message, an_exception = None):
+        global do_trace
+
+        module_name = "module_transform.py, "
+
+        if("ERROR" in str_message):
+            logging.error( module_name + str_message)
+            
+            if not (an_exception is None):
+                logging.error(str(an_exception))    
+        elif("WARNING" in str_message):
+            logging.warning( module_name + str_message)
+
+            if not (an_exception is None):
+                logging.warning(str(an_exception))   
+        else:
+            if do_trace:
+                logging.info( module_name + str_message)
+
+                if not (an_exception is None):
+                    logging.info(str(an_exception)) 
+
 
     def update_version(self, measurement, host):
 
@@ -139,8 +161,9 @@ class meter():
                         p1_raw = ser.readline()
                         received = True
                     except Exception as e:
-                        print(e)
-                        print("read eror")
+                        
+                        self.new_log("WARNING: read eror", str(e))
+
                         #sys.exit ("Seriele poort %s kan niet gelezen worden. Aaaaaaaaarch." % s$
                         #print("receive error")
                         received = False
@@ -149,7 +172,7 @@ class meter():
                         p1_str=str(p1_raw)
                         p1_line=p1_str.strip()
 
-                        logging.warning(p1_line)
+                        self.new_log("OK: " + p1_line)
 
                         if "1-3:0.2.8" in p1_line:
                             transform.calculated_values()
@@ -163,8 +186,7 @@ class meter():
                         influx.write_data()
                         transform.reset_stored()
                     except Exception as e:
-                        print(e)
-                        print("write error")
+                        self.new_log("ERROR: write error", str(e))
 
 
 if __name__ == '__main__':
