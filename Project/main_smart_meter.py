@@ -169,8 +169,13 @@ class meter():
                         received = False
 
                     if received:
-                        p1_str=str(p1_raw)
-                        p1_line=p1_str.strip()
+
+                        try:
+                            p1_str=str(p1_raw.decode("utf-8"))
+                            p1_line=p1_str.strip()
+                        except:
+                            p1_str=str(p1_raw)
+                            p1_line=p1_str.strip()
 
                         self.new_log("OK: " + p1_line)
 
