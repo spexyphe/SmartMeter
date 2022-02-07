@@ -147,6 +147,9 @@ class TestStringMethods(unittest.TestCase):
         self.assertTrue(transform.time_to_update( ["e_current_consumption", None, False], 12.1, 10))
 
         #this should create a new point in memory -> True
+        self.assertTrue(transform.time_to_update( ["e_volt", "l1", False], 233.1,10))
+
+        #this should create a new point in memory -> True
         self.assertTrue(transform.time_to_update( ["e_volt", "l3", False], 231.1,10))
 
 
@@ -158,6 +161,9 @@ class TestStringMethods(unittest.TestCase):
         self.assertFalse(transform.time_to_update( ["e_current_consumption", None, False], 12.2, 10))
 
         # retry, but no update needed -> False
+        self.assertFalse(transform.time_to_update( ["e_volt", "l1", False], 232.0,10))
+
+        # retry, but no update needed -> False
         self.assertFalse(transform.time_to_update( ["e_volt", "l3", False], 232.1,10))
 
     #happy flow
@@ -167,6 +173,9 @@ class TestStringMethods(unittest.TestCase):
 
         #enough time has passed -> True
         self.assertTrue(transform.time_to_update( ["e_current_consumption", None, False], 12.1, 10))
+
+        # retry, but no update needed -> False
+        self.assertTrue(transform.time_to_update( ["e_volt", "l1", False], 225.0,10))
 
         #enough time has passed -> True
         self.assertTrue(transform.time_to_update( ["e_volt", "l3", False], 231.1,10))

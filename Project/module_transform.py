@@ -106,19 +106,21 @@ def create_raw_point_locally(line_nr, value):
 def store_last_value(var_info, value):
     global lastvalues
 
-    item_mem = {}
-    if not(var_info[1] is None):
-        item_mem[var_info[1]] = {}
-        item_mem[var_info[1]] ["value"] = value
-        item_mem[var_info[1]] ["time"] = datetime.utcnow()
-        item_mem[var_info[1]] ["updated"] = True
-    else:
-        item_mem= {}
-        item_mem["value"] = value
-        item_mem["time"] = datetime.utcnow()
-        item_mem["updated"] = True
+    if not (var_info[0] in lastvalues):
+        lastvalues[var_info[0]] = {}
 
-    lastvalues[var_info[0]] = item_mem
+    if not(var_info[1] is None):   
+
+        if not(var_info[1] in lastvalues[var_info[0]]):
+            lastvalues[var_info[0]][var_info[1]] = {}
+
+        lastvalues[var_info[0]][var_info[1]]["value"] = value
+        lastvalues[var_info[0]][var_info[1]]["time"] = datetime.utcnow()
+        lastvalues[var_info[0]][var_info[1]]["updated"] = True 
+    else:
+        lastvalues[var_info[0]]["value"] = value
+        lastvalues[var_info[0]]["time"] = datetime.utcnow()
+        lastvalues[var_info[0]]["updated"] = True              
 
 def reset_stored():
     global lastvalues
@@ -133,16 +135,50 @@ def reset_stored():
 def time_to_update(var_info, value, deltatime):
     global lastvalues
 
+    print(lastvalues)
+
     try:
-        if var_info[0] in lastvalues:
-            if "time" in lastvalues[var_info[0]]:
-                data = lastvalues[var_info[0]]
+        #this var has no phase
+        if var_info[1] is None:
+            #check if this is a know variable
+            if var_info[0] in lastvalues:
+
+                #is time in memory (this should be the case)
+                if "time" in lastvalues[var_info[0]]:
+                    data = lastvalues[var_info[0]]["time"]
+                else:
+                    #this is weird
+                    store_last_value(var_info, value)
+                    return True 
+
+            #should be added
             else:
-                data = lastvalues[var_info[0]][var_info[1]]
-            if (datetime.utcnow() - data["time"]).total_seconds() > deltatime:
                 store_last_value(var_info, value)
-                return True
+                return True 
+
+        #var with phase
         else:
+            # is this var known
+            if var_info[0] in lastvalues:
+                # is this phase known
+                if var_info[1] in lastvalues[var_info[0]]:
+                    #is time in memory (this should be the case)
+                    if "time" in lastvalues[var_info[0]][var_info[1]]:
+                        data = lastvalues[var_info[0]][var_info[1]]["time"]
+                    else:
+                        store_last_value(var_info, value)
+                        return True 
+
+                else:
+                    store_last_value(var_info, value)
+                    return True 
+            #should be added
+            else:
+                store_last_value(var_info, value)   
+                return True  
+
+        print((datetime.utcnow() - data).total_seconds())
+        if (datetime.utcnow() - data).total_seconds() > deltatime:
             store_last_value(var_info, value)
             return True
 
