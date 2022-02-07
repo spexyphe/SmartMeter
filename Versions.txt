@@ -1,3 +1,11 @@
+0.2.00 06-02-2022
+- renamed files
+- moved a large number of transform function out of the main module
+- created a module_env_var.py specificly for loading environment variables
+- input strings are now matched to a predefined set
+- unit tests have been added
+- fixed amp_calc issues
+
 0.1.14 28-01-2022
 - develop now pushes to a different container
   -> this way this can be picked up by specific watchtower listeners and be ignored by others

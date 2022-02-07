@@ -1,4 +1,4 @@
-version = "0.1.14"
+version = "0.2.00"
 
 from fnmatch import translate
 import os
@@ -81,7 +81,7 @@ class meter():
         succes_var_modbus, device, baud, parity, variables = env_var.load_env_var_modbus()
 
         #parse the list of variables as defined in the environment
-        list_of_var = env_var.parse_variables(variables)
+        list_of_var = transform.parse_variables(variables)
 
         # safety check: did we detect variables
         if (not (list_of_var is None)) and len(list_of_var) > 0:
@@ -91,7 +91,7 @@ class meter():
             succes_var_influx, influx_url, influx_port, influx_user, influx_password, influx_database, influx_measurement, influx_host = env_var.load_env_var_influx()
 
             # load environment variables regarding influx
-            if self.succes_var_influx:
+            if succes_var_influx:
                 
                 # init the influx connection
                 #Influx.init_influx(influx_url, Influx_org, Influx_bucket, is_local_test, Influx_token, do_trace)
@@ -123,8 +123,6 @@ class meter():
                     ser.open()
                 except:
                     sys.exit ("Issue with opening serial port %s. Aaaaarch."  % ser.name)
-
-                old_time = datetime.utcnow()
 
                 # run our program cotiniously
                 while True:
@@ -163,6 +161,7 @@ class meter():
 
                     try:
                         influx.write_data()
+                        transform.reset_stored()
                     except Exception as e:
                         print(e)
                         print("write error")
