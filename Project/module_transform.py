@@ -135,8 +135,6 @@ def reset_stored():
 def time_to_update(var_info, value, deltatime):
     global lastvalues
 
-    print(lastvalues)
-
     try:
         #this var has no phase
         if var_info[1] is None:
@@ -177,7 +175,6 @@ def time_to_update(var_info, value, deltatime):
                 store_last_value(var_info, value)   
                 return True  
 
-        print((datetime.utcnow() - data).total_seconds())
         if (datetime.utcnow() - data).total_seconds() > deltatime:
             store_last_value(var_info, value)
             return True

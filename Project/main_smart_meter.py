@@ -1,4 +1,4 @@
-version = "0.2.00"
+version = "0.2.01"
 
 from fnmatch import translate
 import os
@@ -47,7 +47,7 @@ class meter():
     def new_log(self, str_message, an_exception = None):
         global do_trace
 
-        module_name = "module_transform.py, "
+        module_name = "main_smart_meter.py, "
 
         if("ERROR" in str_message):
             logging.error( module_name + str_message)
@@ -189,9 +189,13 @@ class meter():
 
                     try:
                         influx.write_data()
-                        transform.reset_stored()
                     except Exception as e:
                         self.new_log("ERROR: write error", str(e))
+
+                    try:
+                        transform.reset_stored()
+                    except Exception as e:
+                        self.new_log("ERROR: reset error", str(e))
 
 
 if __name__ == '__main__':

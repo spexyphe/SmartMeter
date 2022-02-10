@@ -138,8 +138,6 @@ def write_data():
 
                     #write point to influx 
                     function_influx_client.write_points(raw_data_points)
-
-                    new_log("OK, write_data, writing data points: " + str(len(raw_data_points)))
                 
                     raw_data_points = []
 
@@ -173,8 +171,6 @@ def write_data():
 
                     #write point to influx 
                     function_influx_client.write_points(data_points)
-
-                    new_log("OK, write_data, writing data points: " + str(len(data_points)))
                 
                     data_points = []
 
@@ -201,7 +197,6 @@ def write_data():
                         new_log("WARNING, could not find index in error " + str(e))
                         data_points = []
         else:
-            new_log(str(data_points))
             data_points = []
 
     except Exception as e_main_write:
