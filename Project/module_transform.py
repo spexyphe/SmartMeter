@@ -274,8 +274,6 @@ def parse_line(in_line, deltatime):
     line_value = None
     raw_code = None
 
-    logging.warning(in_line)
-
     try:
         raw_code = in_line[:in_line.index('(') ]
 
@@ -288,8 +286,9 @@ def parse_line(in_line, deltatime):
             create_raw_point_locally(x, raw_code )
 
     except Exception as e:
-        new_log("WARNING: " + in_line)
-        new_log("WARNING: parse_line, raw_liner: " + str(e))
+        raw_code = None
+        #new_log("WARNING: " + in_line)
+        #new_log("WARNING: parse_line, raw_liner: " + str(e))
 
     try:
         if in_line.count('*') > 0:
@@ -301,15 +300,12 @@ def parse_line(in_line, deltatime):
             line_value = float(in_line[in_line.index('(')+1:in_line.index(')')])
 
     except Exception as e:
-        new_log("WARNING: " + in_line)
-        new_log("WARNING: parse_line, value: " + str(e))
+        line_value = None
+        #new_log("WARNING: " + in_line)
+        #new_log("WARNING: parse_line, value: " + str(e))
 
-    try:
-        if (not (raw_code is None)) and (not (line_value is None)):
-            update(raw_code, line_value, deltatime)
-
-    except Exception as e:
-        new_log("WARNING: parse_line, upload: " + str(e))
+    if (not (raw_code is None)) and (not (line_value is None)):
+        update(raw_code, line_value, deltatime)
 
 def parse_variables(in_variables):
     out_variables = None
