@@ -127,7 +127,7 @@ def reset_stored():
     global lastvalues
 
     for a_val in lastvalues:
-        if "updated" in a_val:
+        if "updated" in lastvalues[a_val]:
             try:
                 lastvalues[a_val]["updated"] = False
             except:
