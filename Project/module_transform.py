@@ -128,10 +128,19 @@ def reset_stored():
 
     for a_val in lastvalues:
         if "updated" in a_val:
-            lastvalues[a_val]["updated"] = False
+            try:
+                lastvalues[a_val]["updated"] = False
+            except:
+                print(a_val)
+                print(lastvalues)
         else:
             for ph in lastvalues[a_val]:
-                lastvalues[a_val][ph]["updated"] = False
+                try:
+                    lastvalues[a_val][ph]["updated"] = False
+                except:
+                    print(a_val)
+                    print(ph)
+                    print(lastvalues)
 
 def time_to_update(var_info, value, deltatime):
     global lastvalues
