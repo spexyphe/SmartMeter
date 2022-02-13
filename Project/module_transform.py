@@ -1,3 +1,4 @@
+from pyexpat import EXPAT_VERSION
 import sys
 import logging
 
@@ -127,10 +128,10 @@ def reset_stored():
 
     for a_val in lastvalues:
         if "updated" in a_val:
-            a_val["updated"] = False
+            lastvalues[a_val]["updated"] = False
         else:
-            for ph in a_val:
-                ph["updated"] = False
+            for ph in lastvalues[a_val]:
+                lastvalues[a_val][ph]["updated"] = False
 
 def time_to_update(var_info, value, deltatime):
     global lastvalues

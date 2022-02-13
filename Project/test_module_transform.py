@@ -297,6 +297,8 @@ class TestStringMethods(unittest.TestCase):
         self.assertIn("e_amp_calc", influx.data_points[0]["fields"])
         self.assertEqual(7.192, influx.data_points[0]["fields"]["e_amp_calc"])
 
+    def test_8_0_0_reset_stored(self):
+        self.assertIsNone(transform.reset_stored())
 
 
 
