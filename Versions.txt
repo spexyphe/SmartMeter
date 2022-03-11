@@ -1,3 +1,9 @@
+0.2.02 11-03-2022
+- new folder layout
+- updated unit testing
+- main can now load sub modules during testing
+- main now has a function to get to module
+
 0.2.00 06-02-2022
 - renamed files
 - moved a large number of transform function out of the main module
