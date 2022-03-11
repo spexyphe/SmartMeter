@@ -16,15 +16,6 @@ class TestStringMethods(unittest.TestCase):
 
     # run a number of tests on parsing
     def test_0_0_0_Dummy(self):
-        file = Path(__file__).resolve()
-        parent, top = file.parent, file.parents[3]
-
-        print(file)
-        logging.warning(file)
-        print(parent)
-        logging.warning(parent)
-        print(top)
-        logging.warning(top)
         self.assertEqual(True, True, "Have fun with this one, True != True")
 
     def test_1_0_0_Init(self):
