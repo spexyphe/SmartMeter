@@ -41,8 +41,9 @@ jobs:
         coverage run -m unittest discover -s ./Project
         coverage report
         coverage html
+        coverage xml
 
-        
+
   sonarcloud:
     needs: build
     runs-on: ubuntu-latest
