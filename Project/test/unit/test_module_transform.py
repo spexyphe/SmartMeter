@@ -2,6 +2,7 @@ from datetime import datetime, timedelta
 import time
 import unittest
 import sys
+import logging
 
 import sys
 from pathlib import Path
@@ -15,6 +16,15 @@ class TestStringMethods(unittest.TestCase):
 
     # run a number of tests on parsing
     def test_0_0_0_Dummy(self):
+        file = Path(__file__).resolve()
+        parent, top = file.parent, file.parents[3]
+
+        print(file)
+        logging.warning(file)
+        print(parent)
+        logging.warning(parent)
+        print(top)
+        logging.warning(top)
         self.assertEqual(True, True, "Have fun with this one, True != True")
 
     def test_1_0_0_Init(self):
@@ -308,8 +318,16 @@ if __name__ == '__main__':
     parent, top = file.parent, file.parents[3]
 
     print(file)
+    logging.warning(file)
     print(parent)
+    logging.warning(parent)
     print(top)
+    logging.warning(top)
+
+
+
+
+
 
     sys.path.append(str(top))
 
