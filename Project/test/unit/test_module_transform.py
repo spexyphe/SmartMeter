@@ -3,8 +3,8 @@ import time
 import unittest
 import sys
 
-import module_transform as transform
-import module_influx as influx
+import sys
+from pathlib import Path
 
 class TestStringMethods(unittest.TestCase):
 
@@ -303,5 +303,22 @@ class TestStringMethods(unittest.TestCase):
 
 
 if __name__ == '__main__':
+
+    file = Path(__file__).resolve()
+    parent, top = file.parent, file.parents[3]
+
+    sys.path.append(str(top))
+
+    try:
+        sys.path.remove(str(parent))
+    except ValueError: # Already removed
+        pass
+
+    import Project.test.unit
+    __package__ = 'Project.test.unit'
+
+    from ... import module_transform as transform
+    from ... import module_influx as influx
+
     unittest.main()
 
