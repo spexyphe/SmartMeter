@@ -307,6 +307,10 @@ if __name__ == '__main__':
     file = Path(__file__).resolve()
     parent, top = file.parent, file.parents[3]
 
+    print(file)
+    print(parent)
+    print(top)
+
     sys.path.append(str(top))
 
     try:
@@ -317,15 +321,9 @@ if __name__ == '__main__':
     import Project.test.unit
     __package__ = 'Project.test.unit'
 
-    try:
-        from ... import module_transform as transform
-        from ... import module_influx as influx
-    except:
-        try:
-            from .... import module_transform as transform
-            from .... import module_influx as influx
-        except:
-            "issues!"
+    from ... import module_transform as transform
+    from ... import module_influx as influx
+
 
 
     unittest.main()
