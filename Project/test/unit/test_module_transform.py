@@ -303,6 +303,9 @@ class TestStringMethods(unittest.TestCase):
 
 
 
+logging.warning("next print name")
+logging.warning(__name__)
+
 if __name__ == '__main__':
 
     file = Path(__file__).resolve()
@@ -314,11 +317,6 @@ if __name__ == '__main__':
     logging.warning(parent)
     print(top)
     logging.warning(top)
-
-
-
-
-
 
     sys.path.append(str(top))
 
