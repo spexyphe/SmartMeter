@@ -306,7 +306,7 @@ class TestStringMethods(unittest.TestCase):
 logging.warning("next print name")
 logging.warning(__name__)
 
-if __name__ == '__main__':
+if __name__ == 'test_module_transform' or __name__ == '__main__':
 
     file = Path(__file__).resolve()
     parent, top = file.parent, file.parents[3]
