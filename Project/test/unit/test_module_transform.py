@@ -317,8 +317,16 @@ if __name__ == '__main__':
     import Project.test.unit
     __package__ = 'Project.test.unit'
 
-    from ... import module_transform as transform
-    from ... import module_influx as influx
+    try:
+        from ... import module_transform as transform
+        from ... import module_influx as influx
+    except:
+        try:
+            from .... import module_transform as transform
+            from .... import module_influx as influx
+        except:
+            "issues!"
+
 
     unittest.main()
 
