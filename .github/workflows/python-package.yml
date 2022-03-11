@@ -39,7 +39,7 @@ jobs:
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
     - name: Test with unittest
       run: |
-        coverage -m unittest discover -s ./Project
+        coverage -m unittest ./Project/test_module_transform.py
         coverage report
         coverage html
 
