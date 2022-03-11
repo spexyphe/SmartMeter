@@ -325,11 +325,14 @@ if __name__ == 'test_module_transform' or __name__ == '__main__':
     except ValueError: # Already removed
         pass
 
-    import Project.test.unit
-    __package__ = 'Project.test.unit'
+    try:
+        import Project.test.unit
+        __package__ = 'Project.test.unit'
 
-    from ... import module_transform as transform
-    from ... import module_influx as influx
+        from ... import module_transform as transform
+        from ... import module_influx as influx
+    except Exception as e:
+        logging.error(str(e))
 
 
 
