@@ -4,11 +4,11 @@ import unittest
 import sys
 import logging
 
-# import sys
-# from pathlib import Path
+import sys
+from pathlib import Path
 
-# file = Path(__file__).resolve()
-# parent, top = file.parent, file.parents[3]
+file = Path(__file__).resolve()
+parent, top = file.parent, file.parents[3]
 
 # # print(file)
 # # logging.warning(file)
@@ -17,20 +17,20 @@ import logging
 # # print(top)
 # # logging.warning(top)
 
-# sys.path.append(str(top))
+sys.path.append(str(top))
 
-# try:
-#     sys.path.remove(str(parent))
-# except ValueError: # Already removed
-#     pass
+try:
+    sys.path.remove(str(parent))
+except ValueError: # Already removed
+    pass
 
-# import Project.test.unit
-# __package__ = 'Project.test.unit'
+import Project.test.unit
+__package__ = 'Project.test.unit'
 
 from ... import module_transform as transform
 from ... import module_influx as influx
 
-class TestStringMethods(unittest.TestCase):
+class Transform_Test(unittest.TestCase):
 
     Line=["1-0:1.8.1(002053.081*kWh)'",2053.081]
 

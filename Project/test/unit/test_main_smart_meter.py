@@ -24,7 +24,7 @@ __package__ = 'Project.test.unit'
 
 from ... import main_smart_meter as meter
 
-class TestStringMethods(unittest.TestCase):
+class Main_Test(unittest.TestCase):
 
                                                                                                                         
     def test_dummy(self):
