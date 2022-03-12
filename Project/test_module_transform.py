@@ -6,30 +6,9 @@ import logging
 logging.warning("start with transform")
 
 import sys
-from pathlib import Path
 
-file = Path(__file__).resolve()
-parent, top = file.parent, file.parents[3]
-
-print(file)
-logging.warning(file)
-print(parent)
-logging.warning(parent)
-print(top)
-logging.warning(top)
-
-sys.path.append(str(top))
-
-try:
-    sys.path.remove(str(parent))
-except ValueError: # Already removed
-    pass
-
-import Project.test.unit
-__package__ = 'Project.test.unit'
-
-from ... import module_transform as transform
-from ... import module_influx as influx
+import module_transform as transform
+import module_influx as influx
 
 class Transform_Test(unittest.TestCase):
 
