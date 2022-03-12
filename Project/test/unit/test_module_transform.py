@@ -3,6 +3,7 @@ import time
 import unittest
 import sys
 import logging
+logging.warning("start with transform")
 
 import sys
 from pathlib import Path
@@ -10,12 +11,12 @@ from pathlib import Path
 file = Path(__file__).resolve()
 parent, top = file.parent, file.parents[3]
 
-# # print(file)
-# # logging.warning(file)
-# # print(parent)
-# # logging.warning(parent)
-# # print(top)
-# # logging.warning(top)
+print(file)
+logging.warning(file)
+print(parent)
+logging.warning(parent)
+print(top)
+logging.warning(top)
 
 sys.path.append(str(top))
 
