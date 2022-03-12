@@ -10,12 +10,12 @@ from pathlib import Path
 file = Path(__file__).resolve()
 parent, top = file.parent, file.parents[3]
 
-print(file)
-logging.warning(file)
-print(parent)
-logging.warning(parent)
-print(top)
-logging.warning(top)
+# print(file)
+# logging.warning(file)
+# print(parent)
+# logging.warning(parent)
+# print(top)
+# logging.warning(top)
 
 sys.path.append(str(top))
 
@@ -24,19 +24,14 @@ try:
 except ValueError: # Already removed
     pass
 
-try:
-    import Project.test.unit
-    __package__ = 'Project.test.unit'
+import Project.test.unit
+__package__ = 'Project.test.unit'
 
-    from ... import module_transform as m_transform
-    from ... import module_influx as m_influx
-    global influx, transform
-    influx = m_influx
-    transform = m_transform
-    
-except Exception as e:
-    logging.error(str(e))
-
+from ... import module_transform as m_transform
+from ... import module_influx as m_influx
+global influx, transform
+influx = m_influx
+transform = m_transform
 
 class TestStringMethods(unittest.TestCase):
 
@@ -334,15 +329,7 @@ class TestStringMethods(unittest.TestCase):
     def test_8_0_0_reset_stored(self):
         self.assertIsNone(transform.reset_stored())
 
-
-
-logging.warning("next print name")
-logging.warning(__name__)
-
 if __name__ == '__main__':
-
-
-
 
     unittest.main()
 
