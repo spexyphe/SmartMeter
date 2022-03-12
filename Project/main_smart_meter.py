@@ -11,11 +11,6 @@ import json
 from datetime import datetime, timedelta
 
 try:
-    import module_env_var as env_var
-except Exception as e:
-    logging.error("failed to load custom env_var module: " + str(e))    
-
-try:
     import pytz
 except Exception as e:
     logging.error("failed to load custom pytz module: " + str(e))
@@ -26,6 +21,19 @@ except Exception as e:
     logging.error("failed to load custom serial module: " + str(e))
 
 try:
+    import module_env_var as env_var
+except Exception as e:
+    logging.error("failed to load custom env_var module: " + str(e))    
+
+    #possible we are locally testing, this will work then
+    try:
+        from . import module_env_var as env_var
+        logging.warning("succesfull in loading module_env_var.")
+    except Exception as ex:
+        logging.error("failed to load custom env_var module: " + str(ex))
+        env_var = None
+
+try:
     import module_influx as influx
 except Exception as e:
     logging.error("failed to load custom influx module: " + str(e))
@@ -33,6 +41,7 @@ except Exception as e:
     #possible we are locally testing, this will work then
     try:
         from . import module_influx as influx
+        logging.warning("succesfull in loading influx.")
     except Exception as ex:
         logging.error("failed to load custom influx module: " + str(ex))
         influx = None
@@ -42,6 +51,14 @@ try:
     transform.init_transform()
 except Exception as e:
     logging.error("failed to load custom Transform module: " + str(e))
+
+    #possible we are locally testing, this will work then
+    try:
+        from . import module_transform as transform
+        logging.warning("succesfull in loading transform.")
+    except Exception as ex:
+        logging.error("failed to load custom transform module: " + str(ex))
+        transform = None
 
 
 time_format = '%Y-%m-%dT%H:%M:%SZ'
