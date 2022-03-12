@@ -7,6 +7,37 @@ import logging
 import sys
 from pathlib import Path
 
+file = Path(__file__).resolve()
+parent, top = file.parent, file.parents[3]
+
+print(file)
+logging.warning(file)
+print(parent)
+logging.warning(parent)
+print(top)
+logging.warning(top)
+
+sys.path.append(str(top))
+
+try:
+    sys.path.remove(str(parent))
+except ValueError: # Already removed
+    pass
+
+try:
+    import Project.test.unit
+    __package__ = 'Project.test.unit'
+
+    from ... import module_transform as m_transform
+    from ... import module_influx as m_influx
+    global influx, transform
+    influx = m_influx
+    transform = m_transform
+    
+except Exception as e:
+    logging.error(str(e))
+
+
 class TestStringMethods(unittest.TestCase):
 
     Line=["1-0:1.8.1(002053.081*kWh)'",2053.081]
@@ -16,6 +47,8 @@ class TestStringMethods(unittest.TestCase):
 
     # run a number of tests on parsing
     def test_0_0_0_Dummy(self):
+
+        
         self.assertEqual(True, True, "Have fun with this one, True != True")
 
     def test_1_0_0_Init(self):
@@ -306,33 +339,8 @@ class TestStringMethods(unittest.TestCase):
 logging.warning("next print name")
 logging.warning(__name__)
 
-if __name__ == 'test_module_transform' or __name__ == '__main__':
+if __name__ == '__main__':
 
-    file = Path(__file__).resolve()
-    parent, top = file.parent, file.parents[3]
-
-    print(file)
-    logging.warning(file)
-    print(parent)
-    logging.warning(parent)
-    print(top)
-    logging.warning(top)
-
-    sys.path.append(str(top))
-
-    try:
-        sys.path.remove(str(parent))
-    except ValueError: # Already removed
-        pass
-
-    try:
-        import Project.test.unit
-        __package__ = 'Project.test.unit'
-
-        from ... import module_transform as transform
-        from ... import module_influx as influx
-    except Exception as e:
-        logging.error(str(e))
 
 
 
