@@ -41,10 +41,10 @@ jobs:
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
     - name: Test with unittest
       run: |
-        coverage run -m unittest discover -s ./Project/test/unit
-        coverage report --omit=./Project/test/unit/test*
-        coverage html --omit=./Project/test/unit/test*
-        coverage xml --omit=./Project/test/unit/test*
+        coverage run -m unittest discover -s ./Project
+        coverage report --omit=./Project/test*
+        coverage html --omit=./Project/test*
+        coverage xml --omit=./Project/test*
     - name: SonarCloud Scan
       uses: sonarsource/sonarcloud-github-action@master
       env:
