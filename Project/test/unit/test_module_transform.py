@@ -4,34 +4,34 @@ import unittest
 import sys
 import logging
 
-import sys
-from pathlib import Path
+# import sys
+# from pathlib import Path
 
-file = Path(__file__).resolve()
-parent, top = file.parent, file.parents[3]
+# file = Path(__file__).resolve()
+# parent, top = file.parent, file.parents[3]
 
-# print(file)
-# logging.warning(file)
-# print(parent)
-# logging.warning(parent)
-# print(top)
-# logging.warning(top)
+# # print(file)
+# # logging.warning(file)
+# # print(parent)
+# # logging.warning(parent)
+# # print(top)
+# # logging.warning(top)
 
-sys.path.append(str(top))
+# sys.path.append(str(top))
 
-try:
-    sys.path.remove(str(parent))
-except ValueError: # Already removed
-    pass
+# try:
+#     sys.path.remove(str(parent))
+# except ValueError: # Already removed
+#     pass
 
-import Project.test.unit
-__package__ = 'Project.test.unit'
+# import Project.test.unit
+# __package__ = 'Project.test.unit'
 
-from ... import module_transform as m_transform
-from ... import module_influx as m_influx
-global influx, transform
-influx = m_influx
-transform = m_transform
+# from ... import module_transform as m_transform
+# from ... import module_influx as m_influx
+# global influx, transform
+# influx = m_influx
+# transform = m_transform
 
 class TestStringMethods(unittest.TestCase):
 
