@@ -2,6 +2,8 @@ from datetime import datetime, timedelta
 import time
 import unittest
 
+import logging
+
 import sys
 from pathlib import Path
 
@@ -22,12 +24,13 @@ __package__ = 'Project.test.unit'
 
 from ... import main_smart_meter as meter
 
-
 class TestStringMethods(unittest.TestCase):
 
                                                                                                                         
     def test_dummy(self):
         self.assertEqual(True, True)
+        logging.warning("we passed this basic test!")
+
 
 if __name__ == '__main__':
 
