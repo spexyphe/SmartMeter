@@ -7,8 +7,6 @@ import logging
 import sys
 from pathlib import Path
 
-from pip import main
-
 file = Path(__file__).resolve()
 parent, top = file.parent, file.parents[3]
 
