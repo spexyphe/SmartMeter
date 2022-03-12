@@ -41,7 +41,7 @@ jobs:
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
     - name: Test with unittest
       run: |
-        coverage run -m unittest ./Project/test/unit/test_main_smart_meter.py
+        coverage run -m unittest ./Project/test/unit/test_module_transform.py
         coverage report --omit=./Project/test/unit/test*
         coverage html --omit=./Project/test/unit/test*
         coverage xml --omit=./Project/test/unit/test*
