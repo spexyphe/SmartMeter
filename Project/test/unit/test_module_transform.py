@@ -27,11 +27,8 @@ import logging
 # import Project.test.unit
 # __package__ = 'Project.test.unit'
 
-# from ... import module_transform as m_transform
-# from ... import module_influx as m_influx
-# global influx, transform
-# influx = m_influx
-# transform = m_transform
+from ... import module_transform as transform
+from ... import module_influx as influx
 
 class TestStringMethods(unittest.TestCase):
 
