@@ -110,6 +110,14 @@ def load_env_var_modbus():
 
 def load_env_var_influx():
     succes = True
+
+    influx_url = ""
+    influx_port = 8086
+    influx_user = "default_user" 
+    influx_password = "default_password"
+    influx_database = "default_home"
+    influx_measurement = "default_measurement"
+    influx_host = "default_host"
     
     try: #influx_url
         influx_url = os.environ['influx_url']
