@@ -6,7 +6,16 @@ import logging
 
 import sys
 
-import main_smart_meter as meter
+try:
+    import main_smart_meter as meter
+except Exception as e:
+    logging.error(str(e))
+
+    try:
+        from . import main_smart_meter as meter
+    except Exception as ex:
+        logging.error(str(ex))
+    
 
 class Main_Test(unittest.TestCase):
 

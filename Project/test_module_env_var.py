@@ -9,7 +9,15 @@ from unittest import mock
 
 import sys
 
-import module_env_var as env_var
+try:
+    import module_env_var as env_var
+except Exception as e:
+    logging.error(str(e))
+
+    try:
+        from . import module_env_var as env_var
+    except Exception as ex:
+        logging.error(str(ex))
 
 logging.warning("start with env_var")
 
