@@ -95,29 +95,34 @@ class env_var_Test(unittest.TestCase):
 
     def test_1_1_0_env_defaults(self):
         #test default output without any env vars set
-        self.assertEqual(env_var.load_env_var_modbus(), (False, '/dev/ttyUSB0', 115200, 'E', ''))
+        self.assertEqual(env_var.load_env_var_modbus(), (False, False, '/dev/ttyUSB0', 115200, 'E', ''))
 
     def test_1_1_1_env_defaults(self):
         #env variable input combinations
-        var_set = [{"modbus_device": '/dev/ttyUSB0'},
-        {"modbus_device": '/dev/ttyUSB1'},
-        {"modbus_device": '/dev/ttyUSB1', "modbus_baud": '115200'},
-        {"modbus_device": '/dev/ttyUSB1', "modbus_baud": '110000'},
-        {"modbus_device": '/dev/ttyUSB1', "modbus_baud": '110000', "modbus_parity": 'E'},
-        {"modbus_device": '/dev/ttyUSB1', "modbus_baud": '110000', "modbus_parity": 'N'},
-        {"modbus_device": '/dev/ttyUSB1', "modbus_baud": '110000', "modbus_parity": 'N', "modbus_variables": ''},
-        {"modbus_device": '/dev/ttyUSB1', "modbus_baud": '110000', "modbus_parity": 'N', "modbus_variables": 'a_var'}]
+        var_set = [
+        {"modbus_auto_detect": "False"},
+        {"modbus_auto_detect": "True"},   
+        {"modbus_auto_detect": "True", "modbus_device": '/dev/ttyUSB0'},
+        {"modbus_auto_detect": "True", "modbus_device": '/dev/ttyUSB1'},
+        {"modbus_auto_detect": "True", "modbus_device": '/dev/ttyUSB1', "modbus_baud": '115200'},
+        {"modbus_auto_detect": "True", "modbus_device": '/dev/ttyUSB1', "modbus_baud": '110000'},
+        {"modbus_auto_detect": "True", "modbus_device": '/dev/ttyUSB1', "modbus_baud": '110000', "modbus_parity": 'E'},
+        {"modbus_auto_detect": "True", "modbus_device": '/dev/ttyUSB1', "modbus_baud": '110000', "modbus_parity": 'N'},
+        {"modbus_auto_detect": "True", "modbus_device": '/dev/ttyUSB1', "modbus_baud": '110000', "modbus_parity": 'N', "modbus_variables": ''},
+        {"modbus_auto_detect": "True", "modbus_device": '/dev/ttyUSB1', "modbus_baud": '110000', "modbus_parity": 'N', "modbus_variables": 'a_var'}]
 
         #what answers do we expect?
         loaded_set = [
-        (False, '/dev/ttyUSB0', 115200, 'E', ''), 
-        (False, '/dev/ttyUSB1', 115200, 'E', ''),
-        (False, '/dev/ttyUSB1', 115200, 'E', ''),
-        (False, '/dev/ttyUSB1', 110000, 'E', ''),
-        (False, '/dev/ttyUSB1', 110000, 'E', ''),
-        (False, '/dev/ttyUSB1', 110000, 'N', ''),
-        (True, '/dev/ttyUSB1', 110000, 'N', ''),
-        (True, '/dev/ttyUSB1', 110000, 'N', 'a_var')
+        (False, False, '/dev/ttyUSB0', 115200, 'E', ''),
+        (False, True, '/dev/ttyUSB0', 115200, 'E', ''),
+        (False, True,  '/dev/ttyUSB0', 115200, 'E', ''), 
+        (False, True,  '/dev/ttyUSB1', 115200, 'E', ''),
+        (False, True,  '/dev/ttyUSB1', 115200, 'E', ''),
+        (False, True,  '/dev/ttyUSB1', 110000, 'E', ''),
+        (False, True,  '/dev/ttyUSB1', 110000, 'E', ''),
+        (False, True,  '/dev/ttyUSB1', 110000, 'N', ''),
+        (True, True,  '/dev/ttyUSB1', 110000, 'N', ''),
+        (True, True,  '/dev/ttyUSB1', 110000, 'N', 'a_var')
         ]
 
         # internal sanity check

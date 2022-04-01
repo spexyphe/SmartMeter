@@ -77,6 +77,24 @@ def load_env_var_modbus():
     baud = 115200
     parity = "E" 
     variables = ""
+    auto_detect = False
+
+    # modbus_auto_detect is a method where we detect the usb device
+    # when having 2 different modbus devices connected to USB the device nr can change after a restart, and break our service code
+
+    try: #modbus_auto_detect
+        in_auto_detect = os.environ['modbus_auto_detect']
+
+        if in_auto_detect == "True":
+            auto_detect = True
+        else:
+            auto_detect = False
+
+        new_log("OK: succesfully loaded environment variable for modbus 'modbus_auto_detect'")
+    except Exception as e:
+        succes = False
+        new_log("ERROR: environment variable for modbus 'modbus_auto_detect' FAILED", e)
+
 
     try: #modbus_device
         device = os.environ['modbus_device']
@@ -106,7 +124,9 @@ def load_env_var_modbus():
         succes = False
         new_log("ERROR: environment variable for modbus 'modbus_variables' FAILED", e)
 
-    return (succes, device, baud, parity, variables)
+
+
+    return (succes, auto_detect, device, baud, parity, variables)
 
 def load_env_var_influx():
     succes = True
