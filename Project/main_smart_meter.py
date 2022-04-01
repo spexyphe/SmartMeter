@@ -1,4 +1,4 @@
-version = "0.2.02"
+version = "0.2.03"
 
 from fnmatch import translate
 import os
