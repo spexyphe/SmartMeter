@@ -80,7 +80,7 @@ def find_correct_usb(in_identifier):
                     if in_identifier in p1_line:
                         correct_device_found = True
                         print("device is found: "  + options[device_option_index])
-                        break
+                        return options[device_option_index]
 
         except:
             print("could not open this port: " + options[device_option_index])
@@ -95,8 +95,3 @@ def find_correct_usb(in_identifier):
 
         #increase device index
         device_option_index += 1
-
-    if correct_device_found:
-        return options[device_option_index]
-    else:
-        return None
