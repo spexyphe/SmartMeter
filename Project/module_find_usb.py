@@ -95,3 +95,5 @@ def find_correct_usb(in_identifier):
 
         #increase device index
         device_option_index += 1
+
+    return None
