@@ -133,9 +133,9 @@ def load_env_var_influx():
 
     influx_url = ""
     influx_port = 8086
-    influx_user = "default_user" 
-    influx_password = "default_password"
-    influx_database = "default_home"
+    influx_org = "default_org"
+    influx_token = "default_token"
+    influx_bucket = "default_bucket"
     influx_measurement = "default_measurement"
     influx_host = "default_host"
     
@@ -153,25 +153,25 @@ def load_env_var_influx():
         new_log("ERROR: environment variable for influx 'influx_port' FAILED", e)
         succes = False
 
-    try: #influx_user
-        influx_user = os.environ['influx_user']
-        new_log("OK: succesfully loaded environment variable for influx 'influx_user'")
+    try: #influx_org
+        influx_org = os.environ['influx_org']
+        new_log("OK: succesfully loaded environment variable for influx 'influx_org'")
     except Exception as e:
-        new_log("ERROR: environment variable for influx 'influx_user' FAILED", e)
+        new_log("ERROR: environment variable for influx 'influx_org' FAILED", e)
         succes = False
 
-    try: #influx_password
-        influx_password = os.environ['influx_password']
-        new_log("OK: succesfully loaded environment variable for influx 'influx_password'")
+    try: #influx_token
+        influx_token = os.environ['influx_token']
+        new_log("OK: succesfully loaded environment variable for influx 'influx_token'")
     except Exception as e:
-        new_log("ERROR: environment variable for influx 'influx_password' FAILED", e)
+        new_log("ERROR: environment variable for influx 'influx_token' FAILED", e)
         succes = False
 
-    try: #influx_database
-        influx_database = os.environ['influx_database']
-        new_log("OK: succesfully loaded environment variable for influx 'influx_database'")
+    try: #influx_bucket
+        influx_bucket = os.environ['influx_bucket']
+        new_log("OK: succesfully loaded environment variable for influx 'influx_bucket'")
     except Exception as e:
-        new_log("ERROR: environment variable for influx 'influx_database' FAILED", e)
+        new_log("ERROR: environment variable for influx 'influx_bucket' FAILED", e)
         succes = False
 
     try: #influx_measurement
@@ -188,4 +188,4 @@ def load_env_var_influx():
         new_log("ERROR: environment variable for influx 'influx_host' FAILED", e)
         succes = False
 
-    return (succes, influx_url, influx_port, influx_user, influx_password, influx_database, influx_measurement, influx_host)
+    return (succes, influx_url, influx_port, influx_org, influx_token, influx_bucket, influx_measurement, influx_host)

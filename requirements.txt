@@ -2,4 +2,5 @@ pytz
 
 pyserial
 
-influxdb
+#influxdb
+influxdb_client 

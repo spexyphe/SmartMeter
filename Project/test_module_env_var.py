@@ -143,48 +143,49 @@ class env_var_Test(unittest.TestCase):
 
     def test_1_2_0_env_defaults(self):
         #test default output without any env vars set
-        self.assertEqual(env_var.load_env_var_influx(), (False,'',8086,'default_user','default_password','default_home','default_measurement','default_host'))
+        self.assertEqual(env_var.load_env_var_influx(), (False,'',8086,'default_org','default_token','default_bucket', 'default_measurement','default_host'))
 
     def test_1_2_1_env_defaults(self):
+
         #env variable input combinations
         var_set = [{"influx_url": 'a_random_url'},
         {"influx_url": 'a_not_random_url'},
         {"influx_url": 'a_not_random_url', "influx_port": '7100'},
         {"influx_url": 'a_not_random_url', "influx_port": '9100'},
-        {"influx_url": 'a_not_random_url', "influx_port": '9100', "influx_user": 'a_user_user'},
-        {"influx_url": 'a_not_random_url', "influx_port": '9100', "influx_user": 'a_power_user'},
-        {"influx_url": 'a_not_random_url', "influx_port": '9100', "influx_user": 'a_power_user', "influx_password": 'a_user_password'},
-        {"influx_url": 'a_not_random_url', "influx_port": '9100', "influx_user": 'a_power_user', "influx_password": 'a_power_password'},
-        {"influx_url": 'a_not_random_url', "influx_port": '9100', "influx_user": 'a_power_user', "influx_password": 'a_power_password', "influx_database": 'a_random_db'},
-        {"influx_url": 'a_not_random_url', "influx_port": '9100', "influx_user": 'a_power_user', "influx_password": 'a_power_password', "influx_database": 'not_a_random_db'},
-        {"influx_url": 'a_not_random_url', "influx_port": '9100', "influx_user": 'a_power_user', "influx_password": 'a_power_password', "influx_database": 'not_a_random_db', "influx_measurement": 'a_random_measurement'},
-        {"influx_url": 'a_not_random_url', "influx_port": '9100', "influx_user": 'a_power_user', "influx_password": 'a_power_password', "influx_database": 'not_a_random_db', "influx_measurement": 'not_a_random_measurement'},
-        {"influx_url": 'a_not_random_url', "influx_port": '9100', "influx_user": 'a_power_user', "influx_password": 'a_power_password', "influx_database": 'not_a_random_db', "influx_measurement": 'not_a_random_measurement', "influx_host": 'a_user_host'},
-        {"influx_url": 'a_not_random_url', "influx_port": '9100', "influx_user": 'a_power_user', "influx_password": 'a_power_password', "influx_database": 'not_a_random_db', "influx_measurement": 'not_a_random_measurement', "influx_host": 'a_power_host'}]
+        {"influx_url": 'a_not_random_url', "influx_port": '9100', "influx_org": 'a_random_org'},
+        {"influx_url": 'a_not_random_url', "influx_port": '9100', "influx_org": 'a_org'},
+        {"influx_url": 'a_not_random_url', "influx_port": '9100', "influx_org": 'a_org', "influx_token": 'abc_000'},
+        {"influx_url": 'a_not_random_url', "influx_port": '9100', "influx_org": 'a_org', "influx_token": 'abc_000'},
+        {"influx_url": 'a_not_random_url', "influx_port": '9100', "influx_org": 'a_org', "influx_token": 'abc_000', "influx_bucket": 'a_random_bucket'},
+        {"influx_url": 'a_not_random_url', "influx_port": '9100', "influx_org": 'a_org', "influx_token": 'abc_000', "influx_bucket": 'not_a_random_bucket'},
+        {"influx_url": 'a_not_random_url', "influx_port": '9100', "influx_org": 'a_org', "influx_token": 'abc_000', "influx_bucket": 'not_a_random_bucket', "influx_measurement": 'a_random_measurement'},
+        {"influx_url": 'a_not_random_url', "influx_port": '9100', "influx_org": 'a_org', "influx_token": 'abc_000', "influx_bucket": 'not_a_random_bucket', "influx_measurement": 'not_a_random_measurement'},
+        {"influx_url": 'a_not_random_url', "influx_port": '9100', "influx_org": 'a_org', "influx_token": 'abc_000', "influx_bucket": 'not_a_random_bucket', "influx_measurement": 'not_a_random_measurement', "influx_host": 'a_user_host'},
+        {"influx_url": 'a_not_random_url', "influx_port": '9100', "influx_org": 'a_org', "influx_token": 'abc_000', "influx_bucket": 'not_a_random_bucket', "influx_measurement": 'not_a_random_measurement', "influx_host": 'a_power_host'}]
 
         #what answers do we expect?
         loaded_set = [
-        (False,'a_random_url',8086,'default_user','default_password','default_home','default_measurement','default_host'), 
-        (False,'a_not_random_url',8086,'default_user','default_password','default_home','default_measurement','default_host'),
-        (False,'a_not_random_url',7100,'default_user','default_password','default_home','default_measurement','default_host'),
-        (False,'a_not_random_url',9100,'default_user','default_password','default_home','default_measurement','default_host'),
-        (False,'a_not_random_url',9100,'a_user_user','default_password','default_home','default_measurement','default_host'),
-        (False,'a_not_random_url',9100,'a_power_user','default_password','default_home','default_measurement','default_host'),
-        (False,'a_not_random_url',9100,'a_power_user','a_user_password','default_home','default_measurement','default_host'),
-        (False,'a_not_random_url',9100,'a_power_user','a_power_password','default_home','default_measurement','default_host'), 
-        (False,'a_not_random_url',9100,'a_power_user','a_power_password','a_random_db','default_measurement','default_host'),
-        (False,'a_not_random_url',9100,'a_power_user','a_power_password','not_a_random_db','default_measurement','default_host'),
-        (False,'a_not_random_url',9100,'a_power_user','a_power_password','not_a_random_db','a_random_measurement','default_host'),
-        (False,'a_not_random_url',9100,'a_power_user','a_power_password','not_a_random_db','not_a_random_measurement','default_host'),
-        (True,'a_not_random_url',9100,'a_power_user','a_power_password','not_a_random_db','not_a_random_measurement','a_user_host'),
-        (True,'a_not_random_url',9100,'a_power_user','a_power_password','not_a_random_db','not_a_random_measurement','a_power_host')
+        (False,'a_random_url',8086,'default_org','default_token','default_bucket','default_measurement','default_host'), 
+        (False,'a_not_random_url',8086,'default_org','default_token','default_bucket','default_measurement','default_host'),
+        (False,'a_not_random_url',7100,'default_org','default_token','default_bucket','default_measurement','default_host'),
+        (False,'a_not_random_url',9100,'default_org','default_token','default_bucket','default_measurement','default_host'),
+        (False,'a_not_random_url',9100,'a_random_org','default_token','default_bucket','default_measurement','default_host'),
+        (False,'a_not_random_url',9100,'a_org','default_token','default_bucket','default_measurement','default_host'),
+        (False,'a_not_random_url',9100,'a_org','abc_000','default_bucket','default_measurement','default_host'),
+        (False,'a_not_random_url',9100,'a_org','abc_000','default_bucket','default_measurement','default_host'), 
+        (False,'a_not_random_url',9100,'a_org','abc_000','a_random_bucket','default_measurement','default_host'),
+        (False,'a_not_random_url',9100,'a_org','abc_000','not_a_random_bucket','default_measurement','default_host'),
+        (False,'a_not_random_url',9100,'a_org','abc_000','not_a_random_bucket','a_random_measurement','default_host'),
+        (False,'a_not_random_url',9100,'a_org','abc_000','not_a_random_bucket','not_a_random_measurement','default_host'),
+        (True,'a_not_random_url',9100,'a_org','abc_000','not_a_random_bucket','not_a_random_measurement','a_user_host'),
+        (True,'a_not_random_url',9100,'a_org','abc_000','not_a_random_bucket','not_a_random_measurement','a_power_host')
         ]
 
         # internal sanity check
         # do the predefined sets match in length?
         self.assertEqual(len(var_set), len(loaded_set))
 
-        self.assertEqual(env_var.load_env_var_influx(), (False,'',8086,'default_user','default_password','default_home','default_measurement','default_host'))
+        self.assertEqual(env_var.load_env_var_influx(), (False,'',8086,'default_org','default_token','default_bucket','default_measurement','default_host'))
 
         for i in range(0, len(var_set)):
             #demo print
@@ -195,8 +196,9 @@ class env_var_Test(unittest.TestCase):
                 #demo print
                 #print(env_var.load_env_var_influx())
 
-                #does the environment var input match the expected output
-                self.assertEqual(env_var.load_env_var_influx(), loaded_set[i])
+                with self.subTest(str(i)):
+                    #does the environment var input match the expected output
+                    self.assertEqual(env_var.load_env_var_influx(), loaded_set[i])
 
 if __name__ == '__main__':
 

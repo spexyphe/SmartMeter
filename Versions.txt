@@ -1,3 +1,6 @@
+0.3.01 29-08-2022
+- migration to influx 2+
+
 0.2.03 1-04-2022
 - new find_usb module + test file
 - added modbus_auto_detect environment variable

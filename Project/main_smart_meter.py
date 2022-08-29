@@ -1,4 +1,4 @@
-version = "0.2.03"
+version = "0.3.01"
 
 from fnmatch import translate
 import os
@@ -173,15 +173,16 @@ def main_loop():
         if (not (list_of_var is None)) and len(list_of_var) > 0:
 
             #load the variables
-            global influx_url, influx_port, influx_user, influx_password, influx_database, influx_measurement, influx_host
-            succes_var_influx, influx_url, influx_port, influx_user, influx_password, influx_database, influx_measurement, influx_host = env_var.load_env_var_influx()
+            global influx_url, influx_port, influx_org, influx_token, influx_bucket, influx_measurement, influx_host
+            succes_var_influx, influx_url, influx_port, influx_org, influx_token, influx_bucket, influx_measurement, influx_host = env_var.load_env_var_influx()
+          
 
             # load environment variables regarding influx
             if succes_var_influx:
                 
                 # init the influx connection
                 #Influx.init_influx(influx_url, Influx_org, Influx_bucket, is_local_test, Influx_token, do_trace)
-                influx.init_influx(influx_user, influx_password, influx_url, influx_port, influx_database, is_local_test, do_trace)
+                influx.init_influx(influx_token=influx_token, in_host=influx_url, in_port=influx_port, influx_org=influx_org, in_bucket=influx_bucket, in_local_test=is_local_test, in_debug=do_trace)
 
                 #pass the influx module on to transform
                 transform.set_influx_module(influx, influx_measurement, influx_host)
