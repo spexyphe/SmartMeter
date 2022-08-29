@@ -4,13 +4,14 @@ import logging
 import json
 
 try:
-    from influxdb import InfluxDBClient
+    from influxdb_client import InfluxDBClient, Point
+    from influxdb_client.client.write_api import SYNCHRONOUS
 except Exception as e:
     logging.error("failed to load influx modules: " + str(e))
 
 
 def new_log(str_message):
-    global log_influx
+    global log_influx, is_local_test
 
     module_name = "module_influx.py, "
 
@@ -21,6 +22,8 @@ def new_log(str_message):
     else:
         if log_influx:
             logging.info( module_name + str_message)
+        if is_local_test:
+            print(str_message)
 
 def check_tags(data_year, data_month, data_week, data_day):
 
@@ -72,7 +75,6 @@ def add_raw_point(measurement, data_host, line_nr, value_name, value, point_time
     new_log("OK: " + data_host + "-" + value_name + "(" + str(value) + ")"  + ": " + point_time)
 
     raw_data_points.append(raw_data_json_point)
-
 
 
 def add_data_point(measurement, data_host, data_year, data_month, data_week, data_day, day_of_year, value_name, value, point_time, phase=None):
@@ -128,18 +130,17 @@ def write_data():
     global raw_data_points
     global function_influx_client
     global is_local_test
+    global inf_org, inf_bucket
 
     try:
-
         if not is_local_test:
 
             if len(raw_data_points) > 0:
                 try:
 
                     #write point to influx 
-                    function_influx_client.write_points(raw_data_points)
-
-                    new_log("OK, write_data, writing data points: " + str(len(raw_data_points)))
+                    #function_influx_client.write_points(raw_data_points)
+                    function_influx_client.write(inf_bucket, inf_org, raw_data_points)
                 
                     raw_data_points = []
 
@@ -172,9 +173,8 @@ def write_data():
                 try:
 
                     #write point to influx 
-                    function_influx_client.write_points(data_points)
-
-                    new_log("OK, write_data, writing data points: " + str(len(data_points)))
+                    #function_influx_client.write_points(data_points)
+                    function_influx_client.write(inf_bucket, inf_org, data_points)
                 
                     data_points = []
 
@@ -201,23 +201,38 @@ def write_data():
                         new_log("WARNING, could not find index in error " + str(e))
                         data_points = []
         else:
-            new_log("WARNING, write_data, local test is true")
+            data_points = []
 
     except Exception as e_main_write:
         new_log("WARNING,issue with write " + str(e_main_write))
 
-def init_influx(in_username, in_password, in_host, in_port=8086, in_database='home', in_local_test=False, in_debug= False):
+def clear_points():
+    global data_points, raw_data_points
+    data_points = []
+    raw_data_points = []
+
+def init_influx(influx_token, in_host, in_port=8086, influx_org="", in_bucket='home', in_local_test=False, in_debug= False):
 
     global log_influx
     log_influx = in_debug
+
+    in_url = in_host + ":" + str(in_port)
 
     global function_influx_client, is_local_test, data_points, raw_data_points
     is_local_test = in_local_test
     data_points = []
     raw_data_points = []
 
+    global inf_org, inf_bucket
+    inf_org = influx_org
+    inf_bucket = in_bucket
+
     try:
-        function_influx_client = InfluxDBClient(host=in_host, port=in_port, username=in_username, password=in_password, database=in_database)
+        #function_influx_client = InfluxDBClient(host=in_host, port=in_port, username=in_username, password=in_password, database=in_database)
+
+        client = InfluxDBClient(url=in_url, token=influx_token, org=inf_org)
+        function_influx_client = client.write_api(write_options=SYNCHRONOUS)
+        #function_influx_client = InfluxDBClient(url=in_url, token=influx_token, org=influx_org)
 
     except Exception as e:
         new_log("ERROR: failed to init influx client: " + str(e))

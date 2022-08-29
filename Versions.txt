@@ -1,7 +1,36 @@
-0.1.12 06-01-2022
+0.3.01 29-08-2022
+- migration to influx 2+
+
+0.2.03 1-04-2022
+- new find_usb module + test file
+- added modbus_auto_detect environment variable
+
+0.2.02 11-03-2022
+- new folder layout
+- updated unit testing
+- main can now load sub modules during testing
+- main now has a function to get to module
+
+0.2.00 06-02-2022
+- renamed files
+- moved a large number of transform function out of the main module
+- created a module_env_var.py specificly for loading environment variables
+- input strings are now matched to a predefined set
+- unit tests have been added
+- fixed amp_calc issues
+
+0.1.14 28-01-2022
+- develop now pushes to a different container
+  -> this way this can be picked up by specific watchtower listeners and be ignored by others
+
+0.1.13 28-01-2022
+- now includes a develop branch
+- develop branch does not upload to dockerhub
+
+0.1.12 26-01-2022
 - only upload e_current when data was read
 
-0.1.11 06-01-2022
+0.1.11 26-01-2022
  - fix bug: crash in case that either consumption or production did not receive data
 
 0.1.10
