@@ -49,25 +49,35 @@ var_list = [["e_current_consumption", None, False], ["e_current_production", Non
 def new_log(str_message, an_exception = None):
     global log_transform
 
+    global influx_measurement, influx_host, time_format
+    
     module_name = "module_transform.py, "
 
-    if("ERROR" in str_message):
-        logging.error( module_name + str_message)
+    try:
+        point_time = datetime.utcnow().strftime(time_format)
         
-        if not (an_exception is None):
-            logging.error(str(an_exception))    
-    elif("WARNING" in str_message):
-        logging.warning( module_name + str_message)
-
-        if not (an_exception is None):
-            logging.warning(str(an_exception))   
-    else:
-        if log_transform:
-            logging.info( module_name + str_message)
+        if("ERROR" in str_message):
+            logging.error( module_name + str_message)
+            influx.add_raw_point(influx_measurement, influx_host, 0, "Logging", "ERROR: " + str_message, point_time)
+        
+            if not (an_exception is None):
+                logging.error(str(an_exception))    
+        elif("WARNING" in str_message):
+            logging.warning( module_name + str_message)
+            influx.add_raw_point(influx_measurement, influx_host, 0, "Logging", "WARNING: " + str_message, point_time)
 
             if not (an_exception is None):
-                logging.info(str(an_exception)) 
+                logging.warning(str(an_exception))   
+        else:
+            if log_transform:
+                logging.info( module_name + str_message)
 
+                if not (an_exception is None):
+                    logging.info(str(an_exception)) 
+
+    except Exception as logging_exception:
+        print(str(logging_exception))
+        
 def create_data_point_locally(value_name, value, phase=None):
     global influx_measurement, influx_host
     ### mk: measurement and host should not be needed as input
@@ -145,58 +155,27 @@ def reset_stored():
 def time_to_update(var_info, value, deltatime):
     global lastvalues
 
-    try:
-        #this var has no phase
-        if var_info[1] is None:
-            #check if this is a know variable
-            if var_info[0] in lastvalues:
-
-                #is time in memory (this should be the case)
-                if "time" in lastvalues[var_info[0]]:
-                    data = lastvalues[var_info[0]]["time"]
-                else:
-                    #this is weird
-                    store_last_value(var_info, value)
-                    return True 
-
-            #should be added
+    try:      
+        try:
+            # to get the last known timestamp this value was updated
+            if var_info[1] is None: #this var has no phase
+                last_updated_time = lastvalues[var_info[0]]["time"]
             else:
-                store_last_value(var_info, value)
-                return True 
-
-        #var with phase
-        else:
-            # is this var known
-            if var_info[0] in lastvalues:
-                # is this phase known
-                if var_info[1] in lastvalues[var_info[0]]:
-                    #is time in memory (this should be the case)
-                    if "time" in lastvalues[var_info[0]][var_info[1]]:
-                        data = lastvalues[var_info[0]][var_info[1]]["time"]
-                    else:
-                        store_last_value(var_info, value)
-                        return True 
-
-                else:
-                    store_last_value(var_info, value)
-                    return True 
-            #should be added
-            else:
-                store_last_value(var_info, value)   
-                return True  
-
-        if (datetime.utcnow() - data).total_seconds() > deltatime:
+                last_updated_time = lastvalues[var_info[0]][var_info[1]]["time"]
+        except:
+            # register this problem
+            new_log("WARNING: could not find " + str(var_info) + " in lastvalues array")
+            store_last_value(var_info, value) #add this entry
+                
+            #since we do not know when we last updated, do it now
+            return True 
+      
+        if (datetime.utcnow() - last_updated_time).total_seconds() > deltatime:
             store_last_value(var_info, value)
             return True
 
-    except Exception as e:
-      
+    except Exception as e:    
         new_log("WARNING: time_to_update, timerissue: " + str(e))
-        new_log("WARNING: " + str(lastvalues))
-        new_log("WARNING: " + str(var_info))
-        new_log("WARNING: " + str(value))
-        new_log("WARNING: " + str(deltatime))
-
 
     return False
 
@@ -262,16 +241,23 @@ def calculated_values():
 def update(code, value, deltatime):
     global code_list, var_list
 
+    # is this code in the list of known codes
     if code_list.count(code) > 0:
+
+        # get the variable info for this code
         var_info = var_list[code_list.index(code)] #name - phase - 24h
 
+        # is it time to update this variable with the new info
         if time_to_update(var_info, value, deltatime):
+
+            # update value
             create_data_point_locally(var_info[0], value, var_info[1])
 
+            # is this a "gas" volume value?
             if var_info[0] == "g_volume":
                 gas_flow("g_volume", value)
 
-            #calculate 24 hour change
+            # should we calculate 24 hour change?
             if var_info[2]:
                 manage_daily_usage(var_info[0], value)
 
@@ -347,8 +333,8 @@ def manage_daily_usage(var_name, var_value):
 
                     #was the previous daystart recorded around hour 0
                     #else we are recording false values (say, when the program restarts around hour 22)
-                    if old_hour == 0:
-                        #te change is the value at the end of the day minus the start of the day
+                    if old_hour == 23:
+                        #te change is the value at the end of the previous day minus the start of the day
                         daily_change = var_value - transform_mem_state[var_name]["var_value_day_start"]
                         
                         create_data_point_locally(var_name + "_change", daily_change)
