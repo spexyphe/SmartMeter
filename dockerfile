@@ -2,7 +2,8 @@
 
 #raspberry pi's use an armv7 architecture, choosing the right image is important here
 #FROM arm32v7/ubuntu:latest
-FROM arm32v5/bookworm:latest
+#FROM arm32v5/bookworm:latest
+FROM arm32v5/python
 
 RUN apt-get update
 RUN apt-get upgrade -y
