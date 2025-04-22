@@ -58,13 +58,13 @@ def new_log(str_message, an_exception = None):
         
         if("ERROR" in str_message):
             logging.error( module_name + str_message)
-            influx.add_raw_point(influx_measurement, influx_host, 0, "Logging", "ERROR: " + str_message, point_time)
+            # influx.add_raw_point(influx_measurement, influx_host, 0, "Logging", "ERROR: " + str_message, point_time)
         
             if not (an_exception is None):
                 logging.error(str(an_exception))    
         elif("WARNING" in str_message):
             logging.warning( module_name + str_message)
-            influx.add_raw_point(influx_measurement, influx_host, 0, "Logging", "WARNING: " + str_message, point_time)
+            # influx.add_raw_point(influx_measurement, influx_host, 0, "Logging", "WARNING: " + str_message, point_time)
 
             if not (an_exception is None):
                 logging.warning(str(an_exception))   
