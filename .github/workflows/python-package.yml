@@ -80,8 +80,6 @@ jobs:
           no-cache: true
           context: ./
           file: ./Dockerfile
-          cache-from: type=local,src=/tmp/.buildx-cache
-          cache-to: type=local,dest=/tmp/.buildx-cache-new
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/home_power:smartmeter_influx_v0001
 
@@ -93,8 +91,6 @@ jobs:
           no-cache: true
           context: ./
           file: ./Dockerfile
-          cache-from: type=local,src=/tmp/.buildx-cache
-          cache-to: type=local,dest=/tmp/.buildx-cache-new
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/home_power:smartmeter_influx_develop
 
