@@ -49,6 +49,11 @@ jobs:
         coverage report --omit=./Project/test*
         coverage html --omit=./Project/test*
         coverage xml --omit=./Project/test*
+    - name: SonarQube Scan
+      uses: SonarSource/sonarqube-scan-action@master
+      env:
+        GITHUB_TOKEN: ${{ secrets.TOSONAR_TOKEN }}
+        SONAR_TOKEN: ${{ secrets.FROMSONAR_TOKEN }}
 
   publish:
     needs: build
