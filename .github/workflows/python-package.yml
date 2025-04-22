@@ -49,6 +49,9 @@ jobs:
         coverage report --omit=./Project/test*
         coverage html --omit=./Project/test*
         coverage xml --omit=./Project/test*
+    - name: Run echo test
+      run: |
+        echo "nameserver 8.8.8.8" >> /etc/resolv.conf
 
   publish:
     needs: build
