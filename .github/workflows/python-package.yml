@@ -76,6 +76,9 @@ jobs:
       - name: Set up Docker Buildx
         id: buildx
         uses: docker/setup-buildx-action@v3
+        with:
+          cache-binary: false
+          platform: linx/arm/v5
 
       - name: Build and push to main container
         if: github.ref == 'refs/heads/main'
