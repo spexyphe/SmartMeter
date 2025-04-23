@@ -13,6 +13,8 @@ jobs:
 
   build:
     runs-on: ubuntu-latest
+    env: 
+      DOCKER_TARGET_PLATFORM: linx/arm/v5
     strategy:
       fail-fast: false
       matrix:
