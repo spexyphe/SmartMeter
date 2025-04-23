@@ -83,11 +83,13 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           log-level: debug
+          platform: linx/arm/v5
           no-cache: true
           context: ./
           file: ./Dockerfile
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/home_power:smartmeter_influx_v0001
+          
 
       - name: Build and push to develop container
         if: github.ref == 'refs/heads/develop'
@@ -95,6 +97,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           log-level: debug
+          platform: linx/arm/v5
           no-cache: true
           context: ./
           file: ./Dockerfile
