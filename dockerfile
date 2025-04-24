@@ -1,6 +1,6 @@
 #Marcel Koolen
 
 #raspberry pi's use an armv7 architecture, choosing the right image is important here
-FROM arm64v8/debian:latest
+FROM alpine:3.14
 
 RUN apt-get update
