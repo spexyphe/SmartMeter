@@ -88,5 +88,5 @@ jobs:
         no-cache: true
         context: ./
         file: ./Dockerfile
-        push: false
+        push: true
         tags: ${{ secrets.DOCKER_USERNAME }}/home_power:smartmeter_influx_develop
