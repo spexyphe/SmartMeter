@@ -11,7 +11,7 @@ on:
 
 jobs:   
   build:    
-    runs-on: ubuntu-18.04    
+    runs-on: ubuntu-latest   
     env:      
       DOCKER_REGISTRY: xyphedocker      
       DOCKER_IMAGE: home_power:smartmeter_influx_v0001      
