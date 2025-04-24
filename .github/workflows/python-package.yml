@@ -49,7 +49,8 @@ jobs:
         coverage xml --omit=./Project/test*
 
 
-  build:    
+  build:  
+    needs: test
     runs-on: ubuntu-latest   
     env:      
       DOCKER_REGISTRY: xyphedocker      
