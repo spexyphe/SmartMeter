@@ -14,3 +14,8 @@ RUN apk update
 
 COPY requirements.txt /
 RUN pip3 install -r /requirements.txt
+
+ADD . .
+
+CMD [ "python3", "./Project/main_smart_meter.py"]
+#CMD [ "python3", "./Project/test_main_smart_meter.py"]
