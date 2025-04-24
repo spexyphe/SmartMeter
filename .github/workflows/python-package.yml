@@ -17,10 +17,12 @@ jobs:
       DOCKER_IMAGE: home_power:smartmeter_influx_v0001      
       DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
       DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}  
-      DOCKER_TARGET_PLATFORM: linux/arm/v7                 
+      DOCKER_TARGET_PLATFORM: linux/arm/v7      
     steps:    
     - name: Checkout the code       
       uses: actions/checkout@v1          
+    - name: Set up QEMU
+      uses: docker/setup-qemu-action@v3
     - name: Set up Docker Buildx      
       uses: docker/setup-buildx-action@v3   
       with:        
