@@ -1,15 +1,21 @@
 #Marcel Koolen
 
 #raspberry pi's use an armv7 architecture, choosing the right image is important here
+FROM alpine:3.14
 
-FROM arm64v7/debian:latest
+RUN apk update
 
-RUN apt-get update
-RUN apt-get upgrade -y
+ENV PYTHONUNBUFFERED=1
+RUN apk add --update --no-cache python3 && ln -sf python3 /usr/bin/python
+RUN python3 -m ensurepip
+RUN pip3 install --no-cache --upgrade pip setuptools
 
-RUN apt-get install -y python3
-RUN apt-get install -y python3-pip
+RUN apk update
 
-RUN apt-get install -y apt-utils
+COPY requirements.txt /
+RUN pip3 install -r /requirements.txt
 
-RUN apt-get update
+ADD . .
+
+CMD [ "python3", "./Project/main_smart_meter.py"]
+#CMD [ "python3", "./Project/test_main_smart_meter.py"]
