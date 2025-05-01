@@ -54,7 +54,7 @@ jobs:
     runs-on: ubuntu-latest   
     env:      
       DOCKER_REGISTRY: xyphedocker      
-      DOCKER_IMAGE: home_power:smartmeter_influx_v0001      
+      DOCKER_IMAGE: home_power:smartmeter_influx_v0002      
       DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
       DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}  
       DOCKER_TARGET_PLATFORM: linux/arm/v7      
