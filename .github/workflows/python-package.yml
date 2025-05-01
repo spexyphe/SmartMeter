@@ -89,4 +89,4 @@ jobs:
         context: ./
         file: ./Dockerfile
         push: true
-        tags: ${{secrets.DOCKER_USERNAME }}/${{DOCKER_IMAGE}}
+        tags: ${{secrets.DOCKER_USERNAME }}/home_power:smartmeter_influx_v0002
